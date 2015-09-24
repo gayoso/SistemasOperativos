@@ -9,4 +9,4 @@ TP Sistemas Operativos - 2do Cuatrimestre 2015
 * [Gabriel Gayoso](https://github.com/gayoso) 95470
 * [Gonzalo Guzzardi](https://github.com/gonzaloguzzardi) (completar)
 * [Nicolas Keklikian](https://github.com/nkeklikian) 96480
-* [Pablo Ciruzzi](https://github.com/PCiruzzi) (completar)
+* [Pablo Ciruzzi](https://github.com/PCiruzzi) 95748
