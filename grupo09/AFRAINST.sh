@@ -58,59 +58,135 @@ if [ ! -f "$archConf" ]; then
 	verificarPerl
 	aceptarTerminosYCondiciones
 	if [ "$?" -eq 0 ]; then #Si acepto las condiciones
-		echo "Condiciones aceptadas"
-		#Hacer que con enter se quede con el por defecto
-		echo 'Defina el directorio de instalación de los ejecutables ($GRUPO/'"$BINDIR):"
-		read BINDIR
-		echo 'Defina el directorio para maestros y tablas ($GRUPO/'"$MAEDIR):"
-		read MAEDIR
-		echo 'Defina el directorio de recepción de archivos de llamadas ($GRUPO/'"$NOVEDIR):"
-		read NOVEDIR
-		echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DATASIZE):"
-		read DATASIZE
+		confirmarInicio="no"
+		while [[ "$confirmarInicio" != "si" ]]; do
+			echo "ATENCION: Si se ingresa enter directamente se toma como valor el \"por defecto\" provisto entre parentesis."
+			echo
+			aux=""
+			echo 'Defina el directorio de instalación de los ejecutables ($GRUPO/'"$BINDIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				BINDIR=$aux
+			fi
+			echo 'Defina el directorio para maestros y tablas ($GRUPO/'"$MAEDIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				MAEDIR=$aux
+			fi
+			echo 'Defina el directorio de recepción de archivos de llamadas ($GRUPO/'"$NOVEDIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				NOVEDIR=$aux
+			fi
+			echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DATASIZE):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				re='^[0-9]+$'
+				if ! [[ "$aux" =~ $re ]] ; then
+					# loguear que como no es un numero (O es con coma u negativo) se toma el por defecto
+					echo "error: Not a number"
+				else
+					if [[ "$aux" -gt 0 ]]; then
+						DATASIZE=$aux
+					else
+						# loguear que no es mayor a 0
+						echo "No es mayor a 0"
+					fi
+				fi
+			fi
 
-		# Chequear si en NOVEDIR hay DATASIZE MB libres
-		disponibleKB=$(df -k "$GRUPO"| tail -1 | awk '{print $4}')
-		disponibleMB=$((disponibleKB/1024))
-		#O en un while???
-		if [ "$disponibleMB" -gt "$DATASIZE" ]; then
-			echo "Espacio OK."
-		else
-			#Loguear
-			echo "Espacio insuficiente."
+			# Chequear si en NOVEDIR hay DATASIZE MB libres
+			disponibleKB=$(df -k "$GRUPO"| tail -1 | awk '{print $4}')
+			disponibleMB=$((disponibleKB/1024))
+			#O en un while???
+			if [ "$disponibleMB" -gt "$DATASIZE" ]; then
+				echo "Espacio OK."
+			else
+				#Loguear
+				echo "Espacio insuficiente."
+			fi
+
+			echo 'Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/'"$ACEPDIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				ACEPDIR=$aux
+			fi
+			echo 'Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/'"$PROCDIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				PROCDIR=$aux
+			fi
+			echo 'Defina el directorio de grabación de los reportes ($GRUPO/'"$REPODIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				REPODIR=$aux
+			fi
+			echo 'Defina el directorio para los archivos de log ($GRUPO/'"$LOGDIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				LOGDIR=$aux
+			fi
+			echo "Defina el nombre para la extensión de los archivos de log ($LOGEXT):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				if [[ ${#aux} -gt 5 ]]; then
+					# loguear que es mayor a 5
+					echo ${#aux}
+				else
+					LOGEXT=$aux
+				fi
+			fi
+			echo "Defina el tamaño máximo para cada archivo de log en KBytes ($LOGSIZE):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				re='^[0-9]+$'
+				if ! [[ "$aux" =~ $re ]] ; then
+					# loguear que como no es mayor a 0 o no es un numero se toma el por defecto
+					echo "error: Not a number"
+				else
+					if [[ "$aux" -gt 0 ]]; then
+						LOGSIZE=$aux
+					else
+						echo "No es mayor a 0"
+					fi
+				fi
+			fi
+			echo 'Defina el directorio de grabación de archivos rechazados ($GRUPO/'"$RECHDIR):"
+			read aux
+			if [[ "$aux" != "" ]]; then
+				RECHDIR=$aux
+			fi
+			echo
+			echo
+			echo "Directorio de ejecutables: $BINDIR"
+			echo "Directorio de maestros y tablas: $MAEDIR"
+			echo "Directorio de recepción de archivos de llamadas: $NOVEDIR"
+			echo "Espacio minimo libre para arribos: $DATASIZE MB"
+			echo "Directorio de archivos de llamadas aceptados: $ACEPDIR"
+			echo "Directorio de archivos de llamadas sospechosas: $PROCDIR"
+			echo "Directorio de archivos de reportes de llamadas: $REPODIR"
+			echo "Directorio de archivos de log: $LOGDIR"
+			echo "Extension para los archivos de log: .$LOGEXT"
+			echo "Tamaño maximo para los archivos de log: $LOGSIZE KB"
+			echo "Directorio de archivos rechazados: $RECHDIR"
+			echo "Estado de la instalacion: LISTA"
+			echo "Desea continuar con la instalación? (Si - No)"
+			# Mismo while que dentro de aceptarTerminosYCondiciones
+			line="asd"
+			while read line && [ "$line" != "si" ]; do #Falta ver que sea distinto de "no"
+				echo "Error: debe ingresar 'si'"
+			done < "/dev/stdin"
+			confirmarInicio=$line
+			# if [[ "$confirmarInicio" == "no" ]]; then; clear; fi
+		done
+
+		echo "Iniciando Instalacion. Esta Ud. seguro? (Si - No)"
+		while read line && [ "$line" != "si" ]; do #Falta ver que sea distinto de "no"
+			echo "Error: debe ingresar 'si'"
+		done < "/dev/stdin"
+		if [[ "$line" == "si" ]]; then
+			echo "Instalando"
 		fi
-
-		echo 'Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/'"$ACEPDIR):"
-		read ACEPDIR
-		echo 'Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/'"$PROCDIR):"
-		read PROCDIR
-		echo 'Defina el directorio de grabación de los reportes ($GRUPO/'"$REPODIR):"
-		read REPODIR
-		echo 'Defina el directorio para los archivos de log ($GRUPO/'"$LOGDIR):"
-		read LOGDIR
-		echo "Defina el nombre para la extensión de los archivos de log ($LOGEXT):"
-		read LOGEXT
-		# Chequear de extension menor a 5
-		echo "Defina el tamaño máximo para cada archivo de log en KBytes ($LOGSIZE):"
-		read LOGSIZE
-		echo 'Defina el directorio de grabación de archivos rechazados ($GRUPO/'"$RECHDIR):"
-		read RECHDIR
-		echo
-		echo
-		echo "Directorio de ejecutables: $BINDIR"
-		echo "Directorio de maestros y tablas: $MAEDIR"
-		echo "Directorio de recepción de archivos de llamadas: $NOVEDIR"
-		echo "Espacio minimo libre para arribos: $DATASIZE MB"
-		echo "Directorio de archivos de llamadas aceptados: $ACEPDIR"
-		echo "Directorio de archivos de llamadas sospechosas: $PROCDIR"
-		echo "Directorio de archivos de reportes de llamadas: $REPODIR"
-		echo "Directorio de archivos de log: $LOGDIR"
-		echo "Extension para los archivos de log: .$LOGEXT"
-		echo "Tamaño maximo para los archivos de log: $LOGSIZE KB"
-		echo "Directorio de archivos rechazados: $RECHDIR"
-		echo "Estado de la instalacion: LISTA"
-		echo "Desea continuar con la instalación? (Si - No)"
-		# Mismo while que dentro de aceptarTerminosYCondiciones
 	else
 		echo "Condiciones no aceptadas"
 	fi
