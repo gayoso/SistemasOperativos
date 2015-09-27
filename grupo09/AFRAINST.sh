@@ -8,20 +8,21 @@ function verificarPerl {
 }
 function aceptarTerminosYCondiciones {
 	#TODO: Loguear
-	echo "************************************************************"
-	echo "*            Proceso de Instalación de \"AFRA-I\"            *"
-	echo "* Tema I Copyright © Grupo 09 - Segundo Cuatrimestre 2015  *"
-	echo "************************************************************"
-	echo " A T E N C I O N: Al instalar Ud. expresa aceptar los términos y condiciones del \"ACUERDO DE LICENCIA DE SOFTWARE\" incluido en este paquete. Acepta? Si-No"
-	echo
+	echo "********************************************************************************"
+	echo "*                      Proceso de Instalación de \"AFRA-I\"                      *"
+	echo "*           Tema I Copyright © Grupo 09 - Segundo Cuatrimestre 2015            *"
+	echo "********************************************************************************"
+	echo " A T E N C I O N: Al instalar Ud. expresa aceptar los términos y condiciones del \"ACUERDO DE LICENCIA DE SOFTWARE\" incluido en este paquete. Acepta? Si - No"
 	local line="asd"
-	# while [ "$line" != "Si" ] || [ "$line" != "si" ] || [ "$line" != "no" ]; do
-	# while [[ $line != "Si" || $line != "No" ]]; do
-	while read line && [ "$line" != "Si" ]; do
-		echo "Error: debe ingresar 'Si'"
-		return 0 #En realidad deberia ser algo != 0, pero para que sea mas rapido
+	while read line && [[ "$line" != "Si" ]] && [[ "$line" != "No" ]]; do
+		echo "Error: debe ingresar 'Si' o 'No'"
+		# return 0 # Este return despues volarlo, esto es para que sea mas facil seguir de largo
 	done < "/dev/stdin"
-	return 0
+	if [[ "$line" == "Si" ]]; then
+		return 0
+	else
+		return 1
+	fi
 }
 
 function verificarInstalacionCompleta {
@@ -58,8 +59,9 @@ if [ ! -f "$archConf" ]; then
 	verificarPerl
 	aceptarTerminosYCondiciones
 	if [ "$?" -eq 0 ]; then #Si acepto las condiciones
-		confirmarInicio="no"
-		while [[ "$confirmarInicio" != "si" ]]; do
+		clear
+		confirmarInicio="No"
+		while [[ "$confirmarInicio" != "Si" ]]; do
 			echo "ATENCION: Si se ingresa enter directamente se toma como valor el \"por defecto\" provisto entre parentesis."
 			echo
 			aux=""
@@ -156,6 +158,7 @@ if [ ! -f "$archConf" ]; then
 			if [[ "$aux" != "" ]]; then
 				RECHDIR=$aux
 			fi
+			clear
 			echo
 			echo
 			echo "Directorio de ejecutables: $BINDIR"
@@ -171,20 +174,25 @@ if [ ! -f "$archConf" ]; then
 			echo "Directorio de archivos rechazados: $RECHDIR"
 			echo "Estado de la instalacion: LISTA"
 			echo "Desea continuar con la instalación? (Si - No)"
-			# Mismo while que dentro de aceptarTerminosYCondiciones
 			line="asd"
-			while read line && [ "$line" != "si" ]; do #Falta ver que sea distinto de "no"
-				echo "Error: debe ingresar 'si'"
+			# reSi='^[Ss][Ii]$'
+			# while read line && [[ !( "$line" =~ reSi ) ]]; do #Falta ver que sea distinto de "no"
+			while read line && [[ "$line" != "Si" ]] && [[ "$line" != "No" ]]; do #TODO: Ver si con la expresion regular reSi se puede hacer que se pueda ingresar Si, SI, sI, si
+				echo "Error: debe ingresar 'Si' o 'No'"
 			done < "/dev/stdin"
+			# line=${line,,}
 			confirmarInicio=$line
-			# if [[ "$confirmarInicio" == "no" ]]; then; clear; fi
+			echo "$confirmarInicio"
+			if [[ "$confirmarInicio" == "No" ]]; then
+				clear
+			fi
 		done
 
 		echo "Iniciando Instalacion. Esta Ud. seguro? (Si - No)"
-		while read line && [ "$line" != "si" ]; do #Falta ver que sea distinto de "no"
-			echo "Error: debe ingresar 'si'"
+		while read line && [[ "$line" != "Si" ]] && [[ "$line" != "No" ]]; do
+			echo "Error: debe ingresar 'Si' o 'No'"
 		done < "/dev/stdin"
-		if [[ "$line" == "si" ]]; then
+		if [[ "$line" == "Si" ]]; then
 			echo "Instalando"
 		fi
 	else
