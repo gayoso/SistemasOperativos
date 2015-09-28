@@ -6,6 +6,7 @@ function verificarPerl {
 	echo Perl
 	return 0
 }
+
 function aceptarTerminosYCondiciones {
 	#TODO: Loguear
 	echo "********************************************************************************"
@@ -13,16 +14,16 @@ function aceptarTerminosYCondiciones {
 	echo "*           Tema I Copyright © Grupo 09 - Segundo Cuatrimestre 2015            *"
 	echo "********************************************************************************"
 	echo " A T E N C I O N: Al instalar Ud. expresa aceptar los términos y condiciones del \"ACUERDO DE LICENCIA DE SOFTWARE\" incluido en este paquete. Acepta? Si - No"
-	local line="asd"
-	reSi='^[Ss][Ii]$'
-	reNo='^[Nn][Oo]$'
-	while read line && [[ !( "$line" =~ $reSi ) ]] && [[ !("$line" =~ $reNo)]]; do
+	local respuesta="asd"
+	local reSi='^[Ss][Ii]$'
+	local reNo='^[Nn][Oo]$'
+	while read respuesta && [[ !( "$respuesta" =~ $reSi ) ]] && [[ !("$respuesta" =~ $reNo)]]; do
 		echo "Error: debe ingresar 'Si' o 'No'"
 		return 0 # Este return despues volarlo, esto es para que sea mas facil seguir de largo
 	done < "/dev/stdin"
-	line=${line,,} #toLower
+	respuesta=${respuesta,,} #toLower
 
-	if [[ "$line" == "si" ]]; then
+	if [[ "$respuesta" == "si" ]]; then
 		return 0
 	else
 		return 1
@@ -31,14 +32,13 @@ function aceptarTerminosYCondiciones {
 
 function verificarNombreDirectorio {
 	local aux=""
-	local erBarra='^/.*$'
+	local reBarra='^/.*$'
 	read aux
 	if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-		if ! [[ "$aux" =~ $erBarra ]]; then
+		if ! [[ "$aux" =~ $reBarra ]]; then
 			echo "$aux"
 		else
-			#Loguear que no puede empezar con /
-			echo "Empieza con barra"
+			# Loguear que no puede empezar con /
 			echo "$1"
 		fi
 	else
@@ -46,8 +46,29 @@ function verificarNombreDirectorio {
 	fi
 }
 
+function verificarNumero {
+	local aux=""
+	read aux
+	reNum='^[0-9]+$'
+	if [[ "$aux" != "" ]]; then
+		if ! [[ "$aux" =~ $reNum ]] ; then
+			# No es un numero: loguear que como no es mayor a 0 o no es un numero se toma el por defecto
+			echo "$1"
+		else
+			if [[ "$aux" -gt 0 ]]; then
+				echo "$aux"
+			else
+				# Es 0: loguear que como es 0, se toma el por defecto
+				echo "$1"
+			fi
+		fi
+	else
+		echo "$1"
+	fi
+}
+
 function crearDirectorio {
-	if [ ! -d "$1" ]; then
+	if [[ ! -d "$1" ]]; then
 		mkdir -p "$1"
 	fi
 	echo "$GRUPO/$1"
@@ -120,73 +141,31 @@ RECHDIR=rechazadas
 
 # Por enunciado $GRUPO/conf ya deberia estar creado, pero chequeo por las dudas
 # Utilizo comillas para evitar problemas con directorios con espacios
-if [ ! -d "$CONFDIR" ]; then
+if [[ ! -d "$CONFDIR" ]]; then
 	echo "El directorio $CONFDIR no existe. Creandolo..."
 	mkdir "$CONFDIR" 		
 fi
 
 archConf=$CONFDIR/AFRAINST.conf
-if [ ! -f "$archConf" ]; then
+if [[ ! -f "$archConf" ]]; then
 	echo "El archivo $archConf no existe."
 	verificarPerl
 	aceptarTerminosYCondiciones
-	if [ "$?" -eq 0 ]; then #Si acepto las condiciones
+	if [[ "$?" -eq 0 ]]; then #Si acepto las condiciones
 		clear
 		confirmarInicio="no"
 		while [[ "$confirmarInicio" != "si" ]]; do
 			echo "ATENCION: Si se ingresa enter directamente se toma como valor el \"por defecto\" provisto entre parentesis."
 			echo "ATENCION: Todo directorio ingresado sera relativo a \$GRUPO:$GRUPO"
 			echo
-			aux=""
-			erBarra='^/.*$'
 			echo 'Defina el directorio de instalación de los ejecutables ($GRUPO/'"$BINDIR):"
 			BINDIR=$(verificarNombreDirectorio "$BINDIR")
-			# read aux
-			# if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-			# 	if ! [[ "$aux" =~ $erBarra ]]; then
-			# 		BINDIR=$aux
-			# 	else
-			# 		#Loguear que no puede empezar con /
-			# 		echo "Empieza con barra"
-			# 	fi
-			# fi
 			echo 'Defina el directorio para maestros y tablas ($GRUPO/'"$MAEDIR):"
-			read aux
-			if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-				if ! [[ "$aux" =~ $erBarra ]]; then
-					MAEDIR=$aux
-				else
-					#Loguear que no puede empezar con /
-					echo "Empieza con barra"
-				fi
-			fi
+			MAEDIR=$(verificarNombreDirectorio "$MAEDIR")
 			echo 'Defina el directorio de recepción de archivos de llamadas ($GRUPO/'"$NOVEDIR):"
-			read aux
-			if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-				if ! [[ "$aux" =~ $erBarra ]]; then
-					NOVEDIR=$aux
-				else
-					#Loguear que no puede empezar con /
-					echo "Empieza con barra"
-				fi
-			fi
+			NOVEDIR=$(verificarNombreDirectorio "$NOVEDIR")
 			echo "Defina espacio mínimo libre para la recepción de archivos de llamadas en Mbytes ($DATASIZE):"
-			read aux
-			if [[ "$aux" != "" ]]; then
-				re='^[0-9]+$'
-				if ! [[ "$aux" =~ $re ]] ; then
-					# loguear que como no es un numero (O es con coma u negativo) se toma el por defecto
-					echo "error: Not a number"
-				else
-					if [[ "$aux" -gt 0 ]]; then
-						DATASIZE=$aux
-					else
-						# loguear que es igual a 0
-						echo "Es igual a 0"
-					fi
-				fi
-			fi
-
+			DATASIZE=$(verificarNumero "$DATASIZE")
 			# Chequear si en NOVEDIR hay DATASIZE MB libres
 			disponibleKB=$(df -k "$GRUPO"| tail -1 | awk '{print $4}')
 			disponibleMB=$((disponibleKB/1024))
@@ -199,81 +178,39 @@ if [ ! -f "$archConf" ]; then
 			fi
 
 			echo 'Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/'"$ACEPDIR):"
-			read aux
-			if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-				if ! [[ "$aux" =~ $erBarra ]]; then
-					ACEPDIR=$aux
-				else
-					#Loguear que no puede empezar con /
-					echo "Empieza con barra"
-				fi
-			fi
+			ACEPDIR=$(verificarNombreDirectorio "$ACEPDIR")	
 			echo 'Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/'"$PROCDIR):"
-			read aux
-			if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-				if ! [[ "$aux" =~ $erBarra ]]; then
-					PROCDIR=$aux
-				else
-					#Loguear que no puede empezar con /
-					echo "Empieza con barra"
-				fi
-			fi
+			PROCDIR=$(verificarNombreDirectorio "$PROCDIR")
 			echo 'Defina el directorio de grabación de los reportes ($GRUPO/'"$REPODIR):"
-			read aux
-			if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-				if ! [[ "$aux" =~ $erBarra ]]; then
-					REPODIR=$aux
-				else
-					#Loguear que no puede empezar con /
-					echo "Empieza con barra"
-				fi
-			fi
+			REPODIR=$(verificarNombreDirectorio "$REPODIR")
 			echo 'Defina el directorio para los archivos de log ($GRUPO/'"$LOGDIR):"
-			read aux
-			if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-				if ! [[ "$aux" =~ $erBarra ]]; then
-					LOGDIR=$aux
-				else
-					#Loguear que no puede empezar con /
-					echo "Empieza con barra"
-				fi
-			fi
+			LOGDIR=$(verificarNombreDirectorio "$LOGDIR")
 			echo "Defina el nombre para la extensión de los archivos de log ($LOGEXT):"
+			aux=""
 			read aux
+			rePunto='^\..*$'
 			if [[ "$aux" != "" ]]; then
-				if [[ ${#aux} -gt 5 ]]; then
-					# loguear que es mayor a 5
-					echo ${#aux}
-				else
-					LOGEXT=$aux
-				fi
-			fi
-			echo "Defina el tamaño máximo para cada archivo de log en KBytes ($LOGSIZE):"
-			read aux
-			if [[ "$aux" != "" ]]; then
-				re='^[0-9]+$'
-				if ! [[ "$aux" =~ $re ]] ; then
-					# loguear que como no es mayor a 0 o no es un numero se toma el por defecto
-					echo "error: Not a number"
-				else
-					if [[ "$aux" -gt 0 ]]; then
-						LOGSIZE=$aux
+				if ! [[ "$aux" =~ $rePunto ]]; then
+					if [[ ${#aux} -gt 5 ]]; then
+						# loguear que es mayor a 5
+						echo Longitud extension: ${#aux}
 					else
-						echo "No es mayor a 0"
+						LOGEXT=$aux
 					fi
-				fi
-			fi
-			echo 'Defina el directorio de grabación de archivos rechazados ($GRUPO/'"$RECHDIR):"
-			read aux
-			if [[ "$aux" != "" && "$aux" != "conf" ]]; then
-				if ! [[ "$aux" =~ $erBarra ]]; then
-					RECHDIR=$aux
 				else
-					#Loguear que no puede empezar con /
-					echo "Empieza con barra"
+					#Loguear: Empieza con punto!!
+					echo "Empieza con punto..."
 				fi
 			fi
+
+			echo "Defina el tamaño máximo para cada archivo de log en KBytes ($LOGSIZE):"
+			LOGSIZE=$(verificarNumero "$LOGSIZE")
+			echo 'Defina el directorio de grabación de archivos rechazados ($GRUPO/'"$RECHDIR):"
+			RECHDIR=$(verificarNombreDirectorio "$RECHDIR")
+
 			clear
+			echo "RECORDAR: Todo directorio es relativo a $GRUPO"
+			echo
 			echo "Directorio de ejecutables: $BINDIR"
 			echo "Directorio de maestros y tablas: $MAEDIR"
 			echo "Directorio de recepción de archivos de llamadas: $NOVEDIR"
@@ -287,30 +224,25 @@ if [ ! -f "$archConf" ]; then
 			echo "Directorio de archivos rechazados: $RECHDIR"
 			echo "Estado de la instalacion: LISTA"
 			echo "Desea continuar con la instalación? (Si - No)"
+
 			line="asd"
 			reSi='^[Ss][Ii]$'
 			reNo='^[Nn][Oo]$'
 			while read line && [[ !( "$line" =~ $reSi ) ]] && [[ !("$line" =~ $reNo)]]; do
-			# while read line && [[ "$line" != "Si" ]] && [[ "$line" != "No" ]]; do #TODO: Ver si con la expresion regular reSi se puede hacer que se pueda ingresar Si, SI, sI, si
 				echo "Error: debe ingresar 'Si' o 'No'"
 			done < "/dev/stdin"
-			line=${line,,} #toLower
-			confirmarInicio=$line
+			confirmarInicio=${line,,} #toLower
 			clear
-			# if [[ "$confirmarInicio" == "No" ]]; then
-			# 	clear
-			# fi
 		done
 
 		echo "Iniciando Instalacion. Esta Ud. seguro? (Si - No)"
-		reSi='^[Ss][Ii]$'
-		reNo='^[Nn][Oo]$'
+		line="asd"
 		while read line && [[ !( "$line" =~ $reSi ) ]] && [[ !("$line" =~ $reNo)]]; do
 			echo "Error: debe ingresar 'Si' o 'No'"
 		done < "/dev/stdin"
-		echo
-		line=${line,,} #toLower
-		if [[ "$line" == "si" ]]; then
+		rta=${line,,} #toLower
+
+		if [[ "$rta" == "si" ]]; then
 			echo "Creando estructuras de directorio..."
 			crearDirectorios
 			echo "Instalando programas y funciones"
@@ -328,11 +260,8 @@ if [ ! -f "$archConf" ]; then
 	else
 		echo "Condiciones no aceptadas"
 	fi
-
-	exit 2
 else
 	echo "El archivo $archConf existe."
 	verificarInstalacionCompleta
-
 fi
 #cerrarLog
