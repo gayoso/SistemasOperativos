@@ -303,7 +303,7 @@ function obtenerVariablesDeArchivoConf {
 }
 
 function verificarExistencia {
-	local aux=$(ls -1 "$1" | grep "$2")
+	local aux=$(ls -1 "$1" | grep "^$2$")
 	if [[ "$aux" == "$2" ]]; then
 		return 0
 	fi
