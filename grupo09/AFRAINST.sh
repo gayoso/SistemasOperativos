@@ -211,7 +211,7 @@ function copiarEjecutables {
 		if [ ! -x MoverA.sh ]; then
 			chmod +x MoverA.sh
 		fi
-		./MoverA.sh "$GRUPO/AFRAINIC.sh" "/$GRUPO/$BINDIR"
+		./MoverA.sh "$GRUPO/AFRAINIC.sh" "$GRUPO/$BINDIR"
 	fi
 	local resultado=0
 	copiarArchivo 'AFRAINIC.sh' "$BINDIR"
