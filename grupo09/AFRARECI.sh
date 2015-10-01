@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 #TODOS LOS ECHOS DEBERIAN SER EL LOG
 
@@ -9,10 +9,13 @@ MdC="$1"
 Novedir="$2"
 
 #Directorio con Aceptados
-Aceptados=""
+Aceptados="ACEPDIR"
 
 #Directorio con rechazados
-Rechazados=""
+Rechazados="RECHDIR"
+
+#Nombre de este script
+miNombre="prueba_parseo.sh"
 
 #Tiempo entre de Checkeo
 tiempoDeCheckeo=10
@@ -80,12 +83,12 @@ function esValidoElNombre {
 	fecha_posta=$(date +"%Y%m%d")
 	
 	if [ $((fecha_posta - fecha)) -gt 10000 ]; then
-		echo "Archivo "$1" invalido :fecha es menor a un año"
+		echo "Archivo $1 invalido :fecha es menor a un año"
 		return 0
 	fi
 		
-	if [ $fecha_posta -lt $fecha ]; then
-		echo "Archivo "$1" invalido :fecha no es anterior a la actual"
+	if [ "$fecha_posta" -lt "$fecha" ]; then
+		echo "Archivo $1 invalido :fecha no es anterior a la actual"
 		return 0
 	fi
 
@@ -94,6 +97,8 @@ function esValidoElNombre {
 
 #seteo el numero de iteracion en 1
 numIteracion=1
+
+#setsid prueba_parseo.sh > /dev/null 2>&1 < /dev/null &
 
 #Empiezo a loopear
 while true; do
@@ -106,36 +111,39 @@ while true; do
 		
 		archivo_sin_dir=${archivo##*/} #Guardo en archivo el nombre
 		
-		esTexto $archivo_sin_dir #checkeo si es un arch de texto
+		esTexto "$archivo_sin_dir" #checkeo si es un arch de texto
 		
 				
 		if (( $? == 0)); then 
 			#FALTA MOVE A ARCHIVO INVALIDO
+			./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
 			continue
 		fi #si no es valido salgo del loop
 
-		esValidoElFormato $archivo_sin_dir
+		esValidoElFormato "$archivo_sin_dir"
 		
 		if (( $? == 0)); then  
 			#FALTA MOVE A ARCHIVO INVALIDO
+			./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
 			continue
 		fi #si no es valido salgo del loop		
 		
-		esValidoElNombre $archivo_sin_dir $MdC
+		esValidoElNombre "$archivo_sin_dir" "$MdC"
 		
 		if (( $? == 0)); then
 			#FALTA MOVE A ARCHIVO INVALIDO
+			./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
 			continue 
 		fi #si no es valido salgo del loop	
 		
-		echo "Archivo valido: "$archivo_sin_dir" PATH: "$archivo
-
+		echo "Archivo valido: " "$archivo_sin_dir" " PATH: " "$archivo"
+		./MoverA.sh "$archivo" "$Aceptados" "AFRARECI" 
 		#FALTA EL MOVER A PARA ARCHIVO VALIDO
 
 	done
 
-	if [ "$(ls -A Aceptados)" ]; then
-		if [ "$(pidof AFRAUMBR)" ]; then
+	if [ "$(ls -A $Aceptados)" ]; then
+		if [ "$(pidof AFRAUMBR.sh)" ]; then
 			echo "Invocacion de AFRAUMBR propuesta para el siguiente ciclo"
 		else
 			#LLAMAR A AFRAUMBR
@@ -143,7 +151,6 @@ while true; do
 			echo "AFRAUMBR corriendo bajo  el no.: " #pidof AFRAUMBR
 		fi
 	fi
-
 
 	#Aumento la iteracion en 1
 	((numIteracion++))
