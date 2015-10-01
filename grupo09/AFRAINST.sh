@@ -15,6 +15,8 @@
 #  - Instala.
 #------------------------------------------------------------------------------------------------------------
 
+source AFRAINfunc.sh
+
 function log {
 	if [[ -f GraLog.sh ]]; then
 		if [[ ! -x GraLog.sh ]]; then
@@ -289,6 +291,8 @@ function copiarEjecutables {
 	resultado=$(($resultado+$?))
 	copiarArchivo 'Detener.sh' "$BINDIR"
 	resultado=$(($resultado+$?))
+	copiarArchivo 'AFRAINfunc.sh' "$BINDIR"
+	resultado=$(($resultado+$?))
 	return "$resultado"
 }
 function copiarMaestrosYTablas {
@@ -359,73 +363,6 @@ function obtenerVariablesDeArchivoConf {
 	LOGSIZE=$(grep 'LOGSIZE=' "$archConf" | sed "s/LOGSIZE=//" | sed "s/=.*//")
 	NOVEDIR=$(grep 'NOVEDIR=' "$archConf" | sed "s/NOVEDIR=//" | sed "s/=.*//")
 	LOGEXT=$(grep 'LOGEXT=' "$archConf" | sed "s/LOGEXT=//" | sed "s/=.*//")
-}
-
-function verificarExistencia {
-	local aux=$(ls -1 "$1" | grep "^$2$")
-	if [[ "$aux" == "$2" ]]; then
-		return 0
-	fi
-	return 1
-}
-
-function verificarArchivos {
-	local archivosFaltantes=""
-	verificarExistencia "$BINDIR" "AFRAINIC.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRAINIC.sh "
-	fi
-	verificarExistencia "$BINDIR" "AFRARECI.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRARECI.sh "
-	fi
-	verificarExistencia "$BINDIR" "AFRAUMBR.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRAUMBR.sh "
-	fi
-	verificarExistencia "$BINDIR" "AFRALIST.pl"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRALIST.pl "
-	fi
-	verificarExistencia "$BINDIR" "MoverA.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/MoverA.sh "
-	fi
-	verificarExistencia "$BINDIR" "GraLog.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/GraLog.sh "
-	fi
-	verificarExistencia "$BINDIR" "Arrancar.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/Arrancar.sh "
-	fi
-	verificarExistencia "$BINDIR" "Detener.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/Detener.sh "
-	fi
-
-	verificarExistencia "$MAEDIR" "agentes.mae"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$MAEDIR/agentes.mae "
-	fi
-	verificarExistencia "$MAEDIR" "CdA.mae"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$MAEDIR/CdA.mae "
-	fi
-	verificarExistencia "$MAEDIR" "CdC.mae"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$MAEDIR/CdP.mae "
-	fi
-	verificarExistencia "$MAEDIR" "tllama.tab"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$MAEDIR/tllama.tab "
-	fi
-	verificarExistencia "$MAEDIR" "umbral.tab"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$MAEDIR/umbral.tab "
-	fi
-
-	echo "$archivosFaltantes"
 }
 
 function listarCarpetasYVerificarArchivos {

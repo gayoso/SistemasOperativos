@@ -1,12 +1,6 @@
 #!/bin/bash
 
-function verificarExistencia {
-	local aux=$(ls -1 "$1" | grep "^$2$")
-	if [[ "$aux" == "$2" ]]; then
-		return 0
-	fi
-	return 1
-}
+source AFRAINfunc.sh
 
 function verificarDirectorios {
 	local directoriosFaltantes=""
@@ -50,82 +44,6 @@ function verificarDirectorios {
 	echo "$directoriosFaltantes"
 }
 
-function verificarArchivos {
-	local archivosFaltantes=""
-
-	verificarExistencia "$BINDIR" "AFRAINIC.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRAINIC.sh "
-	fi
-
-	verificarExistencia "$BINDIR" "AFRARECI.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRARECI.sh "
-	fi
-
-	verificarExistencia "$BINDIR" "AFRAUMBR.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRAUMBR.sh "
-	fi
-
-	verificarExistencia "$BINDIR" "AFRALIST.pl"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/AFRALIST.pl "
-	fi
-
-	verificarExistencia "$BINDIR" "MoverA.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/MoverA.sh "
-	fi
-
-	verificarExistencia "$BINDIR" "GraLog.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/GraLog.sh "
-	fi
-
-	verificarExistencia "$BINDIR" "Arrancar.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/Arrancar.sh "
-	fi
-
-	verificarExistencia "$BINDIR" "Detener.sh"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$BINDIR/Detener.sh "
-	fi
-
-	verificarExistencia "$DIR_MAESTROS_TABLAS" "CdP.mae"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$DIR_MAESTROS_TABLAS/CdP.mae "
-	fi
-
-	verificarExistencia "$DIR_MAESTROS_TABLAS" "CdA.mae"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$DIR_MAESTROS_TABLAS/CdA.mae "
-	fi
-
-	verificarExistencia "$DIR_MAESTROS_TABLAS" "CdC.mae"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$DIR_MAESTROS_TABLAS/CdC.mae "
-	fi
-
-	verificarExistencia "$DIR_MAESTROS_TABLAS" "agentes.mae"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$DIR_MAESTROS_TABLAS/agentes.mae "
-	fi
-
-	verificarExistencia "$DIR_MAESTROS_TABLAS" "tllama.tab"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$DIR_MAESTROS_TABLAS/tllama.tab "
-	fi
-
-	verificarExistencia "$DIR_MAESTROS_TABLAS" "umbral.tab"
-	if [[ "$?" -eq 1 ]]; then
-		archivosFaltantes+="$DIR_MAESTROS_TABLAS/umbral.tab "
-	fi
-
-	echo "$archivosFaltantes"
-}
-
 function darPermisos {
 	chmod 777 "$BINDIR/AFRAINIC.sh"
 	chmod 777 "$BINDIR/AFRARECI.sh"
@@ -135,12 +53,12 @@ function darPermisos {
 	chmod 777 "$BINDIR/GraLog.sh"
 	chmod 777 "$BINDIR/Arrancar.sh"
 	chmod 777 "$BINDIR/Detener.sh"
-	chmod 777 "$DIR_MAESTROS_TABLAS/CdP.mae"
-	chmod 777 "$DIR_MAESTROS_TABLAS/CdA.mae"
-	chmod 777 "$DIR_MAESTROS_TABLAS/CdC.mae"
-	chmod 777 "$DIR_MAESTROS_TABLAS/agentes.mae"
-	chmod 777 "$DIR_MAESTROS_TABLAS/tllama.tab"
-	chmod 777 "$DIR_MAESTROS_TABLAS/umbral.tab"
+	chmod 777 "$MAEDIR/CdP.mae"
+	chmod 777 "$MAEDIR/CdA.mae"
+	chmod 777 "$MAEDIR/CdC.mae"
+	chmod 777 "$MAEDIR/agentes.mae"
+	chmod 777 "$MAEDIR/tllama.tab"
+	chmod 777 "$MAEDIR/umbral.tab"
 }
 
 if [[ $# != 3 ]]; then
@@ -151,9 +69,9 @@ fi
 
 PATH_ARCH_CONFIG=$1
 # asumo que el path es a la carpeta, no que pasan cada ejecutable como input
-DIR_EJECUTABLES=$2
+BINDIR=$2
 # mismo (y que no termina en '/', sino agrego igual pero reemplazo '//' por '/')
-DIR_MAESTROS_TABLAS=$3
+MAEDIR=$3
 
 #ver si fue configurado
 
