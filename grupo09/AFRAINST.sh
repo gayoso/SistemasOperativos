@@ -1,6 +1,7 @@
 #!/bin/bash
 # Asumo que todos los archivos (tanto los script como los maestros y tablas) están en el directorio raíz ($GRUPO) a la hora de ejecutar AFRAINST.sh
 # Asumo que AFRAINST.sh se encuentra en $GRUPO
+# Asumo que si se ponen 2 directorios con el mismo nombre no hay problema
 
 function log {
 	if [[ -f GraLog.sh ]]; then
@@ -11,21 +12,40 @@ function log {
 	fi
 }
 
+function logEchoInfo {
+	echo -e "[INFO] $1"
+	logInfo "$1"
+}
+
 function logInfo {
-	echo "[INFO] $1"
 	log "$1" "INFO"
 }
+
+function logEchoError {
+	echo -e "[ERROR] $1"
+	logError "$1"
+}
+
 function logError {
-	echo "[ERROR] $1"
 	log "$1" "ERR"
 }
 
-function logWar {
-	echo "[WARNING] $1"
+function logEchoWarn {
+	echo -e "[WARNING] $1"
+	logWarn "$1"
+}
+
+function logWarn {
 	log "$1" "WAR"
 }
 
 function verificarPerl {
+# 	logEchoWarn "
+# **********************************************************************
+# *                 Proceso de Instalación de \"AFRA-I\"                 *
+# *      Tema I Copyright © Grupo 09 - Segundo Cuatrimestre 2015       *
+# **********************************************************************
+# A T E N C I O N: Al instalar Ud. expresa aceptar los términos y condiciones del \"ACUERDO DE LICENCIA DE SOFTWARE\" incluido en este paquete. Acepta? Si - No"
 	if perl < /dev/null &>/dev/null; then # Si perl esta instalado...
 		# local perlinfo=`perl -v | grep '.' | head -n 1`
 		local perlVersion=$(echo `perl -v` | grep 'This is perl ' | sed "s/This is perl //" | sed "s/[^0-9].*//")
@@ -112,7 +132,6 @@ function definirDirectorios {
 	# Chequear si en NOVEDIR hay DATASIZE MB libres
 	disponibleKB=$(df -k "$GRUPO"| tail -1 | awk '{print $4}')
 	disponibleMB=$(($disponibleKB/1024))
-	echo "$disponibleMB"
 	#O en un while???
 	if [[ "$disponibleMB" -gt "$DATASIZE" ]]; then
 		echo "Espacio OK."
@@ -207,12 +226,12 @@ function copiarArchivo {
 }
 
 function copiarEjecutables {
-	if [ -f MoverA.sh ]; then
-		if [ ! -x MoverA.sh ]; then
-			chmod +x MoverA.sh
-		fi
-		./MoverA.sh "$GRUPO/AFRAINIC.sh" "/$GRUPO/$BINDIR"
-	fi
+	# if [ -f MoverA.sh ]; then
+	# 	if [ ! -x MoverA.sh ]; then
+	# 		chmod +x MoverA.sh
+	# 	fi
+	# 	./MoverA.sh "$GRUPO/AFRAINIC.sh" "/$GRUPO/$BINDIR"
+	# fi
 	local resultado=0
 	copiarArchivo 'AFRAINIC.sh' "$BINDIR"
 	resultado=$(($resultado+$?))
@@ -271,20 +290,19 @@ function instalar {
 
 function actualizarConfiguracion {
 	# Recordar que todo directorio es relativo a $GRUPO siempre
-	# TODO: Que onda lo del login del usuario??? Por ahora lo harcodeo
-	echo "GRUPO=$GRUPO=alumnos=$(date +"%d-%m-%Y %T")" > "$CONFDIR/AFRAINST.conf" # Sobrescribo si ya hay algo
-	echo "CONFDIR=$CONFDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf" # Append
-	echo "BINDIR=$BINDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "MAEDIR=$MAEDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "DATASIZE=$DATASIZE=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "ACEPDIR=$ACEPDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "RECHDIR=$RECHDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "PROCDIR=$PROCDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "REPODIR=$REPODIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "LOGDIR=$LOGDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "LOGSIZE=$LOGSIZE=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "NOVEDIR=$NOVEDIR=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
-	echo "LOGEXT=$LOGEXT=alumnos=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "GRUPO=$GRUPO=$USER=$(date +"%d-%m-%Y %T")" > "$CONFDIR/AFRAINST.conf" # Sobrescribo si ya hay algo
+	echo "CONFDIR=$CONFDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf" # Append
+	echo "BINDIR=$BINDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "MAEDIR=$MAEDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "DATASIZE=$DATASIZE=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "ACEPDIR=$ACEPDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "RECHDIR=$RECHDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "PROCDIR=$PROCDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "REPODIR=$REPODIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "LOGDIR=$LOGDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "LOGSIZE=$LOGSIZE=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "NOVEDIR=$NOVEDIR=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
+	echo "LOGEXT=$LOGEXT=$USER=$(date +"%d-%m-%Y %T")" >> "$CONFDIR/AFRAINST.conf"
 }
 function obtenerVariablesDeArchivoConf {
 	GRUPO=$(grep 'GRUPO=' "$archConf" | sed "s/GRUPO=//" | sed "s/=.*//")
@@ -344,6 +362,28 @@ function verificarArchivos {
 	if [[ "$?" -eq 1 ]]; then
 		archivosFaltantes+="$BINDIR/Detener.sh "
 	fi
+
+	verificarExistencia "$MAEDIR" "agentes.mae"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$MAEDIR/agentes.mae "
+	fi
+	verificarExistencia "$MAEDIR" "CdA.mae"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$MAEDIR/CdA.mae "
+	fi
+	verificarExistencia "$MAEDIR" "CdC.mae"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$MAEDIR/CdP.mae "
+	fi
+	verificarExistencia "$MAEDIR" "tllama.tab"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$MAEDIR/tllama.tab "
+	fi
+	verificarExistencia "$MAEDIR" "umbral.tab"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$MAEDIR/umbral.tab "
+	fi
+
 	echo "$archivosFaltantes"
 }
 
@@ -396,7 +436,7 @@ function verificarInstalacionCompleta {
 }
 
 GRUPO=$(pwd)
-CONFDIR=conf
+export CONFDIR=conf
 BINDIR=bin
 MAEDIR=mae
 NOVEDIR=novedades
@@ -408,8 +448,6 @@ LOGDIR=log
 LOGEXT=log
 LOGSIZE=400
 RECHDIR=rechazadas
-
-#Como todavia no tengo la ruta del log, lo creo en cualquier lado y al final lo moveré a la carpeta correspondiente
 
 # Por enunciado $GRUPO/conf ya deberia estar creado, pero chequeo por las dudas
 # Utilizo comillas para evitar problemas con directorios con espacios
