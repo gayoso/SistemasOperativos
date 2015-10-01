@@ -1,64 +1,213 @@
 #!/bin/bash
 
+function verificarExistencia {
+	local aux=$(ls -1 "$1" | grep "^$2$")
+	if [[ "$aux" == "$2" ]]; then
+		return 0
+	fi
+	return 1
+}
+
+function verificarDirectorios {
+	local directoriosFaltantes=""
+
+	if [ ! -d "$BINDIR" ]; then
+		directoriosFaltantes+="$BINDIR "
+	fi
+
+	if [ ! -d "$CONFDIR" ]; then
+		directoriosFaltantes+="$CONFDIR "
+	fi
+
+	if [ ! -d "$MAEDIR" ]; then
+		directoriosFaltantes+="$MAEDIR "
+	fi
+
+	if [ ! -d "$ACEPDIR" ]; then
+		directoriosFaltantes+="$ACEPDIR "
+	fi
+
+	if [ ! -d "$RECHDIR" ]; then
+		directoriosFaltantes+="$RECHDIR "
+	fi
+
+	if [ ! -d "$PROCDIR" ]; then
+		directoriosFaltantes+="$PROCDIR "
+	fi
+
+	if [ ! -d "$REPODIR" ]; then
+		directoriosFaltantes+="$REPODIR "
+	fi
+
+	if [ ! -d "$LOGDIR" ]; then
+		directoriosFaltantes+="$LOGDIR "
+	fi
+
+	if [ ! -d "$NOVEDIR" ]; then
+		directoriosFaltantes+="$NOVEDIR "
+	fi
+
+	echo "$directoriosFaltantes"
+}
+
+function verificarArchivos {
+	local archivosFaltantes=""
+
+	verificarExistencia "$BINDIR" "AFRAINIC.sh"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/AFRAINIC.sh "
+	fi
+
+	verificarExistencia "$BINDIR" "AFRARECI.sh"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/AFRARECI.sh "
+	fi
+
+	verificarExistencia "$BINDIR" "AFRAUMBR.sh"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/AFRAUMBR.sh "
+	fi
+
+	verificarExistencia "$BINDIR" "AFRALIST.pl"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/AFRALIST.pl "
+	fi
+
+	verificarExistencia "$BINDIR" "MoverA.sh"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/MoverA.sh "
+	fi
+
+	verificarExistencia "$BINDIR" "GraLog.sh"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/GraLog.sh "
+	fi
+
+	verificarExistencia "$BINDIR" "Arrancar.sh"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/Arrancar.sh "
+	fi
+
+	verificarExistencia "$BINDIR" "Detener.sh"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/Detener.sh "
+	fi
+
+	verificarExistencia "$DIR_MAESTROS_TABLAS" "CdP.mae"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$DIR_MAESTROS_TABLAS/CdP.mae "
+	fi
+
+	verificarExistencia "$DIR_MAESTROS_TABLAS" "CdA.mae"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$DIR_MAESTROS_TABLAS/CdA.mae "
+	fi
+
+	verificarExistencia "$DIR_MAESTROS_TABLAS" "CdC.mae"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$DIR_MAESTROS_TABLAS/CdC.mae "
+	fi
+
+	verificarExistencia "$DIR_MAESTROS_TABLAS" "agentes.mae"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$DIR_MAESTROS_TABLAS/agentes.mae "
+	fi
+
+	verificarExistencia "$DIR_MAESTROS_TABLAS" "tllama.tab"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$DIR_MAESTROS_TABLAS/tllama.tab "
+	fi
+
+	verificarExistencia "$DIR_MAESTROS_TABLAS" "umbral.tab"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$DIR_MAESTROS_TABLAS/umbral.tab "
+	fi
+
+	echo "$archivosFaltantes"
+}
+
+function darPermisos {
+	chmod 777 "$BINDIR/AFRAINIC.sh"
+	chmod 777 "$BINDIR/AFRARECI.sh"
+	chmod 777 "$BINDIR/AFRAUMBR.sh"
+	chmod 777 "$BINDIR/AFRALIST.pl"
+	chmod 777 "$BINDIR/MoverA.sh"
+	chmod 777 "$BINDIR/GraLog.sh"
+	chmod 777 "$BINDIR/Arrancar.sh"
+	chmod 777 "$BINDIR/Detener.sh"
+	chmod 777 "$DIR_MAESTROS_TABLAS/CdP.mae"
+	chmod 777 "$DIR_MAESTROS_TABLAS/CdA.mae"
+	chmod 777 "$DIR_MAESTROS_TABLAS/CdC.mae"
+	chmod 777 "$DIR_MAESTROS_TABLAS/agentes.mae"
+	chmod 777 "$DIR_MAESTROS_TABLAS/tllama.tab"
+	chmod 777 "$DIR_MAESTROS_TABLAS/umbral.tab"
+}
+
+if [[ $# != 3 ]]; then
+	echo "La sintaxis para correr AFRAINIC es la siguiente: ./AFRAINIC.sh <path a AFRAINST.conf> <path a ejecutables> <path a tablas maestras>"
+	echo "Por favor corra de nuevo el script con los parametros correctos"
+	exit
+fi
+
 PATH_ARCH_CONFIG=$1
 # asumo que el path es a la carpeta, no que pasan cada ejecutable como input
 DIR_EJECUTABLES=$2
 # mismo (y que no termina en '/', sino agrego igual pero reemplazo '//' por '/')
 DIR_MAESTROS_TABLAS=$3
 
-# lee la linea que contiene 'FUE_CONFIGURADO'
-FUE_CONFIGURADO=$(grep "FUE_CONFIGURADO" $PATH_ARCH_CONFIG)
-FUE_CONFIGURADO=${FUE_CONFIGURADO#"FUE_CONFIGURADO="}
+#ver si fue configurado
 
-if [ $FUE_CONFIGURADO = true ]; then
-	# loguear que ya fue configurada la secion
+#variables de ambiente
+if [ ! -f $PATH_ARCH_CONFIG ]; then
+	echo "El archivo de configuracion indicado no es valido. Por favor correr AFRAINST.sh"
+	#log
+	exit
 fi
 
+export GRUPO=$(grep 'GRUPO=' "$PATH_ARCH_CONFIG" | sed "s/GRUPO=//" | sed "s/=.*//")
+export CONFDIR=$(grep 'CONFDIR=' "$PATH_ARCH_CONFIG" | sed "s/CONFDIR=//" | sed "s/=.*//")
+export BINDIR=$(grep 'BINDIR=' "$PATH_ARCH_CONFIG" | sed "s/BINDIR=//" | sed "s/=.*//")
+export MAEDIR=$(grep 'MAEDIR=' "$PATH_ARCH_CONFIG" | sed "s/MAEDIR=//" | sed "s/=.*//")
+export DATASIZE=$(grep 'DATASIZE=' "$PATH_ARCH_CONFIG" | sed "s/DATASIZE=//" | sed "s/=.*//")
+export ACEPDIR=$(grep 'ACEPDIR=' "$PATH_ARCH_CONFIG" | sed "s/ACEPDIR=//" | sed "s/=.*//")
+export RECHDIR=$(grep 'RECHDIR=' "$PATH_ARCH_CONFIG" | sed "s/RECHDIR=//" | sed "s/=.*//")
+export PROCDIR=$(grep 'PROCDIR=' "$PATH_ARCH_CONFIG" | sed "s/PROCDIR=//" | sed "s/=.*//")
+export REPODIR=$(grep 'REPODIR=' "$PATH_ARCH_CONFIG" | sed "s/REPODIR=//" | sed "s/=.*//")
+export LOGDIR=$(grep 'LOGDIR=' "$PATH_ARCH_CONFIG" | sed "s/LOGDIR=//" | sed "s/=.*//")
+export LOGSIZE=$(grep 'LOGSIZE=' "$PATH_ARCH_CONFIG" | sed "s/LOGSIZE=//" | sed "s/=.*//")
+export NOVEDIR=$(grep 'NOVEDIR=' "$PATH_ARCH_CONFIG" | sed "s/NOVEDIR=//" | sed "s/=.*//")
+export LOGEXT=$(grep 'LOGEXT=' "$PATH_ARCH_CONFIG" | sed "s/LOGEXT=//" | sed "s/=.*//")
+
 # verificar faltantes en la instalacion, informar, etc
+dir_falt=$(verificarDirectorios)
+arch_falt=$(verificarArchivos)
+if [[ $dir_falt != "" ]] || [[ $arch_falt != "" ]]; then
+	echo "Se detectaron faltantes o errores en la instalacion del sistema. Por favor, correr el script AFRAINST.sh antes de continuar"
+	echo "Directorios faltantes: $dir_falt"
+	echo "Archivos faltantes: $arch_falt"
+	exit
+fi
 
-# chequeo que esten todos los archivos
-if [ ! -f ${PATH_MAESTROS_TABLAS}/CdP.mae ]; then
-	#loguear
-	exit
-if [ ! -f ${PATH_MAESTROS_TABLAS}/CdA.mae ]; then
-	#loguear
-	exit
-if [ ! -f ${PATH_MAESTROS_TABLAS}/CdC.mae ]; then
-	#loguear
-	exit
-if [ ! -f ${PATH_MAESTROS_TABLAS}/agentes.mae ]; then
-	#loguear
-	exit
-if [ ! -f ${PATH_MAESTROS_TABLAS}/tllama.tab ]; then
-	#loguear
-	exit
-if [ ! -f ${PATH_MAESTROS_TABLAS}/umbral.tab ]; then
-	#loguear
-	exit
-# chequear si falta algun script?
+# permisos
+darPermisos
 
-# permisos? se refiere a lectura/escritura? completar
-
-# variables? todas menos GRUPO parcen estar seteadas en AFRAINST, para que estan aca tambien?
-sed -i "s@GRUPO=@GRUPO=/usr/alumnos/temp/grupo09=$USER=$(date '+%D %H:%M')@" $PATH_ARCH_CONFIG
-#mostrar y loguear
-
-input=""
+# ver si arranco AFRARECI
+input="asd"
 while [[ $input != "Si" ]] && [[ $input != "No" ]]; do
 	echo -n "¿Desea efectuar la activacion de AFRARECI? (Si/No): "
 	read input
 done
 
 if [ $input == "No" ]; then
-	echo "Puede arrancar AFRARECI en cualquier momento con el comando Arrancar" # ver si mejorar
-	# cerrar log	
-	exit
+	echo "Puede arrancar AFRARECI en cualquier momento con el comando 'Arrancar AFRARECI.sh'"
+else
+	if [ $(pgrep 'AFRARECI.sh' | wc -w) -ge 1 ]; then
+		echo "AFRARECI ya esta corriendo, no se puede correr mas de una instancia al mismo tiempo"
+	else
+		echo "Puede detener AFRARECI en cualquier momento con el comando Detener"
+		#./Arrancar AFRARECI.sh
+	fi
 fi
-
-echo "Puede detener AFRARECI en cualquier momento con el comando Detener" # ver si mejorar
-# loguear que corre AFRARECI
-
-# activar AFRARECI (no se como puede haber otro corriendo si aca se viene solo despues de configurar y solo se puede configurar una vez. estaban re duros los que hicieron esto"
 
 
 

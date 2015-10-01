@@ -19,7 +19,7 @@ path_origen=${param_origen%/*}
 filename_con_path_destino="$param_destino/$filename"
 
 # veo si existe origen
-if [ ! -d "$path_origen" ]; then
+if [ ! -f "$param_origen" ]; then
 	#loguear que no existe origen	
 	exit
 fi
@@ -38,10 +38,15 @@ fi
 
 # asumo que el comando es para mover archivos nada mas, por eso '-f'
 if [ -f "$filename_con_path_destino" ]; then
-	mkdir "$param_destino/duplicados"
-	mv "$param_origen" "$param_destino/duplicados"
+	if [ ! -d "$param_destino/duplicados" ]; then
+		mkdir "$param_destino/duplicados"
+	fi
+	count=1
+	while [ -f "$param_destino/duplicados/$filename.$(printf "%03d" $count)" ]; do
+		count=$((count+1))
+	done
+	
+	mv "$param_origen" "$param_destino/duplicados/$filename.$(printf "%03d" $count)"
 else
 	mv "$param_origen" "$param_destino"
 fi
-
-#falta agregar que si en duplicados ya existe, mueva cambiando el nombre segun secuencia .nnn
