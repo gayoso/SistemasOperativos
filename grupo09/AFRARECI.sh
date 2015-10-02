@@ -107,40 +107,43 @@ while true; do
 	echo "AFRARECI ciclo nro. "$numIteracion
 
 	#Checkear si hay nuevos archivos
-	for	archivo in "$Novedir"/*; do
-		
-		archivo_sin_dir=${archivo##*/} #Guardo en archivo el nombre
-		
-		esTexto "$archivo_sin_dir" #checkeo si es un arch de texto
-		
-				
-		if (( $? == 0)); then 
-			#FALTA MOVE A ARCHIVO INVALIDO
-			./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
-			continue
-		fi #si no es valido salgo del loop
+	if [ "$(ls -A $Novedir)" ]; then
+		#Recorro archivos
+		for	archivo in "$Novedir"/*; do
+			
+			archivo_sin_dir=${archivo##*/} #Guardo en archivo el nombre
+			
+			esTexto "$archivo" #checkeo si es un arch de texto
+			
+					
+			if (( $? == 0)); then 
+				#FALTA MOVE A ARCHIVO INVALIDO
+				./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
+				continue
+			fi #si no es valido salgo del loop
 
-		esValidoElFormato "$archivo_sin_dir"
-		
-		if (( $? == 0)); then  
-			#FALTA MOVE A ARCHIVO INVALIDO
-			./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
-			continue
-		fi #si no es valido salgo del loop		
-		
-		esValidoElNombre "$archivo_sin_dir" "$MdC"
-		
-		if (( $? == 0)); then
-			#FALTA MOVE A ARCHIVO INVALIDO
-			./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
-			continue 
-		fi #si no es valido salgo del loop	
-		
-		echo "Archivo valido: " "$archivo_sin_dir" " PATH: " "$archivo"
-		./MoverA.sh "$archivo" "$Aceptados" "AFRARECI" 
-		#FALTA EL MOVER A PARA ARCHIVO VALIDO
+			esValidoElFormato "$archivo_sin_dir"
+			
+			if (( $? == 0)); then  
+				#FALTA MOVE A ARCHIVO INVALIDO
+				./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
+				continue
+			fi #si no es valido salgo del loop		
+			
+			esValidoElNombre "$archivo_sin_dir" "$MdC"
+			
+			if (( $? == 0)); then
+				#FALTA MOVE A ARCHIVO INVALIDO
+				./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
+				continue 
+			fi #si no es valido salgo del loop	
+			
+			echo "Archivo valido: " "$archivo_sin_dir" " PATH: " "$archivo"
+			./MoverA.sh "$archivo" "$Aceptados" "AFRARECI" 
+			#FALTA EL MOVER A PARA ARCHIVO VALIDO
 
-	done
+		done
+	fi
 
 	if [ "$(ls -A $Aceptados)" ]; then
 		if [ "$(pidof AFRAUMBR.sh)" ]; then
