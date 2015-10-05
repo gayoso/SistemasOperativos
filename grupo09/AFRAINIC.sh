@@ -2,48 +2,6 @@
 
 source AFRAINfunc.sh
 
-function verificarDirectorios {
-	local directoriosFaltantes=""
-
-	if [ ! -d "$BINDIR" ]; then
-		directoriosFaltantes+="$BINDIR "
-	fi
-
-	if [ ! -d "$CONFDIR" ]; then
-		directoriosFaltantes+="$CONFDIR "
-	fi
-
-	if [ ! -d "$MAEDIR" ]; then
-		directoriosFaltantes+="$MAEDIR "
-	fi
-
-	if [ ! -d "$ACEPDIR" ]; then
-		directoriosFaltantes+="$ACEPDIR "
-	fi
-
-	if [ ! -d "$RECHDIR" ]; then
-		directoriosFaltantes+="$RECHDIR "
-	fi
-
-	if [ ! -d "$PROCDIR" ]; then
-		directoriosFaltantes+="$PROCDIR "
-	fi
-
-	if [ ! -d "$REPODIR" ]; then
-		directoriosFaltantes+="$REPODIR "
-	fi
-
-	if [ ! -d "$LOGDIR" ]; then
-		directoriosFaltantes+="$LOGDIR "
-	fi
-
-	if [ ! -d "$NOVEDIR" ]; then
-		directoriosFaltantes+="$NOVEDIR "
-	fi
-
-	echo "$directoriosFaltantes"
-}
-
 function darPermisos {
 	chmod 777 "$BINDIR/AFRAINIC.sh"
 	chmod 777 "$BINDIR/AFRARECI.sh"

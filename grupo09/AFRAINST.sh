@@ -237,8 +237,8 @@ Desea continuar con la instalación? (Si - No)"
 function crearDirectorio {
 	if [[ ! -d "$1" ]]; then
 		mkdir -p "$1"
+		logEchoInfo "$GRUPO/$1"
 	fi
-	logEchoInfo "$GRUPO/$1"
 }
 
 function crearDirectorios {
@@ -255,25 +255,19 @@ function crearDirectorios {
 }
 
 function copiarArchivo {
-	if [[ -f "$1" ]]; then
-		if [[ ! -f "$2/$1" ]]; then
+	if [[ ! -f "$2/$1" ]]; then
+		if [[ -f "$1" ]]; then
 			cp "$1" "$2"
 			logEchoInfo "Se ha copiado el archivo $1 a /$2."
+		else
+			logEchoWarn "El archivo $1 no existe en $GRUPO, por lo que no se ha podido copiar a /$2."
+			return 1
 		fi
-	else
-		logEchoWarn "El archivo $1 no existe en $GRUPO, por lo que no se ha podido copiar a /$2."
-		return 1
 	fi
 	return 0
 }
 
 function copiarEjecutables {
-	# if [ -f MoverA.sh ]; then
-	# 	if [ ! -x MoverA.sh ]; then
-	# 		chmod +x MoverA.sh
-	# 	fi
-	# 	./MoverA.sh "$GRUPO/AFRAINIC.sh" "$GRUPO/$BINDIR"
-	# fi
 	local resultado=0
 	copiarArchivo 'AFRAINIC.sh' "$BINDIR"
 	resultado=$(($resultado+$?))
@@ -295,6 +289,7 @@ function copiarEjecutables {
 	resultado=$(($resultado+$?))
 	return "$resultado"
 }
+
 function copiarMaestrosYTablas {
 	local resultado=0
 	copiarArchivo 'agentes.mae' "$MAEDIR"
@@ -385,11 +380,12 @@ Directorio de archivos de log: $GRUPO/$LOGDIR
 $lsLOGDIR
 Directorio de archivos rechazados: $GRUPO/$RECHDIR"
 	local archivosFaltantes=$(verificarArchivos)
-	if [[ "$archivosFaltantes" == "" ]]; then #No hay faltantes
+	local directoriosFaltantes=$(verificarDirectorios)
+	if [[ "$archivosFaltantes" == "" && "$directoriosFaltantes" == "" ]]; then #No hay faltantes
 		logEchoInfo "\nEstado de la instalación: COMPLETA\nProceso de instalación finalizado."
 		return 0
 	else
-		logEchoWarn "\nEstado de la instalación: INCOMPLETA\nComponentes faltantes: $archivosFaltantes \nDesea completar la instalación? (Si - No)"
+		logEchoWarn "\nEstado de la instalación: INCOMPLETA\nComponentes faltantes: $archivosFaltantes\nDirectorios faltantes: $directoriosFaltantes\nDesea completar la instalación? (Si - No)"
 		local reSi='^[Ss][Ii]$'
 		local reNo='^[Nn][Oo]$'
 		local line="asd"

@@ -84,3 +84,53 @@ function verificarArchivos {
 
 	echo "$archivosFaltantes"
 }
+
+function verificarDirectorios {
+	local directoriosFaltantes=""
+
+	if [[ ! -d "$BINDIR" ]]; then
+		directoriosFaltantes+="$BINDIR "
+	fi
+
+	if [[ ! -d "$CONFDIR" ]]; then
+		directoriosFaltantes+="$CONFDIR "
+	fi
+
+	if [[ ! -d "$MAEDIR" ]]; then
+		directoriosFaltantes+="$MAEDIR "
+	fi
+
+	if [[ ! -d "$ACEPDIR" ]]; then
+		directoriosFaltantes+="$ACEPDIR "
+	fi
+
+	if [[ ! -d "$RECHDIR" ]]; then
+		directoriosFaltantes+="$RECHDIR $RECHDIR/llamadas "
+	else
+		if [[ ! -d "$RECHDIR/llamadas" ]]; then
+			directoriosFaltantes+="$RECHDIR/llamadas "
+		fi
+	fi
+
+	if [[ ! -d "$PROCDIR" ]]; then
+		directoriosFaltantes+="$PROCDIR $PROCDIR/proc "
+	else
+		if [[ ! -d "$PROCDIR/proc" ]]; then
+			directoriosFaltantes+="$PROCDIR/proc "
+		fi
+	fi
+
+	if [[ ! -d "$REPODIR" ]]; then
+		directoriosFaltantes+="$REPODIR "
+	fi
+
+	if [[ ! -d "$LOGDIR" ]]; then
+		directoriosFaltantes+="$LOGDIR "
+	fi
+
+	if [[ ! -d "$NOVEDIR" ]]; then
+		directoriosFaltantes+="$NOVEDIR "
+	fi
+
+	echo "$directoriosFaltantes"
+}
