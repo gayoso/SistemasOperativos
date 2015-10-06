@@ -345,19 +345,59 @@ function instalar {
 }
 
 function obtenerVariablesDeArchivoConf {
-	GRUPO=$(grep 'GRUPO=' "$archConf" | sed "s/GRUPO=//" | sed "s/=.*//")
-	CONFDIR=$(grep 'CONFDIR=' "$archConf" | sed "s/CONFDIR=//" | sed "s/=.*//")
-	BINDIR=$(grep 'BINDIR=' "$archConf" | sed "s/BINDIR=//" | sed "s/=.*//")
-	MAEDIR=$(grep 'MAEDIR=' "$archConf" | sed "s/MAEDIR=//" | sed "s/=.*//")
-	DATASIZE=$(grep 'DATASIZE=' "$archConf" | sed "s/DATASIZE=//" | sed "s/=.*//")
-	ACEPDIR=$(grep 'ACEPDIR=' "$archConf" | sed "s/ACEPDIR=//" | sed "s/=.*//")
-	RECHDIR=$(grep 'RECHDIR=' "$archConf" | sed "s/RECHDIR=//" | sed "s/=.*//")
-	PROCDIR=$(grep 'PROCDIR=' "$archConf" | sed "s/PROCDIR=//" | sed "s/=.*//")
-	REPODIR=$(grep 'REPODIR=' "$archConf" | sed "s/REPODIR=//" | sed "s/=.*//")
-	LOGDIR=$(grep 'LOGDIR=' "$archConf" | sed "s/LOGDIR=//" | sed "s/=.*//")
-	LOGSIZE=$(grep 'LOGSIZE=' "$archConf" | sed "s/LOGSIZE=//" | sed "s/=.*//")
-	NOVEDIR=$(grep 'NOVEDIR=' "$archConf" | sed "s/NOVEDIR=//" | sed "s/=.*//")
-	LOGEXT=$(grep 'LOGEXT=' "$archConf" | sed "s/LOGEXT=//" | sed "s/=.*//")
+	local aux=""
+	aux=$(grep 'GRUPO=' "$archConf" | sed "s/GRUPO=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		GRUPO="$aux"
+	fi
+	aux=$(grep 'CONFDIR=' "$archConf" | sed "s/CONFDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		CONFDIR="$aux"
+	fi
+	aux=$(grep 'BINDIR=' "$archConf" | sed "s/BINDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		BINDIR="$aux"
+	fi
+	aux=$(grep 'MAEDIR=' "$archConf" | sed "s/MAEDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		MAEDIR="$aux"
+	fi
+	aux=$(grep 'DATASIZE=' "$archConf" | sed "s/DATASIZE=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		DATASIZE="$aux"
+	fi
+	aux=$(grep 'ACEPDIR=' "$archConf" | sed "s/ACEPDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		ACEPDIR="$aux"
+	fi
+	aux=$(grep 'RECHDIR=' "$archConf" | sed "s/RECHDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		RECHDIR="$aux"
+	fi
+	aux=$(grep 'PROCDIR=' "$archConf" | sed "s/PROCDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		PROCDIR="$aux"
+	fi
+	aux=$(grep 'REPODIR=' "$archConf" | sed "s/REPODIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		REPODIR="$aux"
+	fi
+	aux=$(grep 'LOGDIR=' "$archConf" | sed "s/LOGDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		LOGDIR="$aux"
+	fi
+	aux=$(grep 'LOGSIZE=' "$archConf" | sed "s/LOGSIZE=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		LOGSIZE="$aux"
+	fi
+	aux=$(grep 'NOVEDIR=' "$archConf" | sed "s/NOVEDIR=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		NOVEDIR="$aux"
+	fi
+	aux=$(grep 'LOGEXT=' "$archConf" | sed "s/LOGEXT=//" | sed "s/=.*//")
+	if [[ "$aux" != "" ]]; then
+		LOGEXT="$aux"
+	fi
 }
 
 function listarCarpetasYVerificarArchivos {
