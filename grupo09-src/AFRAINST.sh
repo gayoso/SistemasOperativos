@@ -17,42 +17,6 @@
 
 source AFRAINfunc.sh
 
-function log {
-	if [[ -f GraLog.sh ]]; then
-		if [[ ! -x GraLog.sh ]]; then
-			chmod +x GraLog.sh
-		fi
-		./GraLog.sh "AFRAINST" "$1" "$2" # 1=log message, 2=log level
-	fi
-}
-
-function logEchoInfo {
-	echo -e "[INFO] $1"
-	logInfo "$1"
-}
-
-function logInfo {
-	log "$1" "INFO"
-}
-
-function logEchoWarn {
-	echo -e "[WARNING] $1"
-	logWarn "$1"
-}
-
-function logWarn {
-	log "$1" "WARN"
-}
-
-function logEchoError {
-	echo -e "[ERROR] $1"
-	logError "$1"
-}
-
-function logError {
-	log "$1" "ERROR"
-}
-
 function verificarPerl {
 	if perl < /dev/null &>/dev/null; then # Si perl esta instalado...
 		# local perlinfo=`perl -v | grep '.' | head -n 1`
