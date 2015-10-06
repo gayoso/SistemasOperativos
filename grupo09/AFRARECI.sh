@@ -2,22 +2,33 @@
 
 #TODOS LOS ECHOS DEBERIAN SER EL LOG
 
+#Nombre de este script
+miNombre="AFRARECI.sh"
+
+#if [ -z "$MAEDIR"] && [ -z "$NOVEDIR"] && [ -z "$ACEPDIR"] && [ -z "$RECHDIR"] && [ -z "$LOGDIR"];then
+if [[ ENTORNO_CONFIGURADO == true ]]
+	./GraLog.sh $miNombre "no estan seteadas las variables de estado, el proceso se interrumpira" "ERROR"	
+	#echo "no estan seteadas las variables de estado, el proceso se interrumpira"
+	exit
+fi 
+
 #Codigo de las centrales
-MdC="$1"
+#MdC="$1"
+Mdc="$MAEDIR"
 
 #Directorio con novedades
-Novedir="$2"
+#Novedir="$2"
+Novedir="$NOVEDIR"
 
 #Directorio con Aceptados
-Aceptados="ACEPDIR"
+#Aceptados="ACEPDIR"
+Aceptados="$ACEPDIR"
 
 #Directorio con rechazados
-Rechazados="RECHDIR"
+#Rechazados="RECHDIR"
+Rechazados="$RECHDIR"
 
-#Nombre de este script
-miNombre="prueba_parseo.sh"
-
-#Tiempo entre de Checkeo
+#Tiempo entre cada Checkeo
 tiempoDeCheckeo=10
 
 #funcion que se fija si es un archivo de texto
@@ -30,7 +41,8 @@ function esTexto {
 			return 1
 			;;
 		(*) 
-			echo "Archivo "$1" no es de texto"
+			./GraLog.sh $miNombre "Archivo "$1" no es de texto. El archivo se movera a rechazados" "INFO" 			
+			#echo "Archivo "$1" no es de texto"
 			return 0
 			;;
 	esac
@@ -44,7 +56,7 @@ function esValidoElFormato {
 	then
 		return 1
 	else
-		echo "Archivo "$1" invalido: formato invalido"
+		./GraLog.sh $miNombre "Archivo "$1" invalido: formato invalido. El archivo se movera a rechazados"  "INFO"
 		return 0
 	fi	
 }
@@ -69,26 +81,26 @@ function esValidoElNombre {
 	local existeElCodigo=$(grep -c $codigoCentral $2)
 	
 	if [ $existeElCodigo -eq 0 ]; then
-		echo "Archivo "$1" invalido :el codigo no existe"
+		./GraLog.sh $miNombre "Archivo "$1" invalido :el codigo no existe. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 	
 	esFechaInvalida ${fecha:4:2}"/"${fecha:6:2}"/"${fecha:0:4} bool
 	
 	if [ $bool -eq 1 ]; then
-		echo "Archivo "$1" invalido :fecha es invalida"
+		./GraLog.sh $miNombre "Archivo "$1" invalido :fecha es invalida. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 
 	fecha_posta=$(date +"%Y%m%d")
 	
 	if [ $((fecha_posta - fecha)) -gt 10000 ]; then
-		echo "Archivo $1 invalido :fecha es menor a un año"
+		./GraLog.sh $miNombre "Archivo $1 invalido :fecha es menor a un año. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 		
 	if [ "$fecha_posta" -lt "$fecha" ]; then
-		echo "Archivo $1 invalido :fecha no es anterior a la actual"
+		./GraLog.sh $miNombre "Archivo $1 invalido :fecha no es anterior a la actual. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 
@@ -104,7 +116,7 @@ numIteracion=1
 while true; do
 
 	#Decirle al log "AFRARECI ciclo nro 1"
-	echo "AFRARECI ciclo nro. "$numIteracion
+	./GraLog $miNombre "AFRARECI ciclo nro. "$numIteracion "INFO"
 
 	#Checkear si hay nuevos archivos
 	if [ "$(ls -A $Novedir)" ]; then
@@ -138,7 +150,7 @@ while true; do
 				continue 
 			fi #si no es valido salgo del loop	
 			
-			echo "Archivo valido: " "$archivo_sin_dir" " PATH: " "$archivo"
+			./GraLog.sh $miNombre "Archivo valido: $archivo_sin_dir PATH: $archivo" "INFO"
 			./MoverA.sh "$archivo" "$Aceptados" "AFRARECI" 
 			#FALTA EL MOVER A PARA ARCHIVO VALIDO
 
@@ -146,12 +158,13 @@ while true; do
 	fi
 
 	if [ "$(ls -A $Aceptados)" ]; then
-		if [ "$(pidof AFRAUMBR.sh)" ]; then
-			echo "Invocacion de AFRAUMBR propuesta para el siguiente ciclo"
+		pidof_afraumbr="$(pidof AFRAUMBR.sh)"
+		if [ $pidof_afraumbr ]; then
+			./GraLog.sh "Invocacion de AFRAUMBR propuesta para el siguiente ciclo" "WARN"
 		else
 			#LLAMAR A AFRAUMBR
 
-			echo "AFRAUMBR corriendo bajo  el no.: " #pidof AFRAUMBR
+			./GraLog.sh "AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr" "INFO"
 		fi
 	fi
 
