@@ -33,6 +33,11 @@ else
 	LOGPATH="$LOGDIR/$WHERE.$LOGEXT"
 fi
 
+#Detener, Arrancar y MoverA no logean en archivo, imprimen por pantalla
+if [[ "$WHERE" == "Detener" ]] || [[ "$WHERE" == "Arrancar" ]] || [[ "$WHERE" == "MoverA" ]]; then
+	exit 0
+fi
+
 WHEN=$(date +"%d/%m/%Y %T") 		# Fecha y Hora, en el formato que deseen y calculada justo antes de la grabación.
 WHO="$USER"							# Usuario, es el login del usuario.
 

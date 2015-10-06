@@ -1,5 +1,41 @@
 #! /bin/bash
 
+function log {
+	if [[ -f GraLog.sh ]]; then
+		if [[ ! -x GraLog.sh ]]; then
+			chmod +x GraLog.sh
+		fi
+		./GraLog.sh "$1" "$2" "$3" # 1=nombre, 2=log message, 3=log level
+	fi
+}
+
+function logEchoInfo {
+	echo -e "[INFO] $2"
+	logInfo "$1" "$2"
+}
+
+function logInfo {
+	log "$1" "$2" "INFO"
+}
+
+function logEchoWarn {
+	echo -e "[WARNING] $2"
+	logWarn "$1" "$2"
+}
+
+function logWarn {
+	log "$1" "$2" "WARN"
+}
+
+function logEchoError {
+	echo -e "[ERROR] $2"
+	logError "$1" "$2"
+}
+
+function logError {
+	log "$1" "$2" "ERROR"
+}
+
 function verificarExistenciaArchivo {
 	local aux=$(ls -1 "$1" | grep "^$2$")
 	if [[ "$aux" == "$2" ]]; then
