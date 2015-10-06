@@ -22,6 +22,8 @@ if [ wget -w "$script_pid" = 0 ]; then
 	exit
 fi
 
+echo "Deteniendo el script '"$script_name"'"
+pgrep $BINDIR/$script_name | kill -KILL
 
 
 
