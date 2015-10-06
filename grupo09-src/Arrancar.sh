@@ -13,8 +13,8 @@ fi
 
 script_name=$1
 
-if [[ $script_name != "AFRARECI.sh" ]] || [[ $script_name != "AFRAUMBR.sh" ]]
-	echo "Este comando sirve para arrancar solo a AFRARECI o AFRAUMBR, que corren en background"
+if [[ $script_name != "AFRARECI.sh" ]] || [[ $script_name != "AFRAUMBR.sh" ]] || [[ $script_name != "AFRALIST.sh" ]]; then
+	echo "Este comando sirve para arrancar solo a AFRARECI.sh, AFRAUMBR.sh o AFRALIST.pl, que corren en background"
 	exit
 fi
 
@@ -32,6 +32,12 @@ fi
 
 if [ $script_name = "AFRAUMBR.sh" ]; then
 	echo "Arrancando el script 'AFRAUMBR.sh'"
+	.$BINDIR/$script_name
+	exit
+fi
+
+if [ $script_name = "AFRALIST.pl" ]; then
+	echo "Arrancando el script 'AFRALIST.pl'"
 	.$BINDIR/$script_name
 	exit
 fi

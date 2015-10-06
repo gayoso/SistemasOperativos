@@ -11,8 +11,8 @@ fi
 
 script_name=$1
 
-if [[ $script_name != "AFRARECI.sh" ]] || [[ $script_name != "AFRAUMBR.sh" ]]
-	echo "Este comando sirve para detener solo a AFRARECI o AFRAUMBR, que corren en background"
+if [[ $script_name != "AFRARECI.sh" ]] || [[ $script_name != "AFRAUMBR.sh" ]] || [[ $script_name != "AFRALIST.sh" ]]; then
+	echo "Este comando sirve para detener solo a AFRARECI.sh, AFRAUMBR.sh o AFRALIST.pl"
 	exit
 fi
 
