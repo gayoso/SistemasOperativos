@@ -1,5 +1,8 @@
 #!/bin/bash
 
+source AFRAINfunc.sh
+MOVERA="MoverAs"
+
 # filename con path completo
 param_origen="$1"	
 
@@ -20,19 +23,19 @@ filename_con_path_destino="$param_destino/$filename"
 
 # veo si existe origen
 if [ ! -f "$param_origen" ]; then
-	#loguear que no existe origen	
+	logEchoError $MOVERA "El archivo a mover no existe"
 	exit
 fi
 
 # veo si existe destino
 if [ ! -d "$param_destino" ]; then
-	#loguear que no existe destino
+	logEchoError $MOVERA "El directorio destino no existe"
 	exit
 fi
 
 # veo si origen y destino son iguales
 if [ "$param_origen" == "$filename_con_path_destino" ]; then
-	#loguear que son iguales		
+	logEchoError $MOVERA "El directorio origen y el directorio destino son iguales"		
 	exit
 fi
 
@@ -50,3 +53,5 @@ if [ -f "$filename_con_path_destino" ]; then
 else
 	mv "$param_origen" "$param_destino"
 fi
+
+logEchoInfo $MOVERA "Se movio el archivo satisfactoriamente"
