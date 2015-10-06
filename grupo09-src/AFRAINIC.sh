@@ -23,44 +23,38 @@ function darPermisos {
 	chmod 777 "$MAEDIR/umbral.tab"
 }
 
-if [[ $# != 3 ]]; then
-	logEchoError $AFRAINIC "La sintaxis para correr AFRAINIC es la siguiente: ./AFRAINIC.sh <path a AFRAINST.conf> <path a ejecutables> <path a tablas maestras>. Por favor corra de nuevo el script con los parametros correctos"
-	terminar=true
-fi
-
-PATH_ARCH_CONFIG=$1
-# asumo que el path es a la carpeta, no que pasan cada ejecutable como input
-BINDIR=$2
-# mismo (y que no termina en '/', sino agrego igual pero reemplazo '//' por '/')
-MAEDIR=$3
-
-#ver si fue configurado
+PATH_ARCH_CONFIG="../conf/AFRAINST.conf"
 
 #variables de ambiente
-if [ ! $terminar = false ]; then
-	if [ ! -f $PATH_ARCH_CONFIG ]; then
-		logEchoError $AFRAINIC "El archivo de configuracion indicado no es valido. Por favor correr AFRAINST.sh"
-		terminar=true
-	fi
-fi
+#if [ ! -f $PATH_ARCH_CONFIG ]; then
+	#lo dejo para el dev, por si escribimos mal el path
+#	logError $AFRAINIC "El archivo de configuracion indicado no es valido. Por favor correr AFRAINST.sh"
+#	terminar=true
+#fi
 
-if [ ! $terminar = false ]; then
-	logEchoInfo $AFRAINIC "Creando variables de entorno"
+if [ $terminar = false ]; then
 
 	export GRUPO=$(grep 'GRUPO=' "$PATH_ARCH_CONFIG" | sed "s/GRUPO=//" | sed "s/=.*//")
-	export CONFDIR=$(grep 'CONFDIR=' "$PATH_ARCH_CONFIG" | sed "s/CONFDIR=//" | sed "s/=.*//")
-	export BINDIR=$(grep 'BINDIR=' "$PATH_ARCH_CONFIG" | sed "s/BINDIR=//" | sed "s/=.*//")
-	export MAEDIR=$(grep 'MAEDIR=' "$PATH_ARCH_CONFIG" | sed "s/MAEDIR=//" | sed "s/=.*//")
+	echo "$GRUPO"
+	
+	PATH_ARCH_CONFIG="$GRUPO"/"conf/AFRAINST.conf"
+	echo "$PATH_ARCH_CONFIG"
+	
+	export CONFDIR="$GRUPO"/$(grep 'CONFDIR=' "$PATH_ARCH_CONFIG" | sed "s/CONFDIR=//" | sed "s/=.*//")
+	export BINDIR="$GRUPO"/$(grep 'BINDIR=' "$PATH_ARCH_CONFIG" | sed "s/BINDIR=//" | sed "s/=.*//")
+	export MAEDIR="$GRUPO"/$(grep 'MAEDIR=' "$PATH_ARCH_CONFIG" | sed "s/MAEDIR=//" | sed "s/=.*//")
 	export DATASIZE=$(grep 'DATASIZE=' "$PATH_ARCH_CONFIG" | sed "s/DATASIZE=//" | sed "s/=.*//")
-	export ACEPDIR=$(grep 'ACEPDIR=' "$PATH_ARCH_CONFIG" | sed "s/ACEPDIR=//" | sed "s/=.*//")
-	export RECHDIR=$(grep 'RECHDIR=' "$PATH_ARCH_CONFIG" | sed "s/RECHDIR=//" | sed "s/=.*//")
-	export PROCDIR=$(grep 'PROCDIR=' "$PATH_ARCH_CONFIG" | sed "s/PROCDIR=//" | sed "s/=.*//")
-	export REPODIR=$(grep 'REPODIR=' "$PATH_ARCH_CONFIG" | sed "s/REPODIR=//" | sed "s/=.*//")
-	export LOGDIR=$(grep 'LOGDIR=' "$PATH_ARCH_CONFIG" | sed "s/LOGDIR=//" | sed "s/=.*//")
+	export ACEPDIR="$GRUPO"/$(grep 'ACEPDIR=' "$PATH_ARCH_CONFIG" | sed "s/ACEPDIR=//" | sed "s/=.*//")
+	export RECHDIR="$GRUPO"/$(grep 'RECHDIR=' "$PATH_ARCH_CONFIG" | sed "s/RECHDIR=//" | sed "s/=.*//")
+	export PROCDIR="$GRUPO"/$(grep 'PROCDIR=' "$PATH_ARCH_CONFIG" | sed "s/PROCDIR=//" | sed "s/=.*//")
+	export REPODIR="$GRUPO"/$(grep 'REPODIR=' "$PATH_ARCH_CONFIG" | sed "s/REPODIR=//" | sed "s/=.*//")
+	export LOGDIR="$GRUPO"/$(grep 'LOGDIR=' "$PATH_ARCH_CONFIG" | sed "s/LOGDIR=//" | sed "s/=.*//")
 	export LOGSIZE=$(grep 'LOGSIZE=' "$PATH_ARCH_CONFIG" | sed "s/LOGSIZE=//" | sed "s/=.*//")
-	export NOVEDIR=$(grep 'NOVEDIR=' "$PATH_ARCH_CONFIG" | sed "s/NOVEDIR=//" | sed "s/=.*//")
+	export NOVEDIR="$GRUPO"/$(grep 'NOVEDIR=' "$PATH_ARCH_CONFIG" | sed "s/NOVEDIR=//" | sed "s/=.*//")
 	export LOGEXT=$(grep 'LOGEXT=' "$PATH_ARCH_CONFIG" | sed "s/LOGEXT=//" | sed "s/=.*//")
 	export ENTORNO_CONFIGURADO=true
+
+	logEchoInfo $AFRAINIC "Creando variables de entorno"
 
 
 	# verificar faltantes en la instalacion, informar, etc
@@ -69,13 +63,13 @@ if [ ! $terminar = false ]; then
 	arch_falt=$(verificarArchivos)
 	if [[ "$dir_falt" != "" ]] || [[ "$arch_falt" != "" ]]; then
 		logEchoError "Se detectaron faltantes o errores en la instalacion del sistema. Por favor, correr el script AFRAINST.sh antes de continuar"
-		logEchoWarning "Directorios faltantes: $dir_falt"
-		logEchoWarning "Archivos faltantes: $arch_falt"
+		logEchoWarn "Directorios faltantes: $dir_falt"
+		logEchoWarn "Archivos faltantes: $arch_falt"
 		terminar=true
 	fi
 fi
 
-if [ ! $terminar = false ]; then
+if [ $terminar = false ]; then
 	# permisos
 	darPermisos
 
@@ -90,7 +84,7 @@ if [ ! $terminar = false ]; then
 		logEchoInfo $AFRAINIC "Puede arrancar AFRARECI en cualquier momento con el comando 'Arrancar AFRARECI.sh'"
 	else
 		logEchoInfo $AFRAINIC "Puede detener AFRARECI en cualquier momento con el comando Detener"
-		./Arrancar AFRARECI.sh
+		./Arrancar.sh "AFRARECI.sh"
 	fi
 fi
 

@@ -3,10 +3,10 @@
 #TODOS LOS ECHOS DEBERIAN SER EL LOG
 
 #Nombre de este script
-miNombre="AFRARECI.sh"
+miNombre="AFRARECI"
 
 #if [ -z "$MAEDIR"] && [ -z "$NOVEDIR"] && [ -z "$ACEPDIR"] && [ -z "$RECHDIR"] && [ -z "$LOGDIR"];then
-if [[ ENTORNO_CONFIGURADO == true ]]
+if [[ ENTORNO_CONFIGURADO == true ]]; then
 	./GraLog.sh "$miNombre" "no estan seteadas las variables de estado, el proceso se interrumpira" "ERROR"	
 	#echo "no estan seteadas las variables de estado, el proceso se interrumpira"
 	exit
@@ -115,7 +115,7 @@ numIteracion=1
 while true; do
 
 	#Decirle al log "AFRARECI ciclo nro 1"
-	./GraLog "$miNombre" "AFRARECI ciclo nro. $numIteracion" "INFO"
+	./GraLog.sh "$miNombre" "ciclo nro. $numIteracion" "INFO"
 
 	#Checkear si hay nuevos archivos
 	if [ "$(ls -A $Novedir)" ]; then
