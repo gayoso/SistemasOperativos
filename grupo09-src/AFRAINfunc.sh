@@ -5,7 +5,7 @@ function log {
 		if [[ ! -x GraLog.sh ]]; then
 			chmod +x GraLog.sh
 		fi
-		./GraLog.sh "$1" "$2" "$3" # 1=nombre, 2=log message, 3=log level
+		./GraLog.sh "$1" "$2" "$3" # 1=nombre del script que loguea, 2=log message, 3=log level
 	fi
 }
 

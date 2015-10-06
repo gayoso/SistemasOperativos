@@ -17,17 +17,44 @@
 
 source AFRAINfunc.sh
 
+function logEchoInfoInst {
+	echo -e "[INFO] $1"
+	logInfoInst "$1"
+}
+
+function logInfoInst {
+	logInfo "AFRAINST" "$1"
+}
+
+function logEchoWarnInst {
+	echo -e "[WARNING] $1"
+	logWarnInst "$1"
+}
+
+function logWarnInst {
+	logWarn "AFRAINST" "$1"
+}
+
+function logEchoErrorInst {
+	echo -e "[ERROR] $1"
+	logErrorInst "$1"
+}
+
+function logErrorInst {
+	logError "AFRAINST" "$1"
+}
+
 function verificarPerl {
 	if perl < /dev/null &>/dev/null; then # Si perl esta instalado...
 		# local perlinfo=`perl -v | grep '.' | head -n 1`
 		local perlVersion=$(echo `perl -v` | grep 'This is perl ' | sed "s/This is perl //" | sed "s/[^0-9].*//")
 		if [[ perlVersion != "" && perlVersion -ge 5 ]]; then
 			local perlMsg=$(perl -v)
-			logEchoInfo "\nPerl Version: $perlMsg\n"
+			logEchoInfoInst "\nPerl Version: $perlMsg\n"
 			return 0
 		fi
 	fi
-	logEchoError "
+	logEchoErrorInst "
 Para ejecutar el sistema AFRA-I es necesario contar con Perl 5 o superior.
 Efectúe su instalación e inténtelo nuevamente.
 Proceso de instalación cancelado.\n"
@@ -35,7 +62,7 @@ Proceso de instalación cancelado.\n"
 }
 
 function aceptarTerminosYCondiciones {
-	logEchoInfo "
+	logEchoInfoInst "
 **********************************************************************
 *                 Proceso de Instalación de \"AFRA-I\"                 *
 *      Tema I Copyright © Grupo 09 - Segundo Cuatrimestre 2015       *
@@ -50,10 +77,10 @@ A T E N C I Ó N: Al instalar Ud. expresa aceptar los términos y condiciones de
 	respuesta=${respuesta,,} #toLower
 
 	if [[ "$respuesta" == "si" ]]; then
-		logInfo "El usuario ingresó: $respuesta"
+		logInfoInst "El usuario ingresó: $respuesta"
 		return 0
 	else
-		logWarn "El usuario ingresó: $respuesta"
+		logWarnInst "El usuario ingresó: $respuesta"
 		return 1
 	fi
 }
@@ -67,15 +94,15 @@ function verificarNombreDirectorio {
 			if ! [[ "$aux" =~ $reBarra ]]; then
 				echo "$aux"
 			else
-				logWarn "El usuario ingresó \"$aux\", pero el nombre de un directorio no puede empezar con /. Se toma el valor por defecto."
+				logWarnInst "El usuario ingresó \"$aux\", pero el nombre de un directorio no puede empezar con /. Se toma el valor por defecto."
 				echo "$1"
 			fi
 		else
-			logWarn "El usuario ingresó \"$aux\", pero éste es un directorio reservado y no se puede utilizar. Se toma el valor por defecto."
+			logWarnInst "El usuario ingresó \"$aux\", pero éste es un directorio reservado y no se puede utilizar. Se toma el valor por defecto."
 			echo "$1"
 		fi
 	else
-		logWarn "El usuario ingresó enter, por lo que se toma el valor por defecto."
+		logWarnInst "El usuario ingresó enter, por lo que se toma el valor por defecto."
 		echo "$1"
 	fi
 }
@@ -86,37 +113,37 @@ function verificarNumero {
 	reNum='^[0-9]+$'
 	if [[ "$aux" != "" ]]; then
 		if ! [[ "$aux" =~ $reNum ]] ; then
-			logWarn "El usuario ingresó \"$aux\", lo cual no es un número o valor válido. Se toma el valor por defecto."
+			logWarnInst "El usuario ingresó \"$aux\", lo cual no es un número o valor válido. Se toma el valor por defecto."
 			echo "$1"
 		else
 			if [[ "$aux" -gt 0 ]]; then
 				echo "$aux"
 			else
-				logWarn "El usuario ingresó 0, lo cual no tiene sentido, pues tiene que ser un número mayor a 0. Se toma el valor por defecto."
+				logWarnInst "El usuario ingresó 0, lo cual no tiene sentido, pues tiene que ser un número mayor a 0. Se toma el valor por defecto."
 				echo "$1"
 			fi
 		fi
 	else
-		logWarn "El usuario ingresó enter, por lo que se toma el valor por defecto."
+		logWarnInst "El usuario ingresó enter, por lo que se toma el valor por defecto."
 		echo "$1"
 	fi
 }
 
 function definirDirectorios {
-	logEchoWarn "ATENCIÓN: Si se ingresa 'enter' directamente se toma como valor el \"por defecto\" provisto entre paréntesis."
-	logEchoWarn "ATENCIÓN: Todo directorio ingresado será relativo a \$GRUPO:$GRUPO\n"
+	logEchoWarnInst "ATENCIÓN: Si se ingresa 'enter' directamente se toma como valor el \"por defecto\" provisto entre paréntesis."
+	logEchoWarnInst "ATENCIÓN: Todo directorio ingresado será relativo a \$GRUPO:$GRUPO\n"
 
-	logEchoInfo 'Defina el directorio de instalación de los ejecutables ($GRUPO/'"$BINDIR):"
+	logEchoInfoInst 'Defina el directorio de instalación de los ejecutables ($GRUPO/'"$BINDIR):"
 	BINDIR=$(verificarNombreDirectorio "$BINDIR")
-	logInfo "La variable BINDIR quedó seteada en: $BINDIR"
+	logInfoInst "La variable BINDIR quedó seteada en: $BINDIR"
 
-	logEchoInfo 'Defina el directorio para maestros y tablas ($GRUPO/'"$MAEDIR):"
+	logEchoInfoInst 'Defina el directorio para maestros y tablas ($GRUPO/'"$MAEDIR):"
 	MAEDIR=$(verificarNombreDirectorio "$MAEDIR")
-	logInfo "La variable MAEDIR quedó seteada en: $MAEDIR"
+	logInfoInst "La variable MAEDIR quedó seteada en: $MAEDIR"
 
-	logEchoInfo 'Defina el directorio de recepción de archivos de llamadas ($GRUPO/'"$NOVEDIR):"
+	logEchoInfoInst 'Defina el directorio de recepción de archivos de llamadas ($GRUPO/'"$NOVEDIR):"
 	NOVEDIR=$(verificarNombreDirectorio "$NOVEDIR")
-	logInfo "La variable NOVEDIR quedó seteada en: $NOVEDIR"
+	logInfoInst "La variable NOVEDIR quedó seteada en: $NOVEDIR"
 
 	# Chequeo si en NOVEDIR hay DATASIZE MB libres
 	disponibleKB=$(df -k "$GRUPO"| tail -1 | awk '{print $4}')
@@ -125,62 +152,62 @@ function definirDirectorios {
 	DATASIZE=999999999999
 	while ! [[ "$disponibleMB" -ge "$DATASIZE" ]]; do
 		DATASIZE="$dataSizeAux"
-		logEchoInfo "Defina espacio mínimo libre para la recepción de archivos de llamadas en MBytes ($DATASIZE):"
+		logEchoInfoInst "Defina espacio mínimo libre para la recepción de archivos de llamadas en MBytes ($DATASIZE):"
 		DATASIZE=$(verificarNumero "$DATASIZE")
 		if ! [[ "$disponibleMB" -ge "$DATASIZE" ]]; then
-			logEchoWarn "\nInsuficiente espacio en disco.
+			logEchoWarnInst "\nInsuficiente espacio en disco.
 Espacio disponible: $disponibleMB MB.
 Espacio requerido $DATASIZE MB.
 Inténtelo nuevamente."
 		fi
 	done
-	logInfo "La variable DATASIZE quedó seteada en: $DATASIZE"
-	logInfo "Hay espacio disponible para la carpeta $NOVEDIR."
+	logInfoInst "La variable DATASIZE quedó seteada en: $DATASIZE"
+	logInfoInst "Hay espacio disponible para la carpeta $NOVEDIR."
 
-	logEchoInfo 'Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/'"$ACEPDIR):"
+	logEchoInfoInst 'Defina el directorio de grabación de los archivos de llamadas aceptadas ($GRUPO/'"$ACEPDIR):"
 	ACEPDIR=$(verificarNombreDirectorio "$ACEPDIR")
-	logInfo "La variable ACEPDIR quedó seteada en: $ACEPDIR"
+	logInfoInst "La variable ACEPDIR quedó seteada en: $ACEPDIR"
 
-	logEchoInfo 'Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/'"$PROCDIR):"
+	logEchoInfoInst 'Defina el directorio de grabación de los registros de llamadas sospechosas ($GRUPO/'"$PROCDIR):"
 	PROCDIR=$(verificarNombreDirectorio "$PROCDIR")
-	logInfo "La variable PROCDIR quedó seteada en: $PROCDIR"
+	logInfoInst "La variable PROCDIR quedó seteada en: $PROCDIR"
 
-	logEchoInfo 'Defina el directorio de grabación de los reportes ($GRUPO/'"$REPODIR):"
+	logEchoInfoInst 'Defina el directorio de grabación de los reportes ($GRUPO/'"$REPODIR):"
 	REPODIR=$(verificarNombreDirectorio "$REPODIR")
-	logInfo "La variable REPODIR quedó seteada en: $REPODIR"
+	logInfoInst "La variable REPODIR quedó seteada en: $REPODIR"
 
-	logEchoInfo 'Defina el directorio para los archivos de log ($GRUPO/'"$LOGDIR):"
+	logEchoInfoInst 'Defina el directorio para los archivos de log ($GRUPO/'"$LOGDIR):"
 	LOGDIR=$(verificarNombreDirectorio "$LOGDIR")
-	logInfo "La variable LOGDIR quedó seteada en: $LOGDIR"
+	logInfoInst "La variable LOGDIR quedó seteada en: $LOGDIR"
 
-	logEchoInfo "Defina el nombre para la extensión de los archivos de log ($LOGEXT):"
+	logEchoInfoInst "Defina el nombre para la extensión de los archivos de log ($LOGEXT):"
 	local aux="asd"
 	read aux
 	rePunto='^\..*$'
 	if [[ "$aux" != "" ]]; then
 		if ! [[ "$aux" =~ $rePunto ]]; then
 			if [[ ${#aux} -gt 5 ]]; then
-				logWarn "La longitud de la extensión \"$aux\" es mayor a 5, lo cual es inválido. Se toma el valor por defecto."
+				logWarnInst "La longitud de la extensión \"$aux\" es mayor a 5, lo cual es inválido. Se toma el valor por defecto."
 			else
 				LOGEXT=$aux
 			fi
 		else
-			logWarn "La extensión \"$aux\" comienza con un punto (.), lo cual es inválido. Se toma el valor por defecto."
+			logWarnInst "La extensión \"$aux\" comienza con un punto (.), lo cual es inválido. Se toma el valor por defecto."
 		fi
 	fi
-	logInfo "La variable LOGEXT quedó seteada en: $LOGEXT"
+	logInfoInst "La variable LOGEXT quedó seteada en: $LOGEXT"
 
-	logEchoInfo "Defina el tamaño máximo para cada archivo de log en KBytes ($LOGSIZE):"
+	logEchoInfoInst "Defina el tamaño máximo para cada archivo de log en KBytes ($LOGSIZE):"
 	LOGSIZE=$(verificarNumero "$LOGSIZE")
-	logInfo "La variable LOGSIZE quedó seteada en: $LOGSIZE"
+	logInfoInst "La variable LOGSIZE quedó seteada en: $LOGSIZE"
 
-	logEchoInfo 'Defina el directorio de grabación de archivos rechazados ($GRUPO/'"$RECHDIR):"
+	logEchoInfoInst 'Defina el directorio de grabación de archivos rechazados ($GRUPO/'"$RECHDIR):"
 	RECHDIR=$(verificarNombreDirectorio "$RECHDIR")
-	logInfo "La variable RECHDIR quedó seteada en: $RECHDIR"
+	logInfoInst "La variable RECHDIR quedó seteada en: $RECHDIR"
 }
 
 function instalacionLista {
-	logEchoInfo "
+	logEchoInfoInst "
 RECORDAR: Todo directorio es relativo a $GRUPO
 
 Directorio de ejecutables: $BINDIR
@@ -201,7 +228,7 @@ Desea continuar con la instalación? (Si - No)"
 function crearDirectorio {
 	if [[ ! -d "$1" ]]; then
 		mkdir -p "$1"
-		logEchoInfo "$GRUPO/$1"
+		logEchoInfoInst "$GRUPO/$1"
 	fi
 }
 
@@ -222,9 +249,9 @@ function copiarArchivo {
 	if [[ ! -f "$2/$1" ]]; then
 		if [[ -f "$1" ]]; then
 			cp "$1" "$2"
-			logEchoInfo "Se ha copiado el archivo $1 a /$2."
+			logEchoInfoInst "Se ha copiado el archivo $1 a /$2."
 		else
-			logEchoWarn "El archivo $1 no existe en $GRUPO, por lo que no se ha podido copiar a /$2."
+			logEchoWarnInst "El archivo $1 no existe en $GRUPO, por lo que no se ha podido copiar a /$2."
 			return 1
 		fi
 	fi
@@ -290,20 +317,20 @@ function actualizarConfiguracion {
 
 function instalar {
 	local resultado=0
-	logEchoInfo "Creando estructuras de directorio..."
+	logEchoInfoInst "Creando estructuras de directorio..."
 	crearDirectorios
-	logEchoInfo "Instalando programas y funciones..."
+	logEchoInfoInst "Instalando programas y funciones..."
 	copiarEjecutables
 	resultado=$(($resultado+$?))
-	logEchoInfo "Instalando archivos maestros y tablas..."
+	logEchoInfoInst "Instalando archivos maestros y tablas..."
 	copiarMaestrosYTablas
 	resultado=$(($resultado+$?))
-	logEchoInfo "Actualizando la configuración del sistema..."
+	logEchoInfoInst "Actualizando la configuración del sistema..."
 	actualizarConfiguracion
 	if [[ "$resultado" -gt 0 ]]; then
-		logEchoError "La instalación ha tenido un error y no ha podido terminar con éxito. Esto se debe a archivos faltantes, por favor revise el log."
+		logEchoErrorInst "La instalación ha tenido un error y no ha podido terminar con éxito. Esto se debe a archivos faltantes, por favor revise el log."
 	else
-		logEchoInfo "Instalación concluida satisfactoriamente."
+		logEchoInfoInst "Instalación concluida satisfactoriamente."
 	fi
 	return "$resultado"
 }
@@ -369,7 +396,7 @@ function listarCarpetasYVerificarArchivos {
 	local lsBINDIR=$(ls -1 "$BINDIR")
 	local lsMAEDIR=$(ls -1 "$MAEDIR")
 	local lsLOGDIR=$(ls -1 "$LOGDIR")
-	logEchoInfo "
+	logEchoInfoInst "
 Directorio de configuración: $CONFDIR
 $lsCONFDIR
 Directorio de ejecutables: $GRUPO/$BINDIR
@@ -386,10 +413,10 @@ Directorio de archivos rechazados: $GRUPO/$RECHDIR"
 	local archivosFaltantes=$(verificarArchivos)
 	local directoriosFaltantes=$(verificarDirectorios)
 	if [[ "$archivosFaltantes" == "" && "$directoriosFaltantes" == "" ]]; then #No hay faltantes
-		logEchoInfo "\nEstado de la instalación: COMPLETA\nProceso de instalación finalizado."
+		logEchoInfoInst "\nEstado de la instalación: COMPLETA\nProceso de instalación finalizado."
 		return 0
 	else
-		logEchoWarn "\nEstado de la instalación: INCOMPLETA\nComponentes faltantes: $archivosFaltantes\nDirectorios faltantes: $directoriosFaltantes\nDesea completar la instalación? (Si - No)"
+		logEchoWarnInst "\nEstado de la instalación: INCOMPLETA\nComponentes faltantes: $archivosFaltantes\nDirectorios faltantes: $directoriosFaltantes\nDesea completar la instalación? (Si - No)"
 		local reSi='^[Ss][Ii]$'
 		local reNo='^[Nn][Oo]$'
 		local line="asd"
@@ -399,7 +426,7 @@ Directorio de archivos rechazados: $GRUPO/$RECHDIR"
 		line=${line,,} #toLower
 		clear
 		if [[ "$line" == "si" ]]; then
-			logInfo "El usuario ingresó: $line"
+			logInfoInst "El usuario ingresó: $line"
 			instalar
 			if [[ "$?" -eq 0 ]]; then
 				listarCarpetasYVerificarArchivos # Al llamar aca no deberia suceder de que haya archivos faltantes, ya que me fije si fue satisfactoria la instalacion
@@ -407,7 +434,7 @@ Directorio de archivos rechazados: $GRUPO/$RECHDIR"
 			fi
 			return 1
 		else
-			logWarn "El usuario ingresó: $line"
+			logWarnInst "El usuario ingresó: $line"
 			return 1
 		fi
 	fi
@@ -462,13 +489,13 @@ if [[ ! -f "$archConf" ]]; then #Si no existe el archivo $archConf
 				done < "/dev/stdin"
 				confirmarInicio=${line,,} #toLower
 				if [[ "$confirmarInicio" == "si" ]]; then
-					logInfo "El usuario ingresó: $confirmarInicio"
+					logInfoInst "El usuario ingresó: $confirmarInicio"
 				else
-					logWarn "El usuario ingresó: $confirmarInicio"
+					logWarnInst "El usuario ingresó: $confirmarInicio"
 				fi
 				clear
 			done
-			logEchoInfo "Iniciando instalación. Está ud. seguro? (Si - No)"
+			logEchoInfoInst "Iniciando instalación. Está ud. seguro? (Si - No)"
 			line="asd"
 			while read line && [[ !( "$line" =~ $reSi ) ]] && [[ !( "$line" =~ $reNo ) ]]; do
 				echo "Error: debe ingresar 'Si' o 'No'"
@@ -476,15 +503,15 @@ if [[ ! -f "$archConf" ]]; then #Si no existe el archivo $archConf
 			rta=${line,,} #toLower
 			echo
 			if [[ "$rta" == "si" ]]; then
-				logInfo "El usuario ingresó: $rta"
+				logInfoInst "El usuario ingresó: $rta"
 				instalar
 				exit "$?"
 			else
-				logWarn "El usuario ingresó: $rta. La instalación ha sido cancelada."
+				logWarnInst "El usuario ingresó: $rta. La instalación ha sido cancelada."
 				exit 1
 			fi
 		else
-			logEchoError "Los términos y condiciones no han sido aceptados. La instalación ha sido cancelada."
+			logEchoErrorInst "Los términos y condiciones no han sido aceptados. La instalación ha sido cancelada."
 			exit 1
 		fi
 	fi
