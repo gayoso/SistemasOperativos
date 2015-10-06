@@ -53,6 +53,7 @@ export LOGDIR=$(grep 'LOGDIR=' "$PATH_ARCH_CONFIG" | sed "s/LOGDIR=//" | sed "s/
 export LOGSIZE=$(grep 'LOGSIZE=' "$PATH_ARCH_CONFIG" | sed "s/LOGSIZE=//" | sed "s/=.*//")
 export NOVEDIR=$(grep 'NOVEDIR=' "$PATH_ARCH_CONFIG" | sed "s/NOVEDIR=//" | sed "s/=.*//")
 export LOGEXT=$(grep 'LOGEXT=' "$PATH_ARCH_CONFIG" | sed "s/LOGEXT=//" | sed "s/=.*//")
+export ENTORNO_CONFIGURADO=true
 
 # verificar faltantes en la instalacion, informar, etc
 dir_falt=$(verificarDirectorios)
@@ -81,7 +82,7 @@ else
 		echo "AFRARECI ya esta corriendo, no se puede correr mas de una instancia al mismo tiempo"
 	else
 		echo "Puede detener AFRARECI en cualquier momento con el comando Detener"
-		#./Arrancar AFRARECI.sh
+		./Arrancar AFRARECI.sh
 	fi
 fi
 
