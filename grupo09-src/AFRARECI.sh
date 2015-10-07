@@ -16,7 +16,7 @@ fi
 
 #Codigo de las centrales
 #MdC="$1"
-Mdc="$MAEDIR"
+Mdc="$MAEDIR"/CdC.mae
 
 #Directorio con novedades
 #Novedir="$2"
@@ -78,10 +78,10 @@ function esValidoElNombre {
 	IFS='_' read codigoCentral fecha <<< "$1"
 	
 	#echo -e "$codigoCentral :  $fecha"
+
+	local existeElCodigo=$(grep -c "$codigoCentral" "$Mdc")
 	
-	local existeElCodigo=$(grep -c $codigoCentral $2)
-	
-	if [ $existeElCodigo -eq 0 ]; then
+	if [[ "$existeElCodigo" -eq 0 ]]; then
 		./GraLog.sh "$miNombre" "Archivo $1 invalido :el codigo no existe. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
@@ -120,7 +120,7 @@ while true; do
 	./GraLog.sh "$miNombre" "ciclo nro. $numIteracion" "INFO"
 
 	#Checkear si hay nuevos archivos
-	if [ $(ls -A "$Novedir") ]; then
+	if [[ $(ls -A "$Novedir") != "" ]]; then
 		#Recorro archivos
 		for	archivo in "$Novedir"/*; do
 			
@@ -143,7 +143,7 @@ while true; do
 				continue
 			fi #si no es valido salgo del loop		
 			
-			esValidoElNombre "$archivo_sin_dir" "$MdC"
+			esValidoElNombre "$archivo_sin_dir"
 			
 			if (( $? == 0)); then
 				aLoguear=$(./MoverA.sh "$archivo" "$Rechazados" "AFRARECI")
@@ -158,10 +158,9 @@ while true; do
 		done
 	fi
 
-	if [ $(ls -A "$Aceptados") ]; then
+	if [[ $(ls -A "$Aceptados") != "" ]]; then
 		#pidof_afraumbr="$(pidof AFRAUMBR.sh)"
-		
-		aLoguear=$(./Arrancar "AFRAUMBR.sh")
+		aLoguear=$(. Arrancar.sh & "AFRAUMBR.sh")
 		./GraLog.sh "$miNombre" "$aLoguear" "WARN"		
 		
 		#if [ $pidof_afraumbr ]; then

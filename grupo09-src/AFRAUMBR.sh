@@ -1,16 +1,22 @@
 #!/bin/bash
 
+if [[ $ENTORNO_CONFIGURADO == false ]]; then
+	# No logueo porque no existen las variables de ambiente
+	echo "[ERROR] El entorno no ha sido configurado aún. Corra el script AFRAINIC.sh para configurarlo."
+	exit 1
+fi
+
 #Path del directorio de archivos de llamadas aceptadas
-ACEPDIR_PATH="$PWD/ACEPDIR"
+ACEPDIR_PATH="$ACEPDIR"
 
 #Path de directorio de archivos "Maestro y Tablas" (.mae: codigo de pais, etc)
-MAEDIR_PATH="$PWD/MAEDIR"
+MAEDIR_PATH="$MAEDIR"
 
 #Path de directorio archivos procesados
-PROCDIR_PATH="$PWD/PROCDIR"
+PROCDIR_PATH="$PROCDIR"
 
 #Path de directorio archivos de llamadas rechazadas
-RECHDIR_PATH="$PWD/RECHDIR"
+RECHDIR_PATH="$RECHDIR"
 
 #Lista de nombre de archivos a procesar
 archivosAProcesar=()
@@ -111,7 +117,7 @@ function archivoDañado {
 #$1 string
 function isNumber {
 	re='^[0-9]+$'
-	if [[ $1 =~ $re ]] ; then
+	if [[ "$1" =~ $re ]] ; then
    		return 0 #true
 	else
 		return 1 #false
@@ -475,10 +481,10 @@ function procesarArchivo {
 				fi
 			fi
 			local fechaArchivo=$(echo "$1" | cut -f2 -d_)
-			echo "$codigoCentral;$IDAgente;$umbralID;$stringTipoLlamada;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino;$fechaArchivo" > "$PROCDIR_PATH/$nombreArchivo"
-			
+			echo "$codigoCentral;$IDAgente;$umbralID;$stringTipoLlamada;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino;$fechaArchivo" > "$PROCDIR_PATH/$nombreArchivo"			
 		fi
 	done < "$ACEPDIR_PATH"/"$1"
+	./GraLog.sh "AFRAUMBR" "Se termino de procesar el archivo $1" "INFO"
 	#TERMINO DE PROCESAR EL ARCHIVO	
 	echo "De los $cantLlamadas registros:"
 	echo "- $cantRechazadas fueron rechazados por tener algun error en los datos."
@@ -486,7 +492,6 @@ function procesarArchivo {
 	echo "- De los registros con umbral, $cantSospechosas generaron llamadas sospechosas, mientras que los restantes $cantNoSospechosas, no lo hicieron."
 	#Mueve el archivo ya procesado para no procesarlo 2 veces cuando se vuelva a llamar AFRAUMBR
 	./MoverA.sh "$ACEPDIR_PATH"/"$1" "$PROCDIR_PATH/proc" "AFRAUMBR"
-	
 }
 
 ############## MAIN ##################################
@@ -521,7 +526,7 @@ do
 	fi
 	#SI EL ARCHIVO NO ESTA DAÑADO NI ES DUPLICADO, LO PROCESA
 	echo ""
-	echo "Archivo a procesar: ${arch}"
+	./GraLog.sh "AFRAUMBR" "Archivo a procesar: ${arch}" "WARN"
 	procesarArchivo "${arch}"
 done
 #LOG CANT DE ARCHIVOS PROCESADOS Y RECHAZADOS

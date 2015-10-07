@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source AFRAINfunc.sh
-MOVERA="MoverAs"
+MOVERA="MoverA"
 
 # filename con path completo
 param_origen="$1"	
@@ -54,4 +54,4 @@ else
 	mv "$param_origen" "$param_destino"
 fi
 
-logEchoInfo $MOVERA "Se movio el archivo satisfactoriamente"
+logEchoInfo $MOVERA "Se movio el archivo $param_origen a $param_destino satisfactoriamente"
