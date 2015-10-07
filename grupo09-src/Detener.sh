@@ -28,7 +28,7 @@ if [[ $(wc -w <<< "$script_pid") == 0 ]]; then
 	exit 1
 fi
 
-kill "$script_pid"
+kill -KILL "$script_pid"
 
 script_pid=$(pgrep "$script_name")
 if [[ $(wc -w <<< "$script_pid") != 0 ]]; then
