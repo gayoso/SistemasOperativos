@@ -359,9 +359,9 @@ function parsearFechaInicio {
 	local estadoIntermedio=$(echo "$1" | cut -f1 -d' ')
 	local anio=$(echo "$estadoIntermedio" | cut -f3 -d\/)
 	local mes=$(echo "$estadoIntermedio" | cut -f2 -d\/)
-	local dia=$(echo "$estadoIntermedio" | cut -f1 -d\/)
-	local aniomesdia="$anio""$mes""$dia"
-	echo "$aniomesdia"
+	#local dia=$(echo "$estadoIntermedio" | cut -f1 -d\/) dia no va
+	local aniomes="$anio""$mes"
+	echo "$aniomes"
 }
 
 #Procesa el archivo
