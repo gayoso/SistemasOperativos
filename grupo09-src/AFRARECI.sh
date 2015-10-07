@@ -160,17 +160,15 @@ while true; do
 
 	if [[ $(ls -A "$Aceptados") != "" ]]; then
 		#pidof_afraumbr="$(pidof AFRAUMBR.sh)"
-		aLoguear=$(. Arrancar.sh & "AFRAUMBR.sh")
-		./GraLog.sh "$miNombre" "$aLoguear" "WARN"		
-		
-		#if [ $pidof_afraumbr ]; then
-		#	./GraLog.sh "Invocacion de AFRAUMBR propuesta para el siguiente ciclo" "WARN"
-		#else
-		#	#LLAMAR A AFRAUMBR
-		#	./Arrancar.sh AFRAUMBR					
-		#	pidof_afraumbr="$(pidof AFRAUMBR.sh)"
-		#	./GraLog.sh "AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr" "INFO"
-		#fi
+		. Arrancar.sh & "AFRAUMBR.sh"
+				
+		if (( $? != 0 )); then
+			./GraLog.sh "$miNombre" "Invocacion de AFRAUMBR propuesta para el siguiente ciclo" "WARN"
+		else
+			#LLAMAR A AFRAUMBR
+			pidof_afraumbr="$(pidof AFRAUMBR.sh)"
+			./GraLog.sh "$miNombre" "AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr" "INFO"
+		fi
 	fi
 
 	#Aumento la iteracion en 1
