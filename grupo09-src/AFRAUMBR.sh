@@ -481,23 +481,22 @@ function procesarArchivo {
 				fi
 			fi
 			local fechaArchivo=$(echo "$1" | cut -f2 -d_)
-			echo "$codigoCentral;$IDAgente;$umbralID;$stringTipoLlamada;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino;$fechaArchivo" > "$PROCDIR_PATH/$nombreArchivo"			
+			echo "$codigoCentral;$IDAgente;$umbralID;$stringTipoLlamada;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino;$fechaArchivo" > "$PROCDIR_PATH/$nombreArchivo"
 		fi
 	done < "$ACEPDIR_PATH"/"$1"
 	./GraLog.sh "AFRAUMBR" "Se termino de procesar el archivo $1" "INFO"
 	#TERMINO DE PROCESAR EL ARCHIVO	
-	echo "De los $cantLlamadas registros:"
-	echo "- $cantRechazadas fueron rechazados por tener algun error en los datos."
-	echo "- Se encontraron $conUmbral registros con umbral y $sinUmbral registros sin umbral"
-	echo "- De los registros con umbral, $cantSospechosas generaron llamadas sospechosas, mientras que los restantes $cantNoSospechosas, no lo hicieron."
+	./GraLog.sh "AFRAUMBR" "De los $cantLlamadas registros:
+- $cantRechazadas fueron rechazados por tener algun error en los datos.
+- Se encontraron $conUmbral registros con umbral y $sinUmbral registros sin umbral
+- De los registros con umbral, $cantSospechosas generaron llamadas sospechosas, mientras que los restantes $cantNoSospechosas, no lo hicieron." "INFO"
 	#Mueve el archivo ya procesado para no procesarlo 2 veces cuando se vuelva a llamar AFRAUMBR
 	./MoverA.sh "$ACEPDIR_PATH"/"$1" "$PROCDIR_PATH/proc" "AFRAUMBR"
 }
 
 ############## MAIN ##################################
 #observacion, reemplazar los logs correspondientes, por el GraLog
-#LOG INICIO DE AFRAUMBR (sacar siguiente linea)
-echo "INICIO AFRAUMBR"
+./GraLog.sh "AFRAUMBR" "Inicio AFRAUMBR" "INFO"
 chmod +x ./MoverA.sh # esta linea no va una vez que este integrado con el resto del tp
 #INICIALIZANDO AFRAUMBR...
 crearDirectorio_ArchProcesados
@@ -507,32 +506,26 @@ inicializarCodigosArea
 inicializarCodigosPais
 inicializarlistaUmbrales
 #AFRAUMBR INICIALIZADO
-echo "cantidad de archivos: " ${#archivosAProcesar[@]} #LOG CANTIDAD DE ARCHIVOS A PROCESAR ${#archivosAProcesar[@]}
+./GraLog.sh "AFRAUMBR" "Cantidad de archivos: ${#archivosAProcesar[@]}" "INFO"
 
 for arch in "${archivosAProcesar[@]}"
 do
 	((cantidadArchivosProcesados++))
 	if archivoYaProcesado "${arch}";then
 		((cantidadArchivosRechazados++))
-		#LOG Se rechaza el archivo por estar DUPLICADO
-		echo "Se rechaza el archivo ${arch} por estar DUPLICADO"
+		./GraLog.sh "AFRAUMBR" "Se rechaza el archivo ${arch} por estar DUPLICADO" "WARN"
 		continue
 	fi
 	if archivoDañado "${arch}";then
 		((cantidadArchivosRechazados++))
-		#LOG Se rechaza el archivo por que su estructura interna no se corresponde con el formato esperado
-		echo "Se rechaza el archivo ${arch} por que su estructura interna no se corresponde con el formato esperado" 
+		./GraLog.sh "AFRAUMBR" "Se rechaza el archivo ${arch} por que su estructura interna no se corresponde con el formato esperado" "WARN"
 		continue
 	fi
 	#SI EL ARCHIVO NO ESTA DAÑADO NI ES DUPLICADO, LO PROCESA
-	echo ""
 	./GraLog.sh "AFRAUMBR" "Archivo a procesar: ${arch}" "WARN"
 	procesarArchivo "${arch}"
 done
-#LOG CANT DE ARCHIVOS PROCESADOS Y RECHAZADOS
-echo "SE PROCESARON TODOS LOS ARCHIVOS:"
-echo "- Se procesaron $cantidadArchivosProcesados archivos."
-echo "- Se rechazaron $cantidadArchivosRechazados archivos."
-#LOG FIN DE AFRAUMBR
-echo ""
-echo "FIN DE AFRAUMBR"
+./GraLog.sh "AFRAUMBR" "SE PROCESARON TODOS LOS ARCHIVOS:
+- Se procesaron $cantidadArchivosProcesados archivos.
+- Se rechazaron $cantidadArchivosRechazados archivos." "INFO"
+./GraLog.sh "AFRAUMBR" "Fin de AFRAUMBR" "INFO"

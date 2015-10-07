@@ -36,7 +36,7 @@ fi
 
 if [ "$script_name" = "AFRAUMBR.sh" ]; then
 	logEchoInfo $ARRANCAR "Arrancando el script 'AFRAUMBR.sh'"
-	"$BINDIR/$script_name"
+	"$BINDIR/$script_name" &
 	exit 0
 fi
 
