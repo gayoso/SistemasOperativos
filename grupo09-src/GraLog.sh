@@ -22,7 +22,7 @@ if [[ "$#" -eq 3 ]]; then	# Si hay 3 parametros significa que se identifica el t
 elif [[ "$#" -eq 2 ]]; then	# Si hay 2 parametros se toma la variable WHAT = INFO por default.
 	WHAT="INFO"				# Tipo de error: INFO por default.
 else
-	$BINDIR/GraLog.sh "GraLog" "Recibidos $# parametros en lugar de 2 o 3." "ERROR"
+	"$BINDIR/GraLog.sh" "GraLog" "Recibidos $# parametros en lugar de 2 o 3." "ERROR"
 	exit $#
 fi
 
@@ -41,6 +41,21 @@ fi
 WHEN=$(date +"%d/%m/%Y %T") 		# Fecha y Hora, en el formato que deseen y calculada justo antes de la grabación.
 WHO="$USER"							# Usuario, es el login del usuario.
 
-echo -e "$WHEN-$WHO-$WHERE-$WHAT-$WHY" >> $LOGPATH
+echo -e "$WHEN-$WHO-$WHERE-$WHAT-$WHY" >> "$LOGPATH"
+
+# Manejo de crecimiento controlado:
+TAMANIO_bytes=`stat -c %s "$LOGPATH"` 			#Comando que indica el tamaño de un archivo. Devuelve el tamaño en bytes.
+
+#Paso de bytes a kb.
+TAMANIO_kb=$(($TAMANIO_bytes/1024))
+# echo "KiloBytes: $TAMANIO_kb"
+
+if [[ "$TAMANIO_kb" -ge "$LOGSIZE" ]]; then		#Si el tamaño del archivo es mayor que el LOGSIZE
+	TEMPORAL='templog.log' 						#Creo un archivo temporal para el log nuevo.
+	echo "------------------------------Log Excedido------------------------------" >> "$TEMPORAL" 		#Agrego como primera linea "Log Excedido" para indicar que se realizo este procedimiento.
+	tail -n 50 "$LOGPATH" >> "$TEMPORAL" 		#Agrego las ultimas 50 lineas del log viejo al nuevo.
+	rm "$LOGPATH"								#Elimino el viejo log
+	mv "$TEMPORAL" "$LOGPATH"					#Cambia el nombre del archivo de templog al original.
+fi
 
 exit 0

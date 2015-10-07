@@ -6,10 +6,12 @@
 miNombre="AFRARECI"
 
 #if [ -z "$MAEDIR"] && [ -z "$NOVEDIR"] && [ -z "$ACEPDIR"] && [ -z "$RECHDIR"] && [ -z "$LOGDIR"];then
-if [[ ENTORNO_CONFIGURADO == true ]]; then
-	./GraLog.sh "$miNombre" "no estan seteadas las variables de estado, el proceso se interrumpira" "ERROR"	
+if [[ $ENTORNO_CONFIGURADO == false ]]; then
+	# No logueo porque no existen las variables de ambiente
+	echo "[ERROR] El entorno no ha sido configurado aún. Corra el script AFRAINIC.sh para configurarlo."
+	# ./GraLog.sh "$miNombre" "No estan seteadas las variables de estado, el proceso se interrumpira" "ERROR"	
 	#echo "no estan seteadas las variables de estado, el proceso se interrumpira"
-	exit
+	exit 1
 fi 
 
 #Codigo de las centrales
@@ -41,7 +43,7 @@ function esTexto {
 			return 1
 			;;
 		(*) 
-			./GraLog.sh "$miNombre" "Archivo "$1" no es de texto. El archivo se movera a rechazados" "INFO" 			#echo "Archivo "$1" no es de texto"
+			./GraLog.sh "$miNombre" "Archivo $1 no es de texto. El archivo se movera a rechazados" "INFO" 			#echo "Archivo "$1" no es de texto"
 			return 0
 			;;
 	esac
@@ -55,7 +57,7 @@ function esValidoElFormato {
 	then
 		return 1
 	else
-		./GraLog.sh "$miNombre" "Archivo "$1" invalido: formato invalido. El archivo se movera a rechazados"  "INFO"
+		./GraLog.sh "$miNombre" "Archivo $1 invalido: formato invalido. El archivo se movera a rechazados"  "INFO"
 		return 0
 	fi	
 }
@@ -65,29 +67,29 @@ function esFechaInvalida {
 
 	local __returnVar=$2
 	
-	date -d $1 > /dev/null 2>&1
-	local res=$?
+	date -d "$1" > /dev/null 2>&1
+	local res="$?"
 	eval $__returnVar=$res
 }
 
 #Funcion que se fija si el formato sea valido
 function esValidoElNombre {
 
-	IFS='_' read codigoCentral fecha <<< $1
+	IFS='_' read codigoCentral fecha <<< "$1"
 	
 	#echo -e "$codigoCentral :  $fecha"
 	
 	local existeElCodigo=$(grep -c $codigoCentral $2)
 	
 	if [ $existeElCodigo -eq 0 ]; then
-		./GraLog.sh "$miNombre" "Archivo "$1" invalido :el codigo no existe. El archivo se movera a rechazados" "INFO"
+		./GraLog.sh "$miNombre" "Archivo $1 invalido :el codigo no existe. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 	
 	esFechaInvalida ${fecha:4:2}"/"${fecha:6:2}"/"${fecha:0:4} bool
 	
 	if [ $bool -eq 1 ]; then
-		./GraLog.sh "$miNombre" "Archivo "$1" invalido :fecha es invalida. El archivo se movera a rechazados" "INFO"
+		./GraLog.sh "$miNombre" "Archivo $1 invalido :fecha es invalida. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 
@@ -118,7 +120,7 @@ while true; do
 	./GraLog.sh "$miNombre" "ciclo nro. $numIteracion" "INFO"
 
 	#Checkear si hay nuevos archivos
-	if [ "$(ls -A $Novedir)" ]; then
+	if [ $(ls -A "$Novedir") ]; then
 		#Recorro archivos
 		for	archivo in "$Novedir"/*; do
 			
@@ -156,7 +158,7 @@ while true; do
 		done
 	fi
 
-	if [ "$(ls -A $Aceptados)" ]; then
+	if [ $(ls -A "$Aceptados") ]; then
 		#pidof_afraumbr="$(pidof AFRAUMBR.sh)"
 		
 		aLoguear=$(./Arrancar "AFRAUMBR.sh")
