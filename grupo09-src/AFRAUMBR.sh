@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $ENTORNO_CONFIGURADO == false ]]; then
+if [[ "$ENTORNO_CONFIGURADO" == false ]]; then
 	# No logueo porque no existen las variables de ambiente
 	echo "[ERROR] El entorno no ha sido configurado aún. Corra el script AFRAINIC.sh para configurarlo."
 	exit 1

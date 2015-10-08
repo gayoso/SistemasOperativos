@@ -1,16 +1,11 @@
 #!/bin/bash
 
-#TODOS LOS ECHOS DEBERIAN SER EL LOG
-
 #Nombre de este script
 miNombre="AFRARECI"
 
-#if [ -z "$MAEDIR"] && [ -z "$NOVEDIR"] && [ -z "$ACEPDIR"] && [ -z "$RECHDIR"] && [ -z "$LOGDIR"];then
-if [[ $ENTORNO_CONFIGURADO == false ]]; then
+if [[ "$ENTORNO_CONFIGURADO" == false ]]; then
 	# No logueo porque no existen las variables de ambiente
 	echo "[ERROR] El entorno no ha sido configurado aún. Corra el script AFRAINIC.sh para configurarlo."
-	# ./GraLog.sh "$miNombre" "No estan seteadas las variables de estado, el proceso se interrumpira" "ERROR"	
-	#echo "no estan seteadas las variables de estado, el proceso se interrumpira"
 	exit 1
 fi 
 
@@ -43,7 +38,7 @@ function esTexto {
 			return 1
 			;;
 		(*) 
-			./GraLog.sh "$miNombre" "Archivo $1 no es de texto. El archivo se movera a rechazados" "INFO" 			#echo "Archivo "$1" no es de texto"
+			./GraLog.sh "$miNombre" "Archivo $1 no es de texto. El archivo se movera a rechazados" "INFO"
 			return 0
 			;;
 	esac
@@ -53,7 +48,7 @@ function esTexto {
 function esValidoElFormato {
 	local arch=$1
 
-	if [ ${#arch} -eq 12 ] && [ ${arch:3:1} == '_' ]
+	if [[ ${#arch} -eq 12 ]] && [[ ${arch:3:1} == '_' ]]
 	then
 		return 1
 	else
@@ -88,19 +83,19 @@ function esValidoElNombre {
 	
 	esFechaInvalida ${fecha:4:2}"/"${fecha:6:2}"/"${fecha:0:4} bool
 	
-	if [ $bool -eq 1 ]; then
+	if [[ "$bool" -eq 1 ]]; then
 		./GraLog.sh "$miNombre" "Archivo $1 invalido: fecha es invalida. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 
 	fecha_posta=$(date +"%Y%m%d")
 	
-	if [ $((fecha_posta - fecha)) -gt 10000 ]; then
+	if [[ $((fecha_posta - fecha)) -gt 10000 ]]; then
 		./GraLog.sh "$miNombre" "Archivo $1 invalido: fecha es mayor a un año. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 		
-	if [ "$fecha_posta" -lt "$fecha" ]; then
+	if [[ "$fecha_posta" -lt "$fecha" ]]; then
 		./GraLog.sh $miNombre "Archivo $1 invalido: fecha no es anterior a la actual. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
@@ -121,7 +116,7 @@ while true; do
 
 	#Checkear si hay nuevos archivos
 	# Me fijo si hay archivos nomas con el find
-	if [[ $(ls -A "$Novedir") != "" ]]; then
+	if [[ $(find "$Novedir" -maxdepth 1 -type f) != "" ]]; then
 		#Recorro archivos
 		for	archivo in "$Novedir"/*; do
 			
@@ -129,48 +124,43 @@ while true; do
 			
 			esTexto "$archivo" #checkeo si es un arch de texto
 			
-					
-			if (( $? == 0)); then 
-				aLoguear=$(./MoverA.sh "$archivo" "$Rechazados" "AFRARECI")
-				./GraLog.sh "$miNombre" "$aLoguear" "WARN"
+			if [[ "$?" == 0 ]]; then 
+				./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
 				continue
 			fi #si no es valido salgo del loop
 
 			esValidoElFormato "$archivo_sin_dir"
 			
-			if (( $? == 0)); then  
-				aLoguear=$(./MoverA.sh "$archivo" "$Rechazados" "AFRARECI")
-				./GraLog.sh "$miNombre" "$aLoguear" "WARN"
+			if [[ "$?" == 0 ]]; then  
+				./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
 				continue
 			fi #si no es valido salgo del loop		
 			
 			esValidoElNombre "$archivo_sin_dir"
 			
-			if (( $? == 0)); then
-				aLoguear=$(./MoverA.sh "$archivo" "$Rechazados" "AFRARECI")
-				./GraLog.sh "$miNombre" "$aLoguear" "WARN"
+			if [[ "$?" == 0 ]]; then
+				./MoverA.sh "$archivo" "$Rechazados" "AFRARECI"
 				continue 
 			fi #si no es valido salgo del loop	
 			
 			./GraLog.sh "$miNombre" "Archivo valido: $archivo_sin_dir PATH: $archivo" "INFO"
-			aLoguear=$(./MoverA.sh "$archivo" "$Aceptados" "AFRARECI")
-			./GraLog.sh "$miNombre" "$aLoguear" "INFO"
+			./MoverA.sh "$archivo" "$Aceptados" "AFRARECI"
 		 
 		done
 	fi
 
 	# Me fijo si hay archivos nomas con el find
 	if [[ $(find "$Aceptados" -maxdepth 1 -type f) != "" ]]; then
-		./Arrancar.sh "AFRAUMBR.sh" 1>/dev/null
+		./Arrancar.sh "AFRAUMBR.sh" "$miNombre" 1>/dev/null
 				
 		if [[ "$?" != 0 ]]; then
 			./GraLog.sh "$miNombre" "Invocacion de AFRAUMBR pospuesta para el siguiente ciclo" "WARN"
-			echo "[WARNING] Invocacion de AFRAUMBR pospuesta para el siguiente ciclo"
+			# echo "[WARNING] Invocacion de AFRAUMBR pospuesta para el siguiente ciclo"
 		else
 			#LLAMAR A AFRAUMBR
 			pidof_afraumbr=$(pgrep AFRAUMBR.sh)
 			./GraLog.sh "$miNombre" "AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr" "INFO"
-			echo "[INFO] AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr"
+			echo "[INFO] AFRAUMBR corriendo bajo el no.: $pidof_afraumbr"
 		fi
 	fi
 

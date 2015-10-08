@@ -90,7 +90,6 @@ Estado del sistema: INICIALIZADO"
 elif [[ "$ENTORNO_CONFIGURADO" == true ]]; then
 	# No logueo porque no existen las variables de ambiente
 	echo "[ERROR] El entorno ya ha sido configurado. No se puede inicializar el entorno 2 veces en una misma sesión."
-	# logEchoError $AFRAINIC "No se puede correr AFRAINIC.sh ya que el ambiente ya ha sido inicializado. Para reiniciar termine la sesión e ingrese nuevamente."
 	terminar=true
 fi
 
@@ -105,11 +104,11 @@ if [ $terminar = false ]; then
 		read input
 	done
 
-	if [ "$input" == "No" ]; then
+	if [[ "$input" == "No" ]]; then
 		logEchoInfo $AFRAINIC "Puede arrancar AFRARECI en cualquier momento con el comando './Arrancar.sh AFRARECI.sh'"
 	else
 		logEchoInfo $AFRAINIC "Puede detener AFRARECI en cualquier momento con el comando './Detener.sh AFRARECI.sh'"
-		./Arrancar.sh "AFRARECI.sh"
+		./Arrancar.sh "AFRARECI.sh" "$AFRAINIC"
 		script_pid=$(pgrep "AFRARECI.sh")
 		logEchoInfo $AFRAINIC "AFRARECI corriendo bajo el número de proceso $script_pid"
 	fi
