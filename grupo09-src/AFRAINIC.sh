@@ -25,14 +25,12 @@ function darPermisos {
 
 PATH_ARCH_CONFIG="../conf/AFRAINST.conf"
 
-#variables de ambiente
-#if [ ! -f $PATH_ARCH_CONFIG ]; then
-	#lo dejo para el dev, por si escribimos mal el path
-#	logError $AFRAINIC "El archivo de configuracion indicado no es valido. Por favor correr AFRAINST.sh"
-#	terminar=true
-#fi
+if [ ! -f $PATH_ARCH_CONFIG ]; then
+	echo "[ERROR] No se encontro el archivo 'AFRAINST.conf'. Por favor, correr nuevamente AFRAINST.sh y luego AFRAINIC.sh desde la carpeta bin/"
+	terminar=true
+fi
 
-if [[ "$ENTORNO_CONFIGURADO" == false || "$ENTORNO_CONFIGURADO" == "" ]]; then
+if [[ "$ENTORNO_CONFIGURADO" == false || "$ENTORNO_CONFIGURADO" == "" && $terminar != true ]]; then
 
 	export GRUPO=$(grep 'GRUPO=' "$PATH_ARCH_CONFIG" | sed "s/GRUPO=//" | sed "s/=.*//")
 	# echo "$GRUPO"
