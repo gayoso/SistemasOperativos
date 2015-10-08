@@ -106,9 +106,9 @@ if [ $terminar = false ]; then
 	done
 
 	if [ "$input" == "No" ]; then
-		logEchoInfo $AFRAINIC "Puede arrancar AFRARECI en cualquier momento con el comando './Arrancar AFRARECI.sh'"
+		logEchoInfo $AFRAINIC "Puede arrancar AFRARECI en cualquier momento con el comando './Arrancar.sh AFRARECI.sh'"
 	else
-		logEchoInfo $AFRAINIC "Puede detener AFRARECI en cualquier momento con el comando './Detener AFRARECI.sh'"
+		logEchoInfo $AFRAINIC "Puede detener AFRARECI en cualquier momento con el comando './Detener.sh AFRARECI.sh'"
 		./Arrancar.sh "AFRARECI.sh"
 		script_pid=$(pgrep "AFRARECI.sh")
 		logEchoInfo $AFRAINIC "AFRARECI corriendo bajo el número de proceso $script_pid"

@@ -30,18 +30,18 @@ fi
 
 if [ "$script_name" = "AFRARECI.sh" ]; then
 	logEchoInfo $ARRANCAR "Arrancando el script 'AFRARECI.sh'"
-	"$BINDIR/$script_name" &
+	./"$script_name" &
 	exit 0
 fi
 
 if [ "$script_name" = "AFRAUMBR.sh" ]; then
 	logEchoInfo $ARRANCAR "Arrancando el script 'AFRAUMBR.sh'"
-	"$BINDIR/$script_name" &
+	./"$script_name" &
 	exit 0
 fi
 
 if [ "$script_name" = "AFRALIST.pl" ]; then
 	logEchoInfo $ARRANCAR "Arrancando el script 'AFRALIST.pl'"
-	"$BINDIR/$script_name"
+	./"$script_name"
 	exit 0
 fi

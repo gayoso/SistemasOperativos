@@ -82,26 +82,26 @@ function esValidoElNombre {
 	local existeElCodigo=$(grep -c "$codigoCentral" "$Mdc")
 	
 	if [[ "$existeElCodigo" -eq 0 ]]; then
-		./GraLog.sh "$miNombre" "Archivo $1 invalido :el codigo no existe. El archivo se movera a rechazados" "INFO"
+		./GraLog.sh "$miNombre" "Archivo $1 invalido: el codigo no existe. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 	
 	esFechaInvalida ${fecha:4:2}"/"${fecha:6:2}"/"${fecha:0:4} bool
 	
 	if [ $bool -eq 1 ]; then
-		./GraLog.sh "$miNombre" "Archivo $1 invalido :fecha es invalida. El archivo se movera a rechazados" "INFO"
+		./GraLog.sh "$miNombre" "Archivo $1 invalido: fecha es invalida. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 
 	fecha_posta=$(date +"%Y%m%d")
 	
 	if [ $((fecha_posta - fecha)) -gt 10000 ]; then
-		./GraLog.sh "$miNombre" "Archivo $1 invalido :fecha es menor a un año. El archivo se movera a rechazados" "INFO"
+		./GraLog.sh "$miNombre" "Archivo $1 invalido: fecha es mayor a un año. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 		
 	if [ "$fecha_posta" -lt "$fecha" ]; then
-		./GraLog.sh $miNombre "Archivo $1 invalido :fecha no es anterior a la actual. El archivo se movera a rechazados" "INFO"
+		./GraLog.sh $miNombre "Archivo $1 invalido: fecha no es anterior a la actual. El archivo se movera a rechazados" "INFO"
 		return 0
 	fi
 
@@ -117,9 +117,10 @@ numIteracion=1
 while true; do
 
 	#Decirle al log "AFRARECI ciclo nro 1"
-	./GraLog.sh "$miNombre" "ciclo nro. $numIteracion" "INFO"
+	./GraLog.sh "$miNombre" "Ciclo Nro. $numIteracion" "INFO"
 
 	#Checkear si hay nuevos archivos
+	# Me fijo si hay archivos nomas con el find
 	if [[ $(ls -A "$Novedir") != "" ]]; then
 		#Recorro archivos
 		for	archivo in "$Novedir"/*; do
@@ -153,21 +154,23 @@ while true; do
 			
 			./GraLog.sh "$miNombre" "Archivo valido: $archivo_sin_dir PATH: $archivo" "INFO"
 			aLoguear=$(./MoverA.sh "$archivo" "$Aceptados" "AFRARECI")
-			./GraLog.sh "$miNombre" "$aLoguear" "WARN"			
+			./GraLog.sh "$miNombre" "$aLoguear" "INFO"
 		 
 		done
 	fi
 
-	if [[ $(ls -A "$Aceptados") != "" ]]; then
-		#pidof_afraumbr="$(pidof AFRAUMBR.sh)"
-		. Arrancar.sh & "AFRAUMBR.sh"
+	# Me fijo si hay archivos nomas con el find
+	if [[ $(find "$Aceptados" -maxdepth 1 -type f) != "" ]]; then
+		./Arrancar.sh "AFRAUMBR.sh" 1>/dev/null
 				
-		if (( $? != 0 )); then
-			./GraLog.sh "$miNombre" "Invocacion de AFRAUMBR propuesta para el siguiente ciclo" "WARN"
+		if [[ "$?" != 0 ]]; then
+			./GraLog.sh "$miNombre" "Invocacion de AFRAUMBR pospuesta para el siguiente ciclo" "WARN"
+			echo "[WARNING] Invocacion de AFRAUMBR pospuesta para el siguiente ciclo"
 		else
 			#LLAMAR A AFRAUMBR
-			pidof_afraumbr="$(pidof AFRAUMBR.sh)"
+			pidof_afraumbr=$(pgrep AFRAUMBR.sh)
 			./GraLog.sh "$miNombre" "AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr" "INFO"
+			echo "[INFO] AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr"
 		fi
 	fi
 

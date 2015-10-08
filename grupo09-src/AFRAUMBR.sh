@@ -522,7 +522,7 @@ do
 		continue
 	fi
 	#SI EL ARCHIVO NO ESTA DAÑADO NI ES DUPLICADO, LO PROCESA
-	./GraLog.sh "AFRAUMBR" "Archivo a procesar: ${arch}" "WARN"
+	./GraLog.sh "AFRAUMBR" "Archivo a procesar: ${arch}" "INFO"
 	procesarArchivo "${arch}"
 done
 ./GraLog.sh "AFRAUMBR" "SE PROCESARON TODOS LOS ARCHIVOS:
