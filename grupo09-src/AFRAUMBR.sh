@@ -394,21 +394,22 @@ function procesarArchivo {
 		if ! validar_IDAgente "$IDAgente"; then
 			#rechazar registro
 			crearDirectorio_llamadasRechazadas
-			echo "$1;agente no registrado;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" >> "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
+			echo "$1;agente no registrado;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" 
+> "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
 			((cantRechazadas++))
 			continue
 		fi
 		if ! validar_codigoArea "$numeroA_area"; then
 			#rechazar registro
 			crearDirectorio_llamadasRechazadas
-			echo "$1;codigo de area invalido;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" > "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
+			echo "$1;codigo de area invalido;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" >> "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
 			((cantRechazadas++))
 			continue
 		fi
 		if ! validar_numeroDeLinea "$numeroA_area" "$numeroA_numeroLinea"; then
 			#rechazar registro
 			crearDirectorio_llamadasRechazadas
-			echo "$1;numero de linea origen invalido;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" > "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
+			echo "$1;numero de linea origen invalido;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" >> "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
 			((cantRechazadas++))
 			continue
 		fi
@@ -481,7 +482,7 @@ function procesarArchivo {
 				fi
 			fi
 			local fechaArchivo=$(echo "$1" | cut -f2 -d_)
-			echo "$codigoCentral;$IDAgente;$umbralID;$stringTipoLlamada;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino;$fechaArchivo" > "$PROCDIR_PATH/$nombreArchivo"
+			echo "$codigoCentral;$IDAgente;$umbralID;$stringTipoLlamada;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino;$fechaArchivo" >> "$PROCDIR_PATH/$nombreArchivo"
 		fi
 	done < "$ACEPDIR_PATH"/"$1"
 	./GraLog.sh "AFRAUMBR" "Se termino de procesar el archivo $1" "INFO"
