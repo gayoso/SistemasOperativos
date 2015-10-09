@@ -28,7 +28,10 @@ if [[ $(wc -w <<< "$script_pid") == 0 ]]; then
 	exit 1
 fi
 
-kill -KILL "$script_pid"
+arr_pids=$(echo $script_pid | tr " " "\n")
+for pid in $arr_pids; do
+	kill -KILL $pid
+done
 
 script_pid=$(pgrep "$script_name")
 if [[ $(wc -w <<< "$script_pid") != 0 ]]; then
