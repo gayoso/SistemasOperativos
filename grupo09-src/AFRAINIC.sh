@@ -4,6 +4,13 @@ source AFRAINfunc.sh
 AFRAINIC="AFRAINIC"
 terminar=false
 
+function finish {
+	./Detener.sh AFRAUMBR.sh
+	./Detener.sh AFRARECI.sh
+}
+
+trap finish SIGTERM SIGINT EXIT
+
 function darPermisos {
 	logEchoInfo $AFRAINIC "Chequeando permisos de archivos"
 
