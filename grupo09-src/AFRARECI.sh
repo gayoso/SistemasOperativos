@@ -157,9 +157,8 @@ while true; do
 			./GraLog.sh "$miNombre" "Invocacion de AFRAUMBR pospuesta para el siguiente ciclo" "WARN"
 			# echo "[WARNING] Invocacion de AFRAUMBR pospuesta para el siguiente ciclo"
 		else
-			#LLAMAR A AFRAUMBR
+			#SE LLAMO A AFRAUMBR
 			pidof_afraumbr=$(pgrep AFRAUMBR.sh)
-			./GraLog.sh "$miNombre" "AFRAUMBR corriendo bajo  el no.: $pidof_afraumbr" "INFO"
 			echo "[INFO] AFRAUMBR corriendo bajo el no.: $pidof_afraumbr"
 		fi
 	fi

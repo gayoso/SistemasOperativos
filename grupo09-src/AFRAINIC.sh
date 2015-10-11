@@ -5,8 +5,14 @@ AFRAINIC="AFRAINIC"
 terminar=false
 
 function finish {
-	./Detener.sh AFRAUMBR.sh
-	./Detener.sh AFRARECI.sh
+	local afraumbrPID=$(pgrep AFRAUMBR.sh)
+	if [[ "$afraumbrPID" != "" ]]; then
+		./Detener.sh AFRAUMBR.sh
+	fi
+	local afrareciPID=$(pgrep AFRARECI.sh)
+	if [[ "$afrareciPID" != "" ]]; then
+		./Detener.sh AFRARECI.sh
+	fi
 }
 
 trap finish SIGTERM SIGINT EXIT
@@ -114,8 +120,6 @@ if [ $terminar = false ]; then
 	else
 		logEchoInfo $AFRAINIC "Puede detener AFRARECI en cualquier momento con el comando './Detener.sh AFRARECI.sh'"
 		./Arrancar.sh "AFRARECI.sh" "$AFRAINIC"
-		script_pid=$(pgrep "AFRARECI.sh")
-		logEchoInfo $AFRAINIC "AFRARECI corriendo bajo el número de proceso $script_pid"
 	fi
 fi
 
