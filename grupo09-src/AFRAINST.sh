@@ -88,11 +88,17 @@ A T E N C I Ó N: Al instalar Ud. expresa aceptar los términos y condiciones de
 function verificarNombreDirectorio {
 	local aux="asd"
 	local reBarra='^/.*$'
+	local reIgual='^[^=]*$'
 	read aux
 	if [[ "$aux" != "" ]]; then
 		if [[ "$aux" != "conf" ]]; then
 			if ! [[ "$aux" =~ $reBarra ]]; then
-				echo "$aux"
+				if [[ "$aux" =~ $reIgual ]]; then
+					echo "$aux"
+				else
+					logWarnInst "El usuario ingresó \"$aux\", pero el nombre de un directorio no puede contener =. Se toma el valor por defecto."
+					echo "$1"
+				fi
 			else
 				logWarnInst "El usuario ingresó \"$aux\", pero el nombre de un directorio no puede empezar con /. Se toma el valor por defecto."
 				echo "$1"
@@ -183,13 +189,18 @@ Inténtelo nuevamente."
 	logEchoInfoInst "Defina el nombre para la extensión de los archivos de log ($LOGEXT):"
 	local aux="asd"
 	read aux
-	rePunto='^\..*$'
+	local rePunto='^\..*$'
+	local reIgual='^[^=]*$'
 	if [[ "$aux" != "" ]]; then
 		if ! [[ "$aux" =~ $rePunto ]]; then
-			if [[ ${#aux} -gt 5 ]]; then
-				logWarnInst "La longitud de la extensión \"$aux\" es mayor a 5, lo cual es inválido. Se toma el valor por defecto."
+			if [[ "$aux" =~ $reIgual ]]; then
+				if [[ ${#aux} -gt 5 ]]; then
+					logWarnInst "La longitud de la extensión \"$aux\" es mayor a 5, lo cual es inválido. Se toma el valor por defecto."
+				else
+					LOGEXT=$aux
+				fi
 			else
-				LOGEXT=$aux
+				logWarnInst "La extensión \"$aux\" contiene un =, lo cual es inválido. Se toma el valor por defecto."
 			fi
 		else
 			logWarnInst "La extensión \"$aux\" comienza con un punto (.), lo cual es inválido. Se toma el valor por defecto."
