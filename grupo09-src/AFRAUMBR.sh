@@ -44,7 +44,7 @@ function crearDirectorio_ArchProcesados {
 function crearListaArchivos {
 	#lo dejo pero no sirve: archivosAProc=$(ls "$ACEPDIR_PATH" | sort -n -r -t _ -k 2)
 	local num=0
-	for i in `ls "$ACEPDIR_PATH" | sort -n -r -t _ -k 2` ;
+	for i in `ls "$ACEPDIR_PATH" | sort -n -t _ -k 2` ;
 	do
 		if [ ! -f  "$ACEPDIR_PATH"/"$i" ]; then
 			continue
@@ -394,8 +394,7 @@ function procesarArchivo {
 		if ! validar_IDAgente "$IDAgente"; then
 			#rechazar registro
 			crearDirectorio_llamadasRechazadas
-			echo "$1;agente no registrado;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" 
-> "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
+			echo "$1;agente no registrado;$IDAgente;$inicioLLamada;$tiempoConversion;$numeroA_area;$numeroA_numeroLinea;$numeroB_codigoPais;$numeroB_codigoArea;$numeroB_numeroLineaDestino" >> "$RECHDIR_PATH/llamadas/$codigoCentral.rech"
 			((cantRechazadas++))
 			continue
 		fi

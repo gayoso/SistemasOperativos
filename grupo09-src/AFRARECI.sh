@@ -156,10 +156,10 @@ while true; do
 		if [[ "$?" != 0 ]]; then
 			./GraLog.sh "$miNombre" "Invocacion de AFRAUMBR pospuesta para el siguiente ciclo" "WARN"
 			# echo "[WARNING] Invocacion de AFRAUMBR pospuesta para el siguiente ciclo"
-		else
-			#SE LLAMO A AFRAUMBR
-			pidof_afraumbr=$(pgrep AFRAUMBR.sh)
-			echo "[INFO] AFRAUMBR corriendo bajo el no.: $pidof_afraumbr"
+#		else
+#			#SE LLAMO A AFRAUMBR
+#			pidof_afraumbr=$(pgrep AFRAUMBR.sh)
+#			echo "[INFO] AFRAUMBR corriendo bajo el no.: $pidof_afraumbr"
 		fi
 	fi
 
