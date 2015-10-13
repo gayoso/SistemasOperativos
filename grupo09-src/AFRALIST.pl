@@ -7,8 +7,8 @@
 if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
 
 $grabar = -1;
-mkdir "$ENV{'LOGDIR'}/AFRALIST-grabados";
-$GRABDIR = "$ENV{'LOGDIR'}/AFRALIST-grabados/grabar";
+#mkdir "$ENV{'LOGDIR'}/AFRALIST-grabados";
+$GRABDIR = "$ENV{'REPODIR'}/grabar";
 $Dir= "$ENV{'BINDIR'}";
 $direcPeligrosas="$ENV{'PROCDIR'}"."/";
 $uvtoficina=-1;
