@@ -4,6 +4,8 @@
 ## falta realizar bien los filtros
 ## falta cambiar el Directorio de los archivos
 
+if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
+
 $grabar = -1;
 mkdir "$ENV{'LOGDIR'}/AFRALIST-grabados";
 $GRABDIR = "$ENV{'LOGDIR'}/AFRALIST-grabados/grabar";
@@ -11,6 +13,19 @@ $Dir= "$ENV{'BINDIR'}";
 $direcPeligrosas="$ENV{'PROCDIR'}"."/";
 $uvtoficina=-1;
 $uvtam=-1;
+
+$uvtagente=-1;
+$uvtcentral=-1;
+$uvtumbral=-1;
+$uvtnuma=-1;
+$uvttipo=-1;
+
+$fagente=-1;
+$fcentral=-1;
+$fumbral=-1;
+$fnuma=-1;
+$ftipo=-1;
+
 
 sub MenuPal {
 
@@ -936,29 +951,31 @@ sub iniciarBusqueda{
 						
 			if($fcentral==1){
 				if ($uvtcentral == 1){
-					if (@aux[0] != @tc[0]){
+					if (@aux[0] ne @tc[0]){
 						$imprimo = 0;					
 					}
 				}
 				if ($uvtcentral == 2){
-					if ((@aux[0] != @tc[0]) &&
-        				    (@aux[0] != @tc[1]) &&
-					    (@aux[0] != @tc[2])){$imprimo =0;}
+					if ((@aux[0] ne @tc[0]) &&
+        				    (@aux[0] ne @tc[1]) &&
+					    (@aux[0] ne @tc[2])){$imprimo =0;}
 					
 				}
 			}
 				
 			#AGENTE
+			#print"@aux[1] ";
+			#print"@ta[0]\n";
 			if($fagente==1){
 				if ($uvtagente == 1){
-					if (@aux[1] != @ta[0]){
+					if (@aux[1] ne @ta[0]){
 						$imprimo = 0;					
 					}
 				}
 				if ($uvtagente == 2){
-					if ((@aux[1] != @ta[0]) &&
-        				    (@aux[1] != @ta[1]) &&
-					    (@aux[1] != @ta[2])){$imprimo =0;}
+					if ((@aux[1] ne @ta[0]) &&
+        				    (@aux[1] ne @ta[1]) &&
+					    (@aux[1] ne @ta[2])){$imprimo =0;}
 					
 				}
 
@@ -967,14 +984,14 @@ sub iniciarBusqueda{
 			#UMBRAL
 			if($fumbral==1){
 				if ($uvtumbral == 1){
-					if (@aux[2] != @tu[0]){
+					if (@aux[2] ne @tu[0]){
 						$imprimo = 0;					
 					}
 				}
 				if ($uvtumbral == 2){
-					if ((@aux[2] != @tu[0]) &&
-        				    (@aux[2] != @tu[1]) &&
-					    (@aux[2] != @tu[2])){$imprimo =0;}
+					if ((@aux[2] ne @tu[0]) &&
+        				    (@aux[2] ne @tu[1]) &&
+					    (@aux[2] ne @tu[2])){$imprimo =0;}
 					
 				}
 			}
@@ -982,13 +999,13 @@ sub iniciarBusqueda{
 			#TIPO
 			if($ftipo==1){
 				if ($uvttipo == 1){
-					if (@aux[3] != @tt[0]){
+					if (@aux[3] ne @tt[0]){
 						$imprimo = 0;					
 					}
 				}
 				if ($uvttipo == 2){
-					if ((@aux[2] != @tt[0]) &&
-        				    (@aux[2] != @tt[1])){$imprimo =0;}
+					if ((@aux[3] ne @tt[0]) &&
+        				    (@aux[3] ne @tt[1])){$imprimo =0;}
 					
 				}
 				
@@ -1004,14 +1021,14 @@ sub iniciarBusqueda{
 			#NUMA
 			if($fnuma==1){
 				if ($uvtnuma == 1){
-					if ((@aux[6] != @tar[0])||(@aux[2] != @tn[0])){
+					if ((@aux[6] ne @tar[0])||(@aux[2] ne @tn[0])){
 						$imprimo = 0;					
 					}
 				}
 				if ($uvtnuma == 2){
-					if ((@aux[6] != @tar[0])||(@aux[7] != @tn[0]) &&
-        				    (@aux[6] != @tar[1])||(@aux[7] != @tn[0]) &&
-					    (@aux[6] != @tar[2])||(@aux[7] != @tn[0])){$imprimo =0;}
+					if ((@aux[6] ne @tar[0])||(@aux[7] ne @tn[0]) &&
+        				    (@aux[6] ne @tar[1])||(@aux[7] ne @tn[0]) &&
+					    (@aux[6] ne @tar[2])||(@aux[7] ne @tn[0])){$imprimo =0;}
 					
 				}
 				
@@ -2023,3 +2040,6 @@ sub top5Areas{
 
 MenuPal();
 
+} else {
+	print "[ERROR] El entorno ya ha sido configurado. No se puede inicializar el entorno 2 veces en una misma sesión\n";
+}
