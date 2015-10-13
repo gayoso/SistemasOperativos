@@ -1,13 +1,8 @@
 #!/bin/perl
 
-## tiene un error de guardado, la variable no guarda bien ...
-## falta realizar bien los filtros
-## falta cambiar el Directorio de los archivos
-
-if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
+#if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
 
 $grabar = -1;
-#mkdir "$ENV{'LOGDIR'}/AFRALIST-grabados";
 $GRABDIR = "$ENV{'REPODIR'}/grabar";
 $Dir= "$ENV{'BINDIR'}";
 $direcPeligrosas="$ENV{'PROCDIR'}"."/";
@@ -77,23 +72,40 @@ sub Menuh {
 	print "Si desea salir apretar s\n";
 
 	print "Se cuenta con un archivo default.txt\n";
-	print "El mismo contendra id de centrales, agentes, umbrales, tipo de llamada, area y numero de linea\n";
-	print "Ante el filtro uno, se utilizara el primer id de cada campo";
-	print "Ante el filtro varios, se utilizara los primeros 3 ids de cada campo";
-	print "Ante el filtro todos, utilizara todos los ids conocidos";
+	print "El filtrado por una id particular implica obtener registros que contienen dicho campo\n";
+	print "En el mismo, cada linea representa los filtros de id de centrales, agentes, umbrales, tipo de llamada, area ,numero de linea, oficinas y año mes\n";
+	print "Es indispensable tener al menos un filtro por linea\n";
+
+	print "Se pueden agregar la cantidad de campos que se quieran siempre y cuando se los separe por ;\n";
+	print "Cada linea del archivo default.txt debe terminar con un ;\n";
+	print "Se debera cambiar de forma manual el archivo\n";
+	
+	print "Ante el filtro uno, se utilizara el primer id de cada campo\n";
+	print "Ante el filtro varios, se utilizaran todos los ids de cada campo\n";
+	print "Ante el filtro todos, utilizara todos los ids conocidos\n";
+
+	
 
 	$opc = <STDIN>;
 	chomp($opc);
 	while ($opc ne "s") {
-		system("clear");
-		print "Menu de ayuda\n";
-		print "Se cuenta con un archivo default.txt\n";
-		print "El mismo contendra id de centrales, agentes, umbrales, tipo de llamada, area y 				numero de linea\n";
-		print "Ante el filtro uno, se utilizara el primer id de cada campo";
-		print "Ante el filtro varios, se utilizara los primeros 3 ids de cada campo";
-		print "Ante el filtro todos, utilizara todos los ids conocidos";
-		print "Si desea salir apretar s\n";
- 		$opc = <STDIN> ;
+	system("clear");
+	print "Menu de ayuda\n";
+	print "Si desea salir apretar s\n";
+
+	print "Se cuenta con un archivo default.txt\n";
+	print "El filtrado por una id particular implica obtener registros que contienen dicho campo\n";
+	print "El mismo contendra id de centrales, agentes, umbrales, tipo de llamada, area ,numero de linea, oficinas y año mes\n";
+	print "Es indispensable tener al menos un id por linea\n";
+
+	print "Se pueden agregar la cantidad de campos que se quieran siempre y cuando se los separe por ;\n";
+	print "Se debera cambiar de forma manual el archivo\n";
+	
+	print "Ante el filtro uno, se utilizara el primer id de cada campo\n";
+	print "Ante el filtro varios, se utilizaran todos los ids de cada campo\n";
+	print "Ante el filtro todos, utilizara todos los ids conocidos\n";
+
+		$opc = <STDIN> ;
  		chop($opc);
 	}
 	MenuPal(); 			
@@ -930,15 +942,52 @@ sub iniciarBusqueda{
 		if ($it1==3){@tt=split(";",$t);}
 		if ($it1==4){@tar=split(";",$t);}
 		if ($it1==5){@tn=split(";",$t);}
+		if ($it1==6){@to=split(";",$t);}
+		if ($it1==7){@tam=split(";",$t);}
 			
+
+					
 	$it1 = $it1+1;	
 	}
 	close(DEFAULT);	
-
+	
+	
 	opendir(DIR, "$direcPeligrosas");
 	@FILES = readdir(DIR);
 	foreach $file (@FILES) {
+		
+		@nomaux = split("_",$file);
+		$todook =1;
 
+		if ($uvtoficina==1){
+			if (@nomaux[0] ne @to[0]){			
+				$todook=0;
+			}
+		}
+		if ($uvtoficina == 2){
+			$arrSize = @to;
+			$i=0;
+			$ok=1;
+			while($i<=$arrSize){
+			$todook=(@nomaux[0] ne @to[$i]) && $todook;
+			$i=$i+1;				
+			}
+		}
+		if ($uvtam == 1){
+			if (@nomaux[1] ne @tam[0]){			
+				$todook=0;
+			}
+		}		
+		if ($uvtam == 2){
+			$arrSize = @to;
+			$i=0;
+			$ok=1;
+			while($i<=$arrSize){
+			$todook=(@nomaux[1] ne @tam[$i]) && $todook;
+			$i=$i+1;				
+			}
+		}
+		if ($todook==1){
 		open (ARCH,"$direcPeligrosas/$file");
 		@registros=<ARCH>;
 
@@ -956,11 +1005,16 @@ sub iniciarBusqueda{
 					}
 				}
 				if ($uvtcentral == 2){
-					if ((@aux[0] ne @tc[0]) &&
-        				    (@aux[0] ne @tc[1]) &&
-					    (@aux[0] ne @tc[2])){$imprimo =0;}
-					
+					$arrSize = @tc;
+					$i=0;
+					$ok=1;
+					while($i<=$arrSize){
+						$ok=(@aux[0] ne @tc[$i]) && $ok;
+						$i=$i+1;				
+					}
 				}
+			if ($ok){$imprimo =0;}
+
 			}
 				
 			#AGENTE
@@ -973,10 +1027,15 @@ sub iniciarBusqueda{
 					}
 				}
 				if ($uvtagente == 2){
-					if ((@aux[1] ne @ta[0]) &&
-        				    (@aux[1] ne @ta[1]) &&
-					    (@aux[1] ne @ta[2])){$imprimo =0;}
-					
+					$arrSize = @ta;
+					$i=0;
+					$ok=1;
+					while($i<=$arrSize){
+						$ok=(@aux[1] ne @ta[$i]) &&     $ok;				
+						$i=$i+1;
+					}
+					if ($ok){$imprimo =0;}
+
 				}
 
 			} 
@@ -988,11 +1047,17 @@ sub iniciarBusqueda{
 						$imprimo = 0;					
 					}
 				}
+
 				if ($uvtumbral == 2){
-					if ((@aux[2] ne @tu[0]) &&
-        				    (@aux[2] ne @tu[1]) &&
-					    (@aux[2] ne @tu[2])){$imprimo =0;}
-					
+					$arrSize = @tu;
+					$i=0;
+					$ok=1;
+					while($i<=$arrSize){
+						$ok=(@aux[2] ne @tu[$i]) && 	$ok;				
+						$i=$i+1;
+					}
+					if ($ok){$imprimo =0;}
+
 				}
 			}
 	
@@ -1004,10 +1069,17 @@ sub iniciarBusqueda{
 					}
 				}
 				if ($uvttipo == 2){
-					if ((@aux[3] ne @tt[0]) &&
-        				    (@aux[3] ne @tt[1])){$imprimo =0;}
-					
+					$arrSize = @tu;
+					$i=0;
+					$ok=1;
+					while($i<=$arrSize){
+						$ok=(@aux[3] ne @tt[$i]) && 	$ok;				
+						$i=$i+1;
+					}
+					if ($ok){$imprimo =0;}
+
 				}
+
 				
 			}
 	
@@ -1025,12 +1097,19 @@ sub iniciarBusqueda{
 						$imprimo = 0;					
 					}
 				}
+
 				if ($uvtnuma == 2){
-					if ((@aux[6] ne @tar[0])||(@aux[7] ne @tn[0]) &&
-        				    (@aux[6] ne @tar[1])||(@aux[7] ne @tn[0]) &&
-					    (@aux[6] ne @tar[2])||(@aux[7] ne @tn[0])){$imprimo =0;}
-					
+					$arrSize = @tu;
+					$i=0;
+					$ok=1;
+					while($i<=$arrSize){
+						$ok=((@aux[6] ne @tar[$i])||(@aux[7] ne @tn[$i])) && 	$ok;				
+						$i=$i+1;
+					}
+					if ($ok){$imprimo =0;}
+
 				}
+
 				
 			}
 		if ($grabar == 1){
@@ -1046,9 +1125,11 @@ sub iniciarBusqueda{
 			
 		}
 		close (ARCH);
+		}
 	}
 	closedir(DIR);	
 	close(FICH);
+	
 }
 
 sub pregunta{
@@ -1133,7 +1214,8 @@ sub pregunta{
 		}	
 		if($opc eq "n"){
 			$inicBusq =0;
-		}	
+		}
+		print "Toque una tecla para continuar\n";	
 	}
 
 
@@ -2040,6 +2122,6 @@ sub top5Areas{
 
 MenuPal();
 
-} else {
-	print "[ERROR] El entorno ya ha sido configurado. No se puede inicializar el entorno 2 veces en una misma sesión\n";
-}
+#} else {
+#	print "[ERROR] El entorno ya ha sido configurado. No se puede inicializar el entorno 2 veces en #una misma sesión\n";
+#}
