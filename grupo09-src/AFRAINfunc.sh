@@ -87,6 +87,11 @@ function verificarArchivos {
 		archivosFaltantes+="$BINDIR/Detener.sh "
 	fi
 
+	verificarExistenciaArchivo "$BINDIR" "default.txt"
+	if [[ "$?" -eq 1 ]]; then
+		archivosFaltantes+="$BINDIR/default.txt "
+	fi
+
 
 	verificarExistenciaArchivo "$MAEDIR" "agentes.mae"
 	if [[ "$?" -eq 1 ]]; then
