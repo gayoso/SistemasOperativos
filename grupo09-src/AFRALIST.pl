@@ -5,9 +5,13 @@
 ## falta cambiar el Directorio de los archivos
 
 $grabar = -1;
-$Dir= "";
+mkdir "$ENV{'LOGDIR'}/AFRALIST-grabados";
+$GRABDIR = "$ENV{'LOGDIR'}/AFRALIST-grabados/grabar";
+$Dir= "$ENV{'BINDIR'}";
+$direcPeligrosas="$ENV{'PROCDIR'}"."/";
 $uvtoficina=-1;
 $uvtam=-1;
+
 sub MenuPal {
 
 	print "AFRALIST\n";
@@ -83,7 +87,7 @@ sub Menuh {
 sub Menuw {
 	$listo = 0;
 	system("clear");
-	print "$grabar\n";
+	#print "$grabar\n";
 	print "Si desea salir apretar e\n";
 	if ($grabar ==1){
 		print "Se grabara su proxima busqueda\n";	
@@ -887,11 +891,11 @@ sub iniciarBusqueda{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "grabar"."$it".".txt";
+		$nom = "$GRABDIR"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "grabar"."$it".".txt";
+				$nom = "$GRABDIR"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -900,7 +904,7 @@ sub iniciarBusqueda{
 		open (FICH,">$nom");
 	}
 
-	$direcdef = "$Dir"."default.txt";
+	$direcdef = "$Dir"."/default.txt";
 	open (DEFAULT,$direcdef);
 	@regs=<DEFAULT>;
 	$it1=0;
@@ -916,11 +920,11 @@ sub iniciarBusqueda{
 	}
 	close(DEFAULT);	
 
-	opendir(DIR, "$Dir");
+	opendir(DIR, "$direcPeligrosas");
 	@FILES = readdir(DIR);
 	foreach $file (@FILES) {
 
-		open (ARCH,$file);
+		open (ARCH,"$direcPeligrosas/$file");
 		@registros=<ARCH>;
 
 		foreach $peligro (@registros){
@@ -1416,11 +1420,11 @@ sub top5Centrales{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "grabar"."$it".".txt";
+		$nom = "$GRABDIR"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "grabar"."$it".".txt";
+				$nom = "$GRABDIR"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1442,10 +1446,9 @@ sub top5Centrales{
 	else{
 		foreach	$variable (@ordencentrales){
 			if ($i<6){		
-				#print "$variable\n";
 				($cantVeces,$id,$nom) = split(/\|/,$variable);
 				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
-				print"$aux\n";		
+				print"$aux\n";
 			}
 			$i=$i+1;
 		}	
@@ -1478,11 +1481,11 @@ sub top5Agentes{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "grabar"."$it".".txt";
+		$nom = "$GRABDIR"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "grabar"."$it".".txt";
+				$nom = "$GRABDIR"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1540,11 +1543,11 @@ sub top5Oficinas{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "grabar"."$it".".txt";
+		$nom = "$GRABDIR"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "grabar"."$it".".txt";
+				$nom = "$GRABDIR"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1568,7 +1571,8 @@ sub top5Oficinas{
 			if ($i<5){		
 				#print "$variable\n";
 				($cantVeces,$id) = split(/\|/,$variable);
-				$aux = "La oficina numero "."$i"." del ranking es "."$id";		
+				$a = $i +1;
+				$aux = "La oficina numero "."$a"." del ranking es "."$id";		
 				print "$aux\n";		
 			}
 			$i=$i+1;
@@ -1601,11 +1605,11 @@ sub top5Umbrales{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "grabar"."$it".".txt";
+		$nom = "$GRABDIR"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "grabar"."$it".".txt";
+				$nom = "$GRABDIR"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1669,11 +1673,11 @@ sub top5Paises{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "grabar"."$it".".txt";
+		$nom = "$GRABDIR"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
 				$it = $it +1;
-				$nom = "grabar"."$it".".txt";
+				$nom = "$GRABDIR"."$it".".txt";
 			} 
 			else {
 	 			$termine = 1;
@@ -1692,12 +1696,13 @@ sub top5Paises{
 	}
 	
 	else{
-	
+		print "Top 5 de paises\n";
 		foreach	$variable (@ordenpaises){
 			if ($i<5){		
-				print "$variable\n";
+			#	print "$variable\n";
 				($cantVeces,$id,$nom) = split(/\|/,$variable);
-			#	print"$id\n";		
+				$a = $i+1;
+				print"$El numero "."$a"." del ranking es "."$nom\n";		
 			}
 			$i=$i+1;
 		}
@@ -1729,11 +1734,11 @@ sub top5Areas{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "grabar"."$it".".txt";
+		$nom = "$GRABDIR"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
 				$it = $it +1;
-				$nom = "grabar"."$it".".txt";
+				$nom = "$GRABDIR"."$it".".txt";
 			} 
 			else {
 	 			$termine = 1;
@@ -1752,12 +1757,15 @@ sub top5Areas{
 	}
 	
 	else{
-
+		print "Top 5 de areas\n";
 		foreach	$variable (@ordenareas){
 			if ($i<5){		
-				print "$variable\n";
+				#print "$variable\n";
 				($cantVeces,$nom,$id) = split(/\|/,$variable);
-			#	print"$id\n";		
+			#	print"$id\n";	
+
+				$a = $i+1;
+				print"$El numero "."$a"." del ranking es "."$nom\n";	
 			}
 			$i=$i+1;
 		}
@@ -1769,8 +1777,8 @@ sub top5Areas{
 #------------------------------------------------------------------
 
 # SE REALIZA EL HASH DE CENTRALES: hashcentrales (ID central, Arrary:(ID CENTRAL, CENTRAL, cantVecesVisto))
-
-	$direcCentrales=$Dir."CdC.mae";
+	
+	$direcCentrales="$ENV{'MAEDIR'}"."/CdC.mae";
 	open (CENTRALES,$direcCentrales);
 	#Añadimos cada línea de éste en la matriz. 
 	@registros=<CENTRALES>; 
@@ -1798,8 +1806,8 @@ sub top5Areas{
 
 #---------------------------------------------------------------------------------------
 # SE REALIZA EL HASH DE OFICINAS: hashoficinas (ID oficina; ID oficina cantVeces visto)
-
-	$direcAgentes=$Dir."agentes.mae";
+	
+	$direcAgentes="$ENV{'MAEDIR'}"."/agentes.mae";
 	open (AGENTES,$direcAgentes);
 	#Añadimos cada línea de éste en la matriz. 
 	@registros=<AGENTES>; 
@@ -1830,7 +1838,7 @@ sub top5Areas{
 #--------------------------------------------------------------------------------------
 # SE REALIZA EL HASH DE AGENTES: hashagentes  (ID agente, Arrary:(ID AGENTE, NOM,AP,OFICINA,CORREO, cantVecesVisto))
 
-	$direcAgentes=$Dir."agentes.mae";
+	$direcAgentes="$ENV{'MAEDIR'}"."/agentes.mae";
 	open (AGENTES,$direcAgentes);
 	#Añadimos cada línea de éste en la matriz. 
 	@registros=<AGENTES>; 
@@ -1856,7 +1864,7 @@ sub top5Areas{
 #--------------------------------------------------------------------------------------
 # SE REALIZA EL HASH DE UMBRALES: hashumbrales 
 
-	$direcUmbrales=$Dir."umbral.tab";
+	$direcUmbrales="$ENV{'MAEDIR'}"."/umbral.tab";
 	open (UMBRALES,$direcUmbrales);
 	#Añadimos cada línea de éste en la matriz. 
 	@registros=<UMBRALES>; 
@@ -1883,7 +1891,7 @@ sub top5Areas{
 
 	# PAISES
 
-	$direcPaises=$Dir."CdP.mae";
+	$direcPaises="$ENV{'MAEDIR'}"."/CdP.mae";
 	open (PAISES,$direcPaises);
 	#Añadimos cada línea de éste en la matriz. 
 	@registros=<PAISES>; 
@@ -1903,7 +1911,7 @@ sub top5Areas{
 
 	# AREAS
 
-	$direcAreas=$Dir."CdA.mae";
+	$direcAreas="$ENV{'MAEDIR'}"."/CdA.mae";
 	open (AREAS,$direcAreas);
 	#Añadimos cada línea de éste en la matriz. 
 	@registros=<AREAS>; 
@@ -1925,23 +1933,27 @@ sub top5Areas{
 
 #--------------------------------------------------------------------------------------
 #BUCLE PPAL DE LLAMADAS PELIGROSAS 
-
-	opendir(DIR, "$Dir");
+	
+	opendir(DIR, "$direcPeligrosas");
 	@FILES = readdir(DIR);
 	foreach $file (@FILES) {
+		#print "nom: $file\n";
 
-		open (PELIGROSAS,$file);
+		open (PELIGROSAS,"$direcPeligrosas/$file");
 		@registros=<PELIGROSAS>;
+		#print "reg: @registros[0]\n";
 
 
 		# Mostramos los datos en pantalla 
 		foreach $peligro (@registros){
 			@aux=split(";",$peligro);
+			#print "aux: @aux[0]\n";
 			
 			#INICIAN LOS CHEQUEOS:
 		
 			# CENTRALES 
-			if (exists($hashcentrales{"@aux[0]"})){			
+			if (exists($hashcentrales{"@aux[0]"})){	
+
 				my @auxreg = @{$hashcentrales{@aux[0]}};
 				@auxreg[2] = @auxreg[2] +1;
 				@{$hashcentrales{$aux[0]}} = @auxreg;

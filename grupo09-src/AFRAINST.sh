@@ -289,6 +289,8 @@ function copiarEjecutables {
 	resultado=$(($resultado+$?))
 	copiarArchivo 'AFRAINfunc.sh' "$BINDIR"
 	resultado=$(($resultado+$?))
+	copiarArchivo 'default.txt' "$BINDIR"
+	resultado=$(($resultado+$?))
 	return "$resultado"
 }
 
