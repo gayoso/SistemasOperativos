@@ -3,7 +3,8 @@
 #if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
 
 $grabar = -1;
-$GRABDIR = "$ENV{'REPODIR'}/grabar";
+$GRABDIR_CONSULTAS = "$ENV{'REPODIR'}/consulta";
+$GRABDIR_RANKING = "$ENV{'REPODIR'}/estadistica";
 $Dir= "$ENV{'BINDIR'}";
 $direcPeligrosas="$ENV{'PROCDIR'}"."/";
 $uvtoficina=-1;
@@ -13,6 +14,7 @@ $uvtagente=-1;
 $uvtcentral=-1;
 $uvtumbral=-1;
 $uvtnuma=-1;
+$uvtam1 =-1;
 $uvttipo=-1;
 
 $fagente=-1;
@@ -20,7 +22,7 @@ $fcentral=-1;
 $fumbral=-1;
 $fnuma=-1;
 $ftipo=-1;
-
+$tiempoCantidad=1;
 
 sub MenuPal {
 
@@ -69,20 +71,20 @@ sub MenuPal {
 sub Menuh {
 	system("clear");
 	print "Menu de ayuda\n";
-	print "Si desea salir apretar s\n";
+	print "Si desea salir apretar s\n\n";
 
 	print "Se cuenta con un archivo default.txt\n";
 	print "El filtrado por una id particular implica obtener registros que contienen dicho campo\n";
 	print "En el mismo, cada linea representa los filtros de id de centrales, agentes, umbrales, tipo de llamada, area ,numero de linea, oficinas y año mes\n";
-	print "Es indispensable tener al menos un filtro por linea\n";
+	print "Es indispensable tener al menos un filtro por linea\n\n";
 
 	print "Se pueden agregar la cantidad de campos que se quieran siempre y cuando se los separe por ;\n";
 	print "Cada linea del archivo default.txt debe terminar con un ;\n";
-	print "Se debera cambiar de forma manual el archivo\n";
+	print "Se debera cambiar de forma manual el archivo\n\n";
 	
 	print "Ante el filtro uno, se utilizara el primer id de cada campo\n";
 	print "Ante el filtro varios, se utilizaran todos los ids de cada campo\n";
-	print "Ante el filtro todos, utilizara todos los ids conocidos\n";
+	print "Ante el filtro todos, utilizara todos los ids conocidos\n\n";
 
 	
 
@@ -91,19 +93,19 @@ sub Menuh {
 	while ($opc ne "s") {
 	system("clear");
 	print "Menu de ayuda\n";
-	print "Si desea salir apretar s\n";
+	print "Si desea salir apretar s\n\n";
 
 	print "Se cuenta con un archivo default.txt\n";
 	print "El filtrado por una id particular implica obtener registros que contienen dicho campo\n";
 	print "El mismo contendra id de centrales, agentes, umbrales, tipo de llamada, area ,numero de linea, oficinas y año mes\n";
-	print "Es indispensable tener al menos un id por linea\n";
+	print "Es indispensable tener al menos un id por linea\n\n";
 
 	print "Se pueden agregar la cantidad de campos que se quieran siempre y cuando se los separe por ;\n";
-	print "Se debera cambiar de forma manual el archivo\n";
+	print "Se debera cambiar de forma manual el archivo\n\n";
 	
 	print "Ante el filtro uno, se utilizara el primer id de cada campo\n";
 	print "Ante el filtro varios, se utilizaran todos los ids de cada campo\n";
-	print "Ante el filtro todos, utilizara todos los ids conocidos\n";
+	print "Ante el filtro todos, utilizara todos los ids conocidos\n\n";
 
 		$opc = <STDIN> ;
  		chop($opc);
@@ -162,7 +164,7 @@ sub Menuw {
 
 sub IngresarInput{
 	system("clear");
-	print "Filtrar archivos imput\n";
+	print "Filtrar archivos input\n";
 	print "Si desea salir apretar s\n";	
 	print "¿Cuantos filtros de oficina  desea tener(1=uno/2=varios/3=todos)?\n";
 	$opc = <STDIN>;
@@ -182,7 +184,7 @@ sub IngresarInput{
 		if($opc == 3){$uvtoficina = 3;}
 	}
 	system("clear");
-	print "Filtrar archivos imput\n";
+	print "Filtrar archivos input\n";
 	print "Si desea salir apretar s\n";	
 	print "¿Cuantos filtros de año/mes  desea tener(1=uno/2=varios/3=todos)?\n";
 	$opc = <STDIN>;
@@ -918,11 +920,11 @@ sub iniciarBusqueda{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "$GRABDIR"."$it".".txt";
+		$nom = "$GRABDIR_CONSULTAS"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "$GRABDIR"."$it".".txt";
+				$nom = "$GRABDIR_CONSULTAS"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1351,20 +1353,60 @@ sub Menur {
 	MenuPal(); 			
 }
 sub DarRankCent{
-	system("clear");
-	print "Top 5 de centrales con más llamadas peligrosas\n";
-	top5Centrales();
-	print "Si desea salir apretar s\n";		
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
+
+	if ($tiempoCantidad==1){
 		system("clear");
-		print "Top 5 de centrales con más llamadas peligrosas\n";
-		top5Centrales();
-		print "Si desea salir apretar s\n";
- 		$opc = <STDIN> ;
- 		chop($opc);
+		print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
+		top5CentralesCantidad();
+		print "Si desea salir apretar s\n";		
+		$opc = <STDIN>;
+		chomp($opc);
+		while ($opc ne "s") {
+			system("clear");
+			print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
+			top5CentralesCantidad();
+			print "Si desea salir apretar s\n";
+	 		$opc = <STDIN> ;
+	 		chop($opc);
+		}
 	}
+	if($tiempoCantidad==2){
+		system("clear");
+		print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
+		top5CentralesTiempo();
+		print "Si desea salir apretar s\n";		
+		$opc = <STDIN>;
+		chomp($opc);
+		while ($opc ne "s") {
+			system("clear");
+			print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
+			top5CentralesTiempo();
+			print "Si desea salir apretar s\n";
+	 		$opc = <STDIN> ;
+	 		chop($opc);
+	}
+	if($tiempoCantidad==3){
+		system("clear");
+		print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
+		top5CentralesTiempo();
+		print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
+		top5CentralesCantidad();
+	
+		print "Si desea salir apretar s\n";		
+		$opc = <STDIN>;
+		chomp($opc);
+		while ($opc ne "s") {
+			system("clear");
+			print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
+			top5CentralesTiempo();
+			print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
+			top5CentralesCantidad();
+	
+			print "Si desea salir apretar s\n";
+	 		$opc = <STDIN> ;
+	 		chop($opc);
+	}
+
 }
 sub DarRankOfic{
 	system("clear");
@@ -1435,15 +1477,78 @@ sub DarRankUmbr{
 	}
 
 }
+
+sub Setearperiodo{
+		system("clear");
+		print "setear periodo\n";
+		print "Si desea salir apretar e\n";
+		print "seleccione cuantos filtros desea tener (1=uno/2=varios/3=todos)\n";		
+		$opc = <STDIN>;
+		chomp($opc);
+		if ($opc ==1){$uvtam1=1;Menus();}
+		if ($opc ==2){$uvtam1=1;Menus();}
+		if ($opc ==3){$uvtam1=1;Menus();}
+
+		while ($opc ne "e") {
+			system("clear");
+			print "setear periodo\n";
+			print "Si desea salir apretar e\n";
+			print "seleccione cuantos filtros desea tener (1=uno/2=varios/3=todos)\n";		
+			$opc = <STDIN>;
+			chomp($opc);
+			if ($opc ==1){$uvtam1=1;Menus();}
+			if ($opc ==2){$uvtam1=1;Menus();}
+			if ($opc ==3){$uvtam1=1;Menus();}
+		}
+}
+sub ElegirRankTiempoCant{
+	system("clear");
+	print "Elegir tener el ranking segun tiempo o cantidad\n";
+	print "Si desea salir apretar e\n";
+
+	print "Si se quiere el ranking por cantidad 1\n";
+	print "Si se quiere el ranking por tiempo 2\n";
+	print "Si se quiere el ranking por cantidad y tiempo 3\n";
+			
+	$opc = <STDIN>;
+	chomp($opc);
+
+	if ($opc ==1){$tiempoCantidad=1;Menus();}
+	if ($opc ==2){$tiempoCantidad=2;Menus();}
+	if ($opc ==3){$tiempoCantidad=3;Menus();}
+
+	while ($opc ne "e") {
+		system("clear");
+		print "Elegir tener el ranking segun tiempo o cantidad\n";
+		print "Si desea salir apretar e\n";
+
+		print "Si se quiere el ranking por cantidad 1\n";
+		print "Si se quiere el ranking por tiempo 2\n";
+		print "Si se quiere el ranking por cantidad y tiempo 3\n";
+				
+		$opc = <STDIN>;
+		chomp($opc);
+
+		if ($opc ==1){$tiempoCantidad=1;Menus();}
+		if ($opc ==2){$tiempoCantidad=2;Menus();}
+		if ($opc ==3){$tiempoCantidad=3;Menus();}	
+	}
+
+}
 	
 sub Menus {
 	system("clear");
+
+	BucleLlamadasPeligrosas();
 	print "Menu de estadisticas de llamadas peligrosas\n";
 	print "marque 1 si desea obtener el ranking con las centrales con más llamadas peligrosas\n";
 	print "marque 2 si desea obtener el ranking con las oficinas con más llamadas peligrosas\n";
 	print "marque 3 si desea obtener el ranking con los agentes con más llamadas peligrosas\n";
 	print "marque 4 si desea obtener el ranking con los destinos con más llamadas peligrosas\n";
 	print "marque 5 si desea obtener el ranking con los umbrales con más llamadas peligrosas\n";
+	print "marque 6 si desea setear periodo\n";
+	print "marque 7 si desea cambiar ranking por cantidad de llamadas o tiempo de llamada\n";
+	
 	print "Si desea salir apretar s\n";
 	$opc = <STDIN>;
 	chomp($opc);
@@ -1469,17 +1574,29 @@ sub Menus {
 							DarRankUmbr();
 						}
 						else{
-							system("clear");
-	print "Menu de estadisticas de llamadas peligrosas\n";
-	print "marque 1 si desea obtener el ranking con las centrales con más llamadas peligrosas\n";
-	print "marque 2 si desea obtener el ranking con las oficinas con más llamadas peligrosas\n";
-	print "marque 3 si desea obtener el ranking con los agentes con más llamadas peligrosas\n";
-	print "marque 4 si desea obtener el ranking con los destinos con más llamadas peligrosas\n";
-	print "marque 5 si desea obtener el ranking con los umbrales con más llamadas peligrosas\n";
-	print "Si desea salir apretar s\n";
-	$opc = <STDIN>;
-	chomp($opc);				
-						}			
+							if($opc ==6){
+								Setearperiodo();
+							}
+							else{
+								if($opc ==7){
+									ElegirRankTiempoCant();
+								}
+								else{
+								system("clear");
+		print "Menu de estadisticas de llamadas peligrosas\n";
+		print "marque 1 si desea obtener el ranking con las centrales con más llamadas peligrosas\n";
+		print "marque 2 si desea obtener el ranking con las oficinas con más llamadas peligrosas\n";
+		print "marque 3 si desea obtener el ranking con los agentes con más llamadas peligrosas\n";
+		print "marque 4 si desea obtener el ranking con los destinos con más llamadas peligrosas\n";
+		print "marque 5 si desea obtener el ranking con los umbrales con más llamadas peligrosas\n";
+		print "marque 6 si desea setear periodo\n";
+		print "marque 7 si desea cambiar ranking por cantidad de llamadas o tiempo de llamada\n";
+		print "Si desea salir apretar s\n";
+		$opc = <STDIN>;
+		chomp($opc);			
+								}	
+							}
+						}		
 					}																		
 				}
 			}
@@ -1497,7 +1614,7 @@ sub Menue {
 # TOP 5         CENTRALES
 #--------------------------------------------------------------------------------
 
-sub top5Centrales{
+sub top5CentralesCantidad{
 	# se tiene un array de centrales
 	
 	my @valores = [];	
@@ -1519,11 +1636,67 @@ sub top5Centrales{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "$GRABDIR"."$it".".txt";
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "$GRABDIR"."$it".".txt";
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
+			} 
+			else {
+  	 			$termine = 1;
+			}
+		}
+		open (FICH,">$nom");
+		foreach	$variable (@ordencentrales){
+			if ($i<6){		
+				($cantVeces,$id,$nom) = split(/\|/,$variable);
+				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
+				print FICH $aux; 		
+			 	print FICH "\n";
+			}
+			$i=$i+1;
+		}
+		close (FICH); 
+	}
+
+	else{
+		foreach	$variable (@ordencentrales){
+			if ($i<6){		
+				($cantVeces,$id,$nom) = split(/\|/,$variable);
+				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
+				print"$aux\n";
+			}
+			$i=$i+1;
+		}	
+	}
+}	
+sub top5CentralesTiempo{
+	# se tiene un array de centrales
+	
+	my @valores = [];	
+	@claves=keys(%hashcentrales);
+	my $arrSize = @claves;
+	
+	for ($p=0; $p<$arrSize; $p++){
+		my @aux = @{$hashcentrales{@claves[$p]}};
+	
+		$tripleta = "@aux[3]|@aux[0]|@aux[1]";		
+		push(@valores,$tripleta);
+			
+	}
+	@ordencentrales = sort { $a <=> $b } @valores;
+	pop(@ordencentrales); 
+	@ordencentrales=reverse(@ordencentrales);
+
+	$i=1;
+	if ($grabar == 1){
+		$termine = 0;
+		$it = 0;
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
+		while ($termine == 0 ){			
+			if (-e "$nom") {
+ 				$it = $it +1;
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1580,11 +1753,11 @@ sub top5Agentes{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "$GRABDIR"."$it".".txt";
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "$GRABDIR"."$it".".txt";
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1642,11 +1815,11 @@ sub top5Oficinas{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "$GRABDIR"."$it".".txt";
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "$GRABDIR"."$it".".txt";
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1704,11 +1877,11 @@ sub top5Umbrales{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "$GRABDIR"."$it".".txt";
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
  				$it = $it +1;
-				$nom = "$GRABDIR"."$it".".txt";
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
 			} 
 			else {
   	 			$termine = 1;
@@ -1772,11 +1945,11 @@ sub top5Paises{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "$GRABDIR"."$it".".txt";
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
 				$it = $it +1;
-				$nom = "$GRABDIR"."$it".".txt";
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
 			} 
 			else {
 	 			$termine = 1;
@@ -1808,6 +1981,7 @@ sub top5Paises{
 	}
 }	
 
+
 #--------------------------------------------------------------------------------
 # TOP 5         AREAS
 #--------------------------------------------------------------------------------
@@ -1833,11 +2007,11 @@ sub top5Areas{
 	if ($grabar == 1){
 		$termine = 0;
 		$it = 0;
-		$nom = "$GRABDIR"."$it".".txt";
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
 		while ($termine == 0 ){			
 			if (-e "$nom") {
 				$it = $it +1;
-				$nom = "$GRABDIR"."$it".".txt";
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
 			} 
 			else {
 	 			$termine = 1;
@@ -1874,7 +2048,7 @@ sub top5Areas{
 #------------------------------------------------------------------
 # main
 #------------------------------------------------------------------
-
+sub metabucle{
 # SE REALIZA EL HASH DE CENTRALES: hashcentrales (ID central, Arrary:(ID CENTRAL, CENTRAL, cantVecesVisto))
 	
 	$direcCentrales="$ENV{'MAEDIR'}"."/CdC.mae";
@@ -1888,7 +2062,7 @@ sub top5Areas{
 		chomp($central);
 		@aux=split(";",$central);
 		push (@aux, 0);
-
+		push (@aux, 0);
 		#print "$aux[1]";		
 		@{$hashcentrales{$aux[0]}} = @aux;
 
@@ -1997,12 +2171,12 @@ sub top5Areas{
 	my $hashpaises={};
 
 	# Mostramos los datos en pantalla 
-	foreach $pais (@registros){
+		foreach $pais (@registros){
 		chomp($pais);		
 		@aux=split(";",$pais);
 		push (@aux, 0);	
 		@{$hashpaises{$aux[0]}} = @aux;
-	 	#print "$hashpaises{@aux[0]}\n";
+		#print "$hashpaises{@aux[0]}\n";
 
 	} 
 	# Cerramos el fichero abierto 
@@ -2022,106 +2196,146 @@ sub top5Areas{
 		@aux=split(";",$area);
 		push (@aux, 0);		
 		@{$hashareas{$aux[1]}} = @aux;	
-	
+
 		#my @arr2 = @{$hashareas{$aux[1]}};
 		#print "@arr2[1]\n";			 	
 	} 
 	# Cerramos el fichero abierto 
 	close (AREAS);
 
+}
+	#--------------------------------------------------------------------------------------
+	#BUCLE PPAL DE LLAMADAS PELIGROSAS 	
+	sub BucleLlamadasPeligrosas{
 
-#--------------------------------------------------------------------------------------
-#BUCLE PPAL DE LLAMADAS PELIGROSAS 
-	
-	opendir(DIR, "$direcPeligrosas");
-	@FILES = readdir(DIR);
-	foreach $file (@FILES) {
-		#print "nom: $file\n";
+		metabucle();
 
-		open (PELIGROSAS,"$direcPeligrosas/$file");
-		@registros=<PELIGROSAS>;
-		#print "reg: @registros[0]\n";
+		opendir(DIR, "$direcPeligrosas");
+		@FILES = readdir(DIR);
+		foreach $file (@FILES) {
+			#print "nom: $file\n";
 
+			open (PELIGROSAS,"$direcPeligrosas/$file");
+			@registros=<PELIGROSAS>;
+			#print "reg: @registros[0]\n";
 
-		# Mostramos los datos en pantalla 
-		foreach $peligro (@registros){
-			@aux=split(";",$peligro);
-			#print "aux: @aux[0]\n";
-			
-			#INICIAN LOS CHEQUEOS:
-		
-			# CENTRALES 
-			if (exists($hashcentrales{"@aux[0]"})){	
+			$direcdef = "$Dir"."/default.txt";
+			open (DEFAULT,$direcdef);
+			@regs=<DEFAULT>;
+			$it1=0;
+			foreach $t (@regs){
 
-				my @auxreg = @{$hashcentrales{@aux[0]}};
-				@auxreg[2] = @auxreg[2] +1;
-				@{$hashcentrales{$aux[0]}} = @auxreg;
-				#my @arr = @{$hashcentrales{$aux[0]}};
-				#print "$arr[2]\n";
+				if ($it1==8){@tam1=split(";",$t);}
+
+				$it1 = $it1+1;	
 			}
-		
-			# AGENTES
-			if (exists($hashagentes{"@aux[1]"})){			
-				my @auxreg1 = @{$hashagentes{@aux[1]}};
-				@auxreg1[5] = @auxreg1[5] +1;
-				@{$hashagentes{$aux[1]}} = @auxreg1;
-				my @arr2 = @{$hashagentes{$aux[1]}};
-				#print "$arr2[6]\n";
-				
-				# OFICINAS
-				if (exists($hashoficinas{"@auxreg1[3]"})){
-					my @auxreg11 = @{$hashoficinas{@auxreg1[3]}};
-					@auxreg11[1] = @auxreg1[1] +1;
-					@{$hashoficinas{$auxreg1[3]}} = @auxreg11;
-					#my @arr2 = @{$hashoficinas{$auxreg1[3]}};
-					#print "$arr2[0]\n";
-				}	
-			}
-	
-			# PAISES
-			if (exists($hashpaises{"@aux[8]"})){			
-				my @auxreg3 = @{$hashpaises{@aux[8]}};
-				#print "$auxreg3[2]\n";				
-				@auxreg3[2] = @auxreg3[2] +1;
-				@{$hashpaises{$aux[8]}} = @auxreg3;
-				
-				#my @arr2 = @{$hashpaises{$aux[8]}};
-				#print "$arr2[1]\n";
-					
-		
-			}
-	
-			# AREAS
-			if (exists($hashareas{"@aux[9]"})){			
-				my @auxreg4 = @{$hashareas{@aux[9]}};
-				#print "$auxreg4[0]\n";				
-				@auxreg4[2] = @auxreg4[2] +1;
-				@{$hashareas{$aux[9]}} = @auxreg4;
-				#my @arr2 = @{$hashareas{$aux[2]}};
-				#print "$arr2[2]\n";
-					
-		
-			}
-			# UMBRALES 
-			if (exists($hashumbrales{"@aux[2]"})){			
-				my @auxreg6 = @{$hashumbrales{@aux[2]}};
-				@auxreg6[7] = @auxreg[7] +1;
-				#print "@auxreg6[5]\n";
-				@{$hashumbrales{$aux[2]}} = @auxreg6;
-				my @arr = @{$hashumbrales{$aux[2]}};
-				#print "$arr[0]\n";
-			}
-			
-		
+			close(DEFAULT);	
 
-		} 
-		# Cerramos el fichero abierto 
-		close (PELIGROSAS);
+
+			@nomaux = split("_",$file);
+			$todook =1;
+			if ($uvtam1 == 1){
+				if (@nomaux[1] ne @tam1[0]){			
+					$todook=0;
+				}
+			}		
+			if ($uvtam1 == 2){
+				$arrSize = @to;
+				$i=0;
+				$ok=1;
+				while($i<=$arrSize){
+					$todook=(@nomaux[1] ne @tam1[$i]) && $todook;
+					$i=$i+1;				
+				}
+			}
+			if ($todook==1){
+
+
+
+
+
+				# Mostramos los datos en pantalla 
+				foreach $peligro (@registros){
+					@aux=split(";",$peligro);
+					#print "aux: @aux[0]\n";
+
+					#INICIAN LOS CHEQUEOS:
+
+					# CENTRALES 
+					if (exists($hashcentrales{"@aux[0]"})){	
+
+						my @auxreg = @{$hashcentrales{@aux[0]}};
+						@auxreg[2] = @auxreg[2] +1;
+						@auxreg[3] = @auxreg[3] +@aux[5];
+						
+						@{$hashcentrales{$aux[0]}} = @auxreg;
+						#my @arr = @{$hashcentrales{$aux[0]}};
+						#print "$arr[2]\n";
+					}
+
+					# AGENTES
+					if (exists($hashagentes{"@aux[1]"})){			
+						my @auxreg1 = @{$hashagentes{@aux[1]}};
+						@auxreg1[5] = @auxreg1[5] +1;
+						@{$hashagentes{$aux[1]}} = @auxreg1;
+						my @arr2 = @{$hashagentes{$aux[1]}};
+						#print "$arr2[6]\n";
+
+						# OFICINAS
+						if (exists($hashoficinas{"@auxreg1[3]"})){
+							my @auxreg11 = @{$hashoficinas{@auxreg1[3]}};
+							@auxreg11[1] = @auxreg1[1] +1;
+							@{$hashoficinas{$auxreg1[3]}} = @auxreg11;
+							#my @arr2 = @{$hashoficinas{$auxreg1[3]}};
+							#print "$arr2[0]\n";
+						}	
+					}
+
+					# PAISES
+					if (exists($hashpaises{"@aux[8]"})){			
+						my @auxreg3 = @{$hashpaises{@aux[8]}};
+						#print "$auxreg3[2]\n";				
+						@auxreg3[2] = @auxreg3[2] +1;
+						@{$hashpaises{$aux[8]}} = @auxreg3;
+
+						#my @arr2 = @{$hashpaises{$aux[8]}};
+						#print "$arr2[1]\n";
+
+
+					}
+
+					# AREAS
+					if (exists($hashareas{"@aux[9]"})){			
+						my @auxreg4 = @{$hashareas{@aux[9]}};
+						#print "$auxreg4[0]\n";				
+						@auxreg4[2] = @auxreg4[2] +1;
+						@{$hashareas{$aux[9]}} = @auxreg4;
+						#my @arr2 = @{$hashareas{$aux[2]}};
+						#print "$arr2[2]\n";
+
+
+					}
+					# UMBRALES 
+					if (exists($hashumbrales{"@aux[2]"})){			
+						my @auxreg6 = @{$hashumbrales{@aux[2]}};
+						@auxreg6[7] = @auxreg[7] +1;
+						#print "@auxreg6[5]\n";
+						@{$hashumbrales{$aux[2]}} = @auxreg6;
+						my @arr = @{$hashumbrales{$aux[2]}};
+						#print "$arr[0]\n";
+					}
+
+
+
+				} 
+				# Cerramos el fichero abierto 
+				close (PELIGROSAS);
+			}
+		}
+		closedir(DIR);		
 	}
-	closedir(DIR);		
+	MenuPal();
 
-MenuPal();
-
-#} else {
+#\} else {
 #	print "[ERROR] El entorno ya ha sido configurado. No se puede inicializar el entorno 2 veces en #una misma sesión\n";
 #}
