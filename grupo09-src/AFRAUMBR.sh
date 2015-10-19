@@ -254,7 +254,7 @@ function determinarTipoLlamada {
 	if [[ -z $3 ]];then #nunca deberia entrar aca, porque numero de liena ya esta validado, pero lo pongo por las dudas
 		tipo=9
 	fi
-	echo "$tipo"
+	return "$tipo"
 }
 
 function crearDirectorio_llamadasRechazadas {
@@ -360,7 +360,7 @@ function procesarUmbrales {
 }
 
 # toma como argumento la fecha de inicio obtenida del archivo de input
-# y la devuelve con el formato aniomesdia
+# y la devuelve con el formato aniomes
 function parsearFechaInicio {
 	local estadoIntermedio=$(echo "$1" | cut -f1 -d' ')
 	local anio=$(echo "$estadoIntermedio" | cut -f3 -d\/)
@@ -441,7 +441,8 @@ function procesarArchivo {
 			continue
 		fi
 		#TIPO DE LLAMADA
-		local tipoLLamada=$(determinarTipoLlamada "$numeroB_codigoPais" "$numeroB_codigoArea" "$numeroB_numeroLineaDestino" "$numeroA_area") # DDI=0/DDN=1/LOC=2
+		determinarTipoLlamada "$numeroB_codigoPais" "$numeroB_codigoArea" "$numeroB_numeroLineaDestino" "$numeroA_area" # DDI=0/DDN=1/LOC=2
+		local tipoLLamada="$?"
 
 		if [[ "$tipoLLamada" -eq "9" ]];then #HAY ERROR
 			#rechazar registro
