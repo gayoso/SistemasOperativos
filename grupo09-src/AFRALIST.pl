@@ -1,146 +1,94 @@
 #!/bin/perl
 
-#if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
+#-------------------------------------------------------------------#
+#                          VARIABLES                                #
+#-------------------------------------------------------------------#
 
-$grabar = -1;
+#agente = 0
+#central = 1
+#umbral = 2
+#tipo = 3
+#numa = 4
+#oficina = 5
+#año/mes filtros= 6
+#año/mes estadistica =7
+
 $GRABDIR_CONSULTAS = "$ENV{'REPODIR'}/consulta";
 $GRABDIR_RANKING = "$ENV{'REPODIR'}/estadistica";
 $Dir= "$ENV{'BINDIR'}";
 $direcPeligrosas="$ENV{'PROCDIR'}"."/";
-$uvtoficina=-1;
-$uvtam=-1;
 
-$uvtagente=-1;
-$uvtcentral=-1;
-$uvtumbral=-1;
-$uvtnuma=-1;
-$uvtam1 =-1;
-$uvttipo=-1;
+$cantFilt = 9;
+$grabar = 0;   #contiene info sobre si se va a grabar la prox busqueda 1=si, 0=no
+@uvt = (-1,-1,-1,-1,-1,-1,-1,-1); # uno vario o todos 
+@tieneFiltro = (-1,-1,-1,-1,-1,-1,-1,-1); 
+@resuvt = ("","","","","","","",""); #en palabras el res de uvt "uno" "varios" "todos"
+@resFiltro = ("","","","","","","",""); #en palabras el res de Tiene filtro "si" "no"
 
-$fagente=-1;
-$fcentral=-1;
-$fumbral=-1;
-$fnuma=-1;
-$ftipo=-1;
-$tiempoCantidad=1;
+$ftiempo = -1;
+$restiempo = "";
+$ttiempo = -1;
+
+$tiempoCantidad = 1;
+
+#-------------------------------------------------------------------#
+#-                     RUTINAS GRAFICAS                             #
+#-------------------------------------------------------------------#
 
 sub MenuPal {
-
-	print "AFRALIST\n";
-	system("clear");
-	print "MenuPPAL\n";
-	print "________\n";
-	print "Ingrese '-h' para pedir ayuda\n";
-	print "Ingrese '-w' para grabar\n";
-	print "Ingrese '-r' para realizar una consulta\n";
-	print "Ingrese '-s' para ver estadisticas\n";
-	print "Ingrese '-e' para salir\n";
-
-	$menu = <STDIN>;
-	chomp($menu);
-
-	if ($menu eq "-h") {
-		Menuh();
-	}
-	else {
-		if ($menu eq "-w") {
-			Menuw();
-		}
+	do{
+		print "AFRALIST\n\n";
+		system("clear");
+		print "MenuPPAL\n";
+		print "________\n\n";
+		print "Ingrese '-h' para pedir ayuda\n";
+		print "Ingrese '-w' para grabar\n";
+		print "Ingrese '-r' para realizar una consulta\n";
+		print "Ingrese '-s' para ver estadisticas\n";
+		print "Ingrese '-e' para salir\n";
+		$menu = <STDIN>;
+		chomp($menu);
+		if ($menu eq "-h") { Menuh();} 
 		else {
-			if ($menu eq "-r") {
-				Menur();
-			}
+			if ($menu eq "-w") { Menuw();} 
 			else {
-				if ($menu eq "-s") {
-					Menus();
-				}
+				if ($menu eq "-r") { Menur();} 
 				else {
-					if ($menu eq "-e") {
-						Menue();
-					}
-					else {
-						MenuPal(); 			
-					} 
-				} 
-			} 
-		} 
-	}
-	
+					if ($menu eq "-s") { Menus();} 					
+				}
+			}	
+		}	
+	}while($menu ne "-e");
 }
-	
+
 sub Menuh {
-	system("clear");
-	print "Menu de ayuda\n";
-	print "Si desea salir apretar s\n\n";
-
-	print "Se cuenta con un archivo default.txt\n";
-	print "El filtrado por una id particular implica obtener registros que contienen dicho campo\n";
-	print "En el mismo, cada linea representa los filtros de id de centrales, agentes, umbrales, tipo de llamada, area ,numero de linea, oficinas y año mes\n";
-	print "Es indispensable tener al menos un filtro por linea\n\n";
-
-	print "Se pueden agregar la cantidad de campos que se quieran siempre y cuando se los separe por ;\n";
-	print "Cada linea del archivo default.txt debe terminar con un ;\n";
-	print "Se debera cambiar de forma manual el archivo\n\n";
+	do{
+		system("clear");
+		print "Menu de ayuda\n";
+		print "Si desea salir apretar s\n\n";
 	
-	print "Ante el filtro uno, se utilizara el primer id de cada campo\n";
-	print "Ante el filtro varios, se utilizaran todos los ids de cada campo\n";
-	print "Ante el filtro todos, utilizara todos los ids conocidos\n\n";
-
+		print "Se cuenta con un archivo default.txt\n";
+		print "El filtrado por una id particular implica obtener registros que contienen dicho campo\n";
+		print "En el mismo, cada linea representa los filtros de id de centrales, agentes, umbrales, tipo de llamada, area ,numero de linea, oficinas y año mes\n";
+		print "Es indispensable tener al menos un filtro por linea\n\n";
+		print "Se pueden agregar la cantidad de campos que se quieran siempre y cuando se los separe por ;\n";
+		print "Cada linea del archivo default.txt debe terminar con un ;\n";
+		print "Se debera cambiar de forma manual el archivo\n\n";
+		print "Ante el filtro uno, se utilizara el primer id de cada campo\n";
+		print "Ante el filtro varios, se utilizaran todos los ids de cada campo\n";
+		print "Ante el filtro todos, utilizara todos los ids conocidos\n\n";
+		$opc = <STDIN>;
+		chomp($opc);
 	
-
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
-	system("clear");
-	print "Menu de ayuda\n";
-	print "Si desea salir apretar s\n\n";
-
-	print "Se cuenta con un archivo default.txt\n";
-	print "El filtrado por una id particular implica obtener registros que contienen dicho campo\n";
-	print "El mismo contendra id de centrales, agentes, umbrales, tipo de llamada, area ,numero de linea, oficinas y año mes\n";
-	print "Es indispensable tener al menos un id por linea\n\n";
-
-	print "Se pueden agregar la cantidad de campos que se quieran siempre y cuando se los separe por ;\n";
-	print "Se debera cambiar de forma manual el archivo\n\n";
-	
-	print "Ante el filtro uno, se utilizara el primer id de cada campo\n";
-	print "Ante el filtro varios, se utilizaran todos los ids de cada campo\n";
-	print "Ante el filtro todos, utilizara todos los ids conocidos\n\n";
-
-		$opc = <STDIN> ;
- 		chop($opc);
-	}
-	MenuPal(); 			
+	}while( $opc ne "s" );	
 }
 
 sub Menuw {
-	$listo = 0;
-	system("clear");
-	#print "$grabar\n";
-	print "Si desea salir apretar e\n";
-	if ($grabar ==1){
-		print "Se grabara su proxima busqueda\n";	
-	}
-	if ($grabar ==0){
-		print "No se grabara su proxima busqueda\n";	
-	}
-	
-	print "¿Desea grabar la siguiente busqueda?[s/n]\n";
-	$opc = <STDIN>;
-	chomp($opc);
-	if ($opc eq "s"){
-		$grabar = 1;
-		$listo = 1;	
-	
-	}
-	if ($opc eq "n"){
-		$grabar	= 0;
-		$listo = 1;
-	}		
-	
-	while (($opc ne "e")&& (listo != 1)) {
-			system("clear");
-		print "Si desea salir apretar e\n";
+	my $listo = 0;	
+	do{
+		system("clear");
+		print "Menu de Grabacion\n";
+		print "Si desea salir apretar e\n\n";
 		if ($grabar ==1){
 			print "Se grabara su proxima busqueda\n";	
 		}
@@ -152,599 +100,367 @@ sub Menuw {
 		chomp($opc);
 		if ($opc eq "s"){
 			$grabar = 1;
-			$listo =1;	
+			$listo = 1;			
 		}
 		if ($opc eq "n"){
 			$grabar	= 0;
-			$listo =1;
+			$listo = 1;
 		}		
-	}
-	MenuPal(); 			
+	}while(($opc ne "e") && ($listo != 1));
 }
 
-sub IngresarInput{
-	system("clear");
-	print "Filtrar archivos input\n";
-	print "Si desea salir apretar s\n";	
-	print "¿Cuantos filtros de oficina  desea tener(1=uno/2=varios/3=todos)?\n";
-	$opc = <STDIN>;
-	chop($opc);
-	if($opc == 1){$uvtoficina = 1;}
-	if($opc == 2){$uvtoficina = 2;}
-	if($opc == 3){$uvtoficina = 3;}
-	while (($uvtoficina == -1)&& ($opc ne "s")){
+sub Menur {
+	do{
 		system("clear");
-		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
+		print "Menu de consultas\n";
+		print "Si desea salir apretar s\n\n";
+		print "Si desea filtrar los archivos a leer 1\n";			
+		print "Si desea comenzar la eleccion de filtros 2\n";			
+
+		if ($opc == 1){ FiltrarArchConsultas();} else{
+		if ($opc == 2){	ElegFiltrosConsultas(); }}
+ 		$opc = <STDIN>;
+ 		chop($opc);
+	}while($opc ne "s");
+}
+
+sub Menus{
+	do{
+		system("clear");
+		print "Si desea salir apretar s\n\n";
+		print "1 si desea elegir como filtrar los archivos a rankear\n";
+		print "2 si quiere ir al menu de rankings\n";
+		$opc = <STDIN>;
+		chomp($opc);	
+		if($opc==1){ElegirRankTiempoCant();}
+		if($opc==2){Rankings();}
+	}while($opc ne "s");
+}
+	
+sub Rankings {
+	do{
+		system("clear");
+		LlenarPeligrosas();
+		print "Si desea salir apretar s\n\n";
+		print "Menu de estadisticas de llamadas peligrosas\n";
+		print "marque 1 si desea obtener el ranking con las centrales con más llamadas peligrosas\n";
+		print "marque 2 si desea obtener el ranking con las oficinas con más llamadas peligrosas\n";
+		print "marque 3 si desea obtener el ranking con los agentes con más llamadas peligrosas\n";
+		print "marque 4 si desea obtener el ranking con los destinos con más llamadas peligrosas\n";
+		print "marque 5 si desea obtener el ranking con los umbrales con más llamadas peligrosas\n";
+		$opc = <STDIN>;
+		chomp($opc);
+		if ($opc == 1) {DarRankCent();}
+		if ($opc == 2) {DarRankOfic();}
+		if ($opc == 3) {DarRankAgen();}
+		if ($opc == 4) {DarRankDest();}
+		if ($opc == 5) {DarRankUmbr();}
+	}while($opc ne "s");	
+}
+
+#SALIDA
+sub Menue {
+	system("clear");
+}
+
+#SE FILTRAN LOS ARCH QUE SE LEEN EN LAS CONSULTAS
+sub FiltrarArchConsultas(){
+	do{
+		system("clear");
+		print "Filtrar archivos para consultas\n";
+		print "Si desea salir apretar s\n\n";
 		print "¿Cuantos filtros de oficina  desea tener(1=uno/2=varios/3=todos)?\n";
 		$opc = <STDIN>;
 		chop($opc);
-		if($opc == 1){$uvtoficina = 1;}
-		if($opc == 2){$uvtoficina = 2;}
-		if($opc == 3){$uvtoficina = 3;}
-	}
-	system("clear");
-	print "Filtrar archivos input\n";
-	print "Si desea salir apretar s\n";	
-	print "¿Cuantos filtros de año/mes  desea tener(1=uno/2=varios/3=todos)?\n";
-	$opc = <STDIN>;
-	chop($opc);
-	if($opc == 1){$uvtam = 1;}
-	if($opc == 2){$uvtam = 2;}
-	if($opc == 3){$uvtam = 3;}
-	while (($uvtam == -1)&& ($opc ne "s")){
+		if($opc == 1){@uvt[5] = 1;}
+		if($opc == 2){@uvt[5] = 2;}
+		if($opc == 3){@uvt[5] = 3;}
+
+	}while((@uvt[5] == -1)&& ($opc ne "s"));
+	if($opc eq "s"){MenuPal();}
+	do{
 		system("clear");
-		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
+		print "Filtrar archivos input\n";
+		print "Si desea salir apretar s\n\n";	
 		print "¿Cuantos filtros de año/mes  desea tener(1=uno/2=varios/3=todos)?\n";
 		$opc = <STDIN>;
 		chop($opc);
-		if($opc == 1){$uvtam = 1;}
-		if($opc == 2){$uvtam = 2;}
-		if($opc == 3){$uvtam = 3;}
-	}								
-	if ($uvtoficina==-1){$uvtoficina=3;};
-	if ($uvtam==-1){$uvtam=3;};
+		if($opc == 1){@uvt[6] = 1;}
+		if($opc == 2){@uvt[6] = 2;}
+		if($opc == 3){@uvt[6] = 3;}
+
+	}while((@uvt[6] == -1)&& ($opc ne "s"));
+	if($opc ne "s"){ElegFiltrosConsultas();}
 }
+								
+sub ElegFiltrosConsultas{
+	do{
+		my $num = 3; # aca puede ir cualquier num mayor a 1
+		my $i = 0;
+		# es 5 ya q no se desea tocar ni oficina ni año/mes
+		while($i < 5){@uvt[$i]=-1;$i=$i+1;}
+		$i = 0;			
+		while($i < 5){@tieneFiltro[$i]=-1;$i=$i+1;}
+		$i = 0;		
+		while($i < 5){@resuvt[$i]="";$i=$i+1;}
+		$i = 0;
+		while($i < 5){@resFiltro[$i]="";$i=$i+1;}
+	
+		$ftiempo = -1;
+		$restiempo = "";
+		$ttiempo = -1;
 
-
-
-sub filtroCent{
-	system("clear");
-	print "Elegir Filtros\n";		
-	print "Si desea salir apretar e\n";
-	print "¿Desea filtrar por central? [s/n] ";
-	$opc = <STDIN>;
-	chop($opc);
-	if ($opc eq "s"){
-		$fcentral = 1;
-		$rescentral ="si";
-		print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-		$opc = <STDIN>;
-		chop($opc);
-		if($opc == 1){$uvtcentral = 1; $rescentral2="uno";}
-		if($opc == 2){$uvtcentral = 2; $rescentral2="varios";}
-		if($opc == 3){$uvtcentral = 3; $rescentral2="todos";}
-		while (($uvtcentral == -1)&& ($opc ne "e")){
-			system("clear");
-			print "Elegir Filtros\n";
-			print "Si desea salir apretar e\n";
-			print "Filtro por central: ";	
-			print "$rescentral\n";
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtcentral = 1; $rescentral2="uno";}
-			if($opc == 2){$uvtcentral = 2; $rescentral2="varios";}
-			if($opc == 3){$uvtcentral = 3; $rescentral2="todos";}				
-		}								
-	}	
-	if($opc eq "n"){
-		$fcentral = 0;
-		$rescentral = "no";
-	}	
-
-	while (($fcentral == -1) && ($opc ne "e")){
-		
 		system("clear");
 		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
+		print "Si desea salir apretar e\n\n";
+		
+		if ($num<1){print "Se debe tener al menos un filtro para poder filtrar!\n";}
+		filtroCent(); if ($opc ne "e"){	
+		 filtroAgente(); if ($opc ne "e"){
+		  filtroUmbral(); if ($opc ne "e"){
+		   filtroTipo(); if ($opc ne "e"){
+		    filtroTiempo(); if ($opc ne "e"){
+		     filtroNuma(); if ($opc ne "e"){
+		      pregunta(); 
+		     }else{MenuPal();}
+		    }else{MenuPal();}
+		   }else{MenuPal();}
+		  }else{MenuPal();}
+		 }else{MenuPal();}
+		}else{MenuPal();}
+	$num = @tieneFiltro[0]+@tieneFiltro[1]+@tieneFiltro[2]+@tieneFiltro[3]+$ftiempo+@tieneFiltro[5];
+	}while (($opc ne "e") && ($num < 1));
+}
+
+sub filtroCent{
+	do{
+		system("clear");
+		print "Elegir Filtros\n";		
+		print "Si desea salir apretar e\n\n";
 		print "¿Desea filtrar por central? [s/n] ";
 		$opc = <STDIN>;
 		chop($opc);
 		if ($opc eq "s"){
-			$fcentral = 1;
-			$rescentral = "si";		
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtcentral = 1; $rescentral2="uno";}
-			if($opc == 2){$uvtcentral = 2; $rescentral2="varios";}
-			if($opc == 3){$uvtcentral = 3; $rescentral2="todos";}
-			while (($uvtcentral == -1) && ($opc ne "e")){
+			@tieneFiltro[0] = 1;
+			@resFiltro[0] ="si";
+			do{				
 				system("clear");
 				print "Elegir Filtros\n";
-				print "Si desea salir apretar e\n";
+				print "Si desea salir apretar e\n\n";
 				print "Filtro por central: ";	
-				print "$rescentral\n";
+				print "@resFiltro[0]\n";
 				print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
 				$opc = <STDIN>;
 				chop($opc);
-				if($opc == 1){$uvtcentral = 1; $rescentral2="uno";}
-				if($opc == 2){$uvtcentral = 2; $rescentral2="varios";}
-				if($opc == 3){$uvtcentral = 3; $rescentral2="todos";}			
-			}
+				if($opc == 1){@uvt[0] = 1; @resuvt[0]="uno";}
+				if($opc == 2){@uvt[0] = 2; @resuvt[0]="varios";}
+				if($opc == 3){@uvt[0] = 3; @resuvt[0]="todos";}
+			}while((@uvt[0] == -1)&& ($opc ne "e"));
 		}	
 		if($opc eq "n"){
-			$fcentral = 0;
-			$rescentral = "no";
-		}			
-	}
+			@tieneFiltro[0] = 0;
+			@resFiltro[0] ="no";
+		}	
+	}while((@tieneFiltro[0] == -1) && ($opc ne "e"));
 }
 
-
 sub filtroAgente{
-	
-	system("clear");
-	print "Elegir Filtros\n";
-	print "Si desea salir apretar e\n";
-	print "Filtro por central: ";	
-	print "$rescentral";
-	$aux = "("."$rescentral2".")\n";
-	print "$aux";
-	print "¿Desea filtrar por agente? [s/n] ";
-
-	$opc = <STDIN>;
-	chop($opc);
-	if($opc eq "s"){
-		$fagente = 1;
-		$resagente = "si";
-		print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-		$opc = <STDIN>;
-		chop($opc);
-		if($opc == 1){$uvtagente = 1;$resagente2 = "uno";}
-		if($opc == 2){$uvtagente = 2;$resagente2 = "varios";}
-		if($opc == 3){$uvtagente = 3;$resagente2 = "todos";}
-		while (($uvtagente == -1)&& ($opc ne "e")){
-			system("clear");
-			print "Elegir Filtros\n";
-			print "Si desea salir apretar e\n";
-			print "Filtro por central: ";	
-			print "$rescentral";
-			$aux = "("."$rescentral2".")\n";
-			print "$aux";
-			print "Filtro por agente: ";	
-			print "$resagente\n";	
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtagente = 1;$resagente2 = "uno";}
-			if($opc == 2){$uvtagente = 2;$resagente2 = "varios";}
-			if($opc == 3){$uvtagente = 3;$resagente2 = "todos";}		
-		}	
-	}	
-	if($opc eq "n"){
-		$fagente = 0;
-		$resagente = "no";
-	}	
-
-	while (($fagente == -1) && ($opc ne "e")){
-		
+	do{
 		system("clear");
 		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
+		print "Si desea salir apretar e\n\n";
 		print "Filtro por central: ";	
-		print "$rescentral";
-		$aux = "("."$rescentral2".")\n";
+		print "@resFiltro[0]";
+		$aux = "("."@resuvt[0]".")\n";
 		print "$aux";
 		print "¿Desea filtrar por agente? [s/n] ";
+	
 		$opc = <STDIN>;
 		chop($opc);
 		if ($opc eq "s"){
-			$fagente = 1;
-			$resagente = "si";
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtagente = 1;$resagente2 = "uno";}
-			if($opc == 2){$uvtagente = 2;$resagente2 = "varios";}
-			if($opc == 3){$uvtagente = 3;$resagente2 = "todos";}
-			while (($uvtagente == -1)&& ($opc ne "e")){
+			@tieneFiltro[1] = 1;
+			@resFiltro[1] = "si";
+			do{
 				system("clear");
 				print "Elegir Filtros\n";
-				print "Si desea salir apretar e\n";
+				print "Si desea salir apretar e\n\n";
 				print "Filtro por central: ";	
-				print "$rescentral";
-				$aux = "("."$rescentral2".")\n";
+				print "@resFiltro[0]";
+				$aux = "("."@resuvt[0]".")\n";
 				print "$aux";
 				print "Filtro por agente: ";	
-				print "$resagente\n";	
+				print "@resFiltro[1]\n";	
 				print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
 				$opc = <STDIN>;
 				chop($opc);
-				if($opc == 1){$uvtagente = 1;$resagente2 = "uno";}
-				if($opc == 2){$uvtagente = 2;$resagente2 = "varios";}
-				if($opc == 3){$uvtagente = 3;$resagente2 = "todos";}			
-			}
-		}	
+				if($opc == 1){@uvt[1] = 1;@resuvt[1] = "uno";}
+				if($opc == 2){@uvt[1] = 2;@resuvt[1] = "varios";}
+				if($opc == 3){@uvt[1] = 3;@resuvt[1] = "todos";}
+
+			}while((@uvt[1] == -1)&& ($opc ne "e"));
+		}
 		if($opc eq "n"){
-			$fagente = 0;
-			$resagente = "no";
-		}	
-	}	
+			@tieneFiltro[1] = 0;
+			@resFiltro[1] = "no";
+		}
+	}while(($fagente == -1) && ($opc ne "e"));
 }
 
-
 sub filtroUmbral{
-
-	system("clear");
-	print "Elegir Filtros\n";
-	print "Si desea salir apretar e\n";
-	print "Filtro por central: ";	
-	print "$rescentral";
-	$aux = "("."$rescentral2".")\n";
-	print "$aux";
-	print "Filtro por agente: ";	
-	print "$resagente";
-	$aux = "("."$resagente2".")\n";
-	print "$aux";
-	
-	print "¿Desea filtrar por umbral? [s/n] ";
-
-	$opc = <STDIN>;
-	chop($opc);
-	if($opc eq "s"){
-		$fumbral = 1;
-		$resumbral = "si";
-		print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-		$opc = <STDIN>;
-		chop($opc);
-		if($opc == 1){$uvtumbral = 1;$resumbral2 ="uno";}
-		if($opc == 2){$uvtumbral = 2;$resumbral2 ="varios";}
-		if($opc == 3){$uvtumbral = 3;$resumbral2 ="todos";}
-		while (($uvtumbral == -1)&& ($opc ne "e")){
-			system("clear");
-			print "Elegir Filtros\n";
-			print "Si desea salir apretar e\n";	
-			print "Filtro por central: ";	
-			print "$rescentral";
-			$aux = "("."$rescentral2".")\n";
-			print "$aux";
-			print "Filtro por agente: ";	
-			print "$resagente";
-			$aux = "("."$resagente2".")\n";
-			print "$aux";
-			print "Filtro por umbral: ";	
-			print "$resumbral";
-			$aux = "("."$resumbral2".")\n";
-			print "$aux";
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtumbral = 1;$resumbral2 ="uno";}
-			if($opc == 2){$uvtumbral = 2;$resumbral2 ="varios";}
-			if($opc == 3){$uvtumbral = 3;$resumbral2 ="todos";}
-		}
-	}	
-	if($opc eq "n"){
-		$fumbral = 0;
-		$resumbral = "no";
-	}	
-
-	while (($fumbral == -1) && ($opc ne "e")){
-		
+	do{
 		system("clear");
-		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
+		print "Elegir Filtros\n";	
+		print "Si desea salir apretar e\n\n";
 		print "Filtro por central: ";	
-		print "$rescentral";
-		$aux = "("."$rescentral2".")\n";
+		print "@resFiltro[0]";
+		$aux = "("."@resuvt[0]".")\n";
 		print "$aux";
 		print "Filtro por agente: ";	
-		print "$resagente";
-		$aux = "("."$resagente2".")\n";
+		print "@resFiltro[1]";
+		$aux = "("."@resuvt[1]".")\n";
 		print "$aux";
 		print "¿Desea filtrar por umbral? [s/n] ";
 		$opc = <STDIN>;
 		chop($opc);
-		if ($opc eq "s"){
-			$fumbral = 1;
-			$resumbral = "si";
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtumbral = 1;$resumbral2 ="uno";}
-			if($opc == 2){$uvtumbral = 2;$resumbral2 ="varios";}
-			if($opc == 3){$uvtumbral = 3;$resumbral2 ="todos";}		
-			while (($uvtumbral == -1)&& ($opc ne "e")){
+		if($opc eq "s"){
+			@tieneFiltro[2] = 1;
+			@resFiltro[2] = "si";
+			do{
 				system("clear");
 				print "Elegir Filtros\n";
-				print "Si desea salir apretar e\n";
+				print "Si desea salir apretar e\n\n";	
 				print "Filtro por central: ";	
-				print "$rescentral";
-				$aux = "("."$rescentral2".")\n";
+				print "@resFiltro[0]";
+				$aux = "("."@resuvt[0]".")\n";
 				print "$aux";
 				print "Filtro por agente: ";	
-				print "$resagente";
-				$aux = "("."$resagente2".")\n";
+				print "@resFiltro[1]";
+				$aux = "("."@resuvt[1]".")\n";
 				print "$aux";
 				print "Filtro por umbral: ";	
-				print "$resumbral";
-				$aux = "("."$resumbral2".")\n";
-				print "$aux";
+				print "@resFiltro[2]";
 				print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
 				$opc = <STDIN>;
 				chop($opc);
-				if($opc == 1){$uvtumbral = 1;$resumbral2 ="uno";}
-				if($opc == 2){$uvtumbral = 2;$resumbral2 ="varios";}
-				if($opc == 3){$uvtumbral = 3;$resumbral2="todos";}
-			}		
-		}	
+				if($opc == 1){@uvt[2] = 1;@resuvt[2] ="uno";}
+				if($opc == 2){@uvt[2] = 2;@resuvt[2] ="varios";}
+				if($opc == 3){@uvt[2] = 3;@resuvt[2] ="todos";}
+			
+			}while((@uvt[2] == -1)&& ($opc ne "e"));
+		}
 		if($opc eq "n"){
-			$fumbral = 0;
-			$resumbral = "no";
-		}	
-	}	
+			@tieneFiltro[2] = 0;
+			@resFiltro[2] = "no";
+		}
+	}while((@tieneFiltro[2] == -1) && ($opc ne "e"));
 }
 
-
 sub filtroTipo{
-	system("clear");
-	print "Elegir Filtros\n";
-	print "Si desea salir apretar e\n";
-	print "Filtro por central: ";	
-	print "$rescentral";
-	$aux = "("."$rescentral2".")\n";
-	print "$aux";
-	print "Filtro por agente: ";	
-	print "$resagente";
-	$aux = "("."$resagente2".")\n";
-	print "$aux";
-	print "Filtro por umbral: ";	
-	print "$resumbral";
-	$aux = "("."$resumbral2".")\n";
-	print "$aux";			
-	print "¿Desea filtrar por tipo? [s/n] ";
-
-	$opc = <STDIN>;
-	chop($opc);
-	if($opc eq "s"){
-		$ftipo = 1;
-		$restipo = "si";
-		print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-		$opc = <STDIN>;
-		chop($opc);
-		if($opc == 1){$uvttipo = 1;$restipo2 ="uno";}
-		if($opc == 2){$uvttipo = 2;$restipo2 ="varios";}
-		if($opc == 3){$uvttipo = 3;$restipo2 ="todos";}
-		while (($uvttipo == -1)&& ($opc ne "e")){
-			system("clear");
-			print "Elegir Filtros\n";
-			print "Si desea salir apretar e\n";
-			print "Filtro por central: ";	
-			print "$rescentral";
-			$aux = "("."$rescentral2".")\n";
-			print "$aux";
-			print "Filtro por agente: ";	
-			print "$resagente";
-			$aux = "("."$resagente2".")\n";
-			print "$aux";
-			print "Filtro por umbral: ";	
-			print "$resumbral";
-			$aux = "("."$resumbral2".")\n";
-			print "$aux";		
-			print "Filtro por tipo: ";	
-			print "$restipo\n";
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvttipo = 1;$restipo2 ="uno";}
-			if($opc == 2){$uvttipo = 2;$restipo2 ="varios";}
-			if($opc == 3){$uvttipo = 3;$restipo2 ="todos";}		
-		}
-	}	
-	if($opc eq "n"){
-		$ftipo = 0;
-		$restipo = "no";
-	}	
-
-	while (($ftipo == -1) && ($opc ne "e")){
-		
+	do{
 		system("clear");
 		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
+		print "Si desea salir apretar e\n\n";
 		print "Filtro por central: ";	
-		print "$rescentral";
-		$aux = "("."$rescentral2".")\n";
+		print "@resFiltro[0]";
+		$aux = "("."@resuvt[0]".")\n";
 		print "$aux";
 		print "Filtro por agente: ";	
-		print "$resagente";
-		$aux = "("."$resagente2".")\n";
+		print "@resFiltro[1]";
+		$aux = "("."@resuvt[1]".")\n";
 		print "$aux";
 		print "Filtro por umbral: ";	
-		print "$resumbral";
-		$aux = "("."$resumbral2".")\n";
-		print "$aux";				
+		print "@resFiltro[2]";
+		$aux = "("."@resuvt[2]".")\n";
+		print "$aux";			
 		print "¿Desea filtrar por tipo? [s/n] ";
 		$opc = <STDIN>;
 		chop($opc);
-		if ($opc eq "s"){
-			$ftipo = 1;
-			$restipo = "si";
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvttipo = 1;$restipo2 ="uno";}
-			if($opc == 2){$uvttipo = 2;$restipo2 ="varios";}
-			if($opc == 3){$uvttipo = 3;$restipo2 ="todos";}
-			while (($uvttipo == -1)&& ($opc ne "e")){
+		if($opc eq "s"){
+			@tieneFiltro[3] = 1;
+			@resFiltro[3] = "si";
+			do{
 				system("clear");
 				print "Elegir Filtros\n";
-				print "Si desea salir apretar e\n";
+				print "Si desea salir apretar e\n\n";
 				print "Filtro por central: ";	
-				print "$rescentral";
-				$aux = "("."$rescentral2".")\n";
+				print "@resFiltro[0]";
+				$aux = "("."@resuvt[0]".")\n";
 				print "$aux";
 				print "Filtro por agente: ";	
-				print "$resagente";
-				$aux = "("."$resagente2".")\n";
+				print "@resFiltro[1]";
+				$aux = "("."@resuvt[1]".")\n";
 				print "$aux";
 				print "Filtro por umbral: ";	
-				print "$resumbral";
-				$aux = "("."$resumbral2".")\n";
-				print "$aux";
+				print "@resFiltro[2]";
+				$aux = "("."@resuvt[2]".")\n";
+				print "$aux";		
 				print "Filtro por tipo: ";	
-				print "$restipo\n";
+				print "@resFiltro[3]\n";
 				print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
 				$opc = <STDIN>;
 				chop($opc);
-				if($opc == 1){$uvttipo = 1;$restipo2 ="uno";}
-				if($opc == 2){$uvttipo = 2;$restipo2 ="varios";}
-				if($opc == 3){$uvttipo = 3;$restipo2 ="todos";}			
-			}		
-		}	
+				if($opc == 1){@uvt[3] = 1;@resuvt[3] ="uno";}
+				if($opc == 2){@uvt[3] = 2;@resuvt[3] ="varios";}
+				if($opc == 3){@uvt[3] = 3;@resuvt[3] ="todos";}
+			}while((@uvt[3] == -1)&& ($opc ne "e"));
+		}
 		if($opc eq "n"){
-			$ftipo = 0;
-			$restipo = "no";
-		}	
-	}	
+			@tieneFiltro[3] = 0;
+			@resFiltro[3] = "no";
+		}
+	}while((@tieneFiltro[3] == -1) && ($opc ne "e"));
 }
 
-
 sub filtroTiempo{
-system("clear");
-	$tvalido = -1;
-	print "Elegir Filtros\n";
-	print "Si desea salir apretar e\n";
-	print "Filtro por central: ";	
-	print "$rescentral";
-	$aux = "("."$rescentral2".")\n";
-	print "$aux";
-	print "Filtro por agente: ";	
-	print "$resagente";
-	$aux = "("."$resagente2".")\n";
-	print "$aux";
-	print "Filtro por umbral: ";	
-	print "$resumbral";
-	$aux = "("."$resumbral2".")\n";
-	print "$aux";	
-	print "Filtro por tipo: ";	
-	print "$restipo";			
-	$aux = "("."$restipo2".")\n";
-	print "$aux";			
-	print "¿Desea filtrar por tiempo? [s/n] ";
-
-	$opc = <STDIN>;
-	chop($opc);
-	if($opc eq "s"){
-		$ftiempo = 1;
-		$restiempo = "si";
-		print "¿Cuantos tiempo desea filtrar en minutos?\n";
-		$opc = <STDIN>;
-		chop($opc);
-		if ($opc =~ /^[+-]?\d+$/) {
-			if ($opc > 0){
-				$tvalido = 1;
-				$ttiempo = $opc;
-			}
-		}		
-		while (($tvalido == -1)&& ($opc ne "e")){
-			system("clear");
-			print "Elegir Filtros\n";
-			print "Si desea salir apretar e\n";
-			print "Filtro por central: ";	
-			print "$rescentral";
-			$aux = "("."$rescentral2".")\n";
-			print "$aux";
-			print "Filtro por agente: ";	
-			print "$resagente";
-			$aux = "("."$resagente2".")\n";
-			print "$aux";
-			print "Filtro por umbral: ";	
-			print "$resumbral";
-			$aux = "("."$resumbral2".")\n";
-			print "$aux";	
-			print "Filtro por tipo: ";	
-			print "$restipo";			
-			$aux = "("."$restipo2".")\n";
-			print "$aux";
-			print "Filtro por tiempo: ";	
-			print "$restiempo\n";			
-			print "¿Cuantos tiempo desea filtrar en minutos?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if ($opc =~ /^[+-]?\d+$/) {
-				if ($opc > 0){
-					$tvalido = 1;
-					$ttiempo = $opc;
-				}
-		
-			}			
-		}	
-
-	}	
-	if($opc eq "n"){
-		$ftiempo = 0;
-		$restiempo = "no";
-	}	
-
-	while (($ftiempo == -1) && ($opc ne "e")){
-		
+	do{
 		system("clear");
+		$tvalido = -1;
 		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";				
+		print "Si desea salir apretar e\n\n";
 		print "Filtro por central: ";	
-		print "$rescentral";
-		$aux = "("."$rescentral2".")\n";
+		print "@resFiltro[0]";
+		$aux = "("."@resuvt[0]".")\n";
 		print "$aux";
 		print "Filtro por agente: ";	
-		print "$resagente";
-		$aux = "("."$resagente2".")\n";
+		print "@resFiltro[1]";
+		$aux = "("."@resuvt[1]".")\n";
 		print "$aux";
 		print "Filtro por umbral: ";	
-		print "$resumbral";
-		$aux = "("."$resumbral2".")\n";
+		print "@resFiltro[2]";
+		$aux = "("."@resuvt[2]".")\n";
 		print "$aux";	
 		print "Filtro por tipo: ";	
-		print "$restipo";			
-		$aux = "("."$restipo2".")\n";
-		print "$aux";					
+		print "@resFiltro[3]";			
+		$aux = "("."@resuvt[3]".")\n";
+		print "$aux";			
 		print "¿Desea filtrar por tiempo? [s/n] ";
 		$opc = <STDIN>;
 		chop($opc);
-		if ($opc eq "s"){
+
+		if($opc eq "s"){
 			$ftiempo = 1;
-			$restiempo = "si";
-			print "¿Cuantos tiempo desea filtrar en minutos?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if ($opc =~ /^[+-]?\d+$/) {
-				if ($opc > 0){
-					$tvalido = 1;
-					$ttiempo = $opc;
-				}
-			}		
-			while (($ftiempo == -1)&& ($opc ne "e")){
+			$restiempo = "si";		
+			do{
 				system("clear");
-				print "Elegir Filtros\n";
+				print "Elegir Filtros\n\n";
 				print "Si desea salir apretar e\n";
 				print "Filtro por central: ";	
-				print "$rescentral";
-				$aux = "("."$rescentral2".")\n";
+				print "@resFiltro[0]";
+				$aux = "("."@resuvt[0]".")\n";
 				print "$aux";
 				print "Filtro por agente: ";	
-				print "$resagente";
-				$aux = "("."$resagente2".")\n";
+				print "@resFiltro[1]";
+				$aux = "("."@resuvt[1]".")\n";
 				print "$aux";
 				print "Filtro por umbral: ";	
-				print "$resumbral";
-				$aux = "("."$resumbral2".")\n";
+				print "@resFiltro[2]";
+				$aux = "("."@resuvt[2]".")\n";
 				print "$aux";	
 				print "Filtro por tipo: ";	
-				print "$restipo";			
-				$aux = "("."$restipo2".")\n";
+				print "@resFiltro[3]";			
+				$aux = "("."@resuvt[3]".")\n";
 				print "$aux";
-				print "Filtro por tiempo: ";
+				print "Filtro por tiempo: ";	
 				print "$restiempo\n";			
 				print "¿Cuantos tiempo desea filtrar en minutos?\n";
 				$opc = <STDIN>;
@@ -754,168 +470,170 @@ system("clear");
 						$tvalido = 1;
 						$ttiempo = $opc;
 					}
-				}		
-			}	
-		}	
+				}
+			}while(($tvalido == -1)&& ($opc ne "e"));
+		}
 		if($opc eq "n"){
-			$ftipo = 0;
+			$ftiempo = 0;
 			$restiempo = "no";
-		}	
-	}
+		}
+	}while(($ftiempo == -1) && ($opc ne "e"));
 }
-
-
+			
 sub filtroNuma{
-	system("clear");
-	print "Elegir Filtros\n";
-	print "Si desea salir apretar e\n";
-	print "Filtro por central: ";	
-	print "$rescentral";
-	$aux = "("."$rescentral2".")\n";
-	print "$aux";
-	print "Filtro por agente: ";	
-	print "$resagente";
-	$aux = "("."$resagente2".")\n";
-	print "$aux";
-	print "Filtro por umbral: ";	
-	print "$resumbral";
-	$aux = "("."$resumbral2".")\n";
-	print "$aux";	
-	print "Filtro por tipo: ";	
-	print "$restipo";			
-	$aux = "("."$restipo2".")\n";
-	print "$aux";
-	print "Filtro por tiempo: ";
-	print "$restiempo";	
-	$aux = "("."$ttiempo".")\n";
-	print "$aux";		
-					
-	print "¿Desea filtrar por num A? [s/n] ";
-
-	$opc = <STDIN>;
-	chop($opc);
-	if($opc eq "s"){
-		$fnuma = 1;
-		$resnuma = "si";
-		print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-		$opc = <STDIN>;
-		chop($opc);
-		if($opc == 1){$uvtnuma = 1;$resnuma2="uno";}
-		if($opc == 2){$uvtnuma = 2;$resnuma2="varios";}
-		if($opc == 3){$uvtnuma = 3;$resnuma2="todos";}
-		while (($uvtnuma == -1)&& ($opc ne "e")){
-			system("clear");
-			print "Elegir Filtros\n";
-			print "$rescentral";
-			$aux = "("."$rescentral2".")\n";
-			print "$aux";
-			print "Filtro por agente: ";	
-			print "$resagente";
-			$aux = "("."$resagente2".")\n";
-			print "$aux";
-			print "Filtro por umbral: ";	
-			print "$resumbral";
-			$aux = "("."$resumbral2".")\n";
-			print "$aux";	
-			print "Filtro por tipo: ";	
-			print "$restipo";			
-			$aux = "("."$restipo2".")\n";
-			print "$aux";
-			print "Filtro por tiempo: ";
-			print "$restiempo";	
-			$aux = "("."$ttiempo".")\n";
-			print "$aux";			
-			print "Filtro por numa: ";	
-			print "$resnuma\n";			
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtnuma = 1;$resnuma2="uno";}
-			if($opc == 2){$uvtnuma = 2;$resnuma2="varios";}
-			if($opc == 3){$uvtnuma = 3;$resnuma2="todos";}		
-		}	
-	}	
-	if($opc eq "n"){
-		$fnuma = 0;
-		$resnuma = "no";
-	}	
-
-	while (($fnuma == -1) && ($opc ne "e")){
-		
+	do{
 		system("clear");
-		print "$rescentral";
-		$aux = "("."$rescentral2".")\n";
+		print "Elegir Filtros\n";
+		print "Si desea salir apretar e\n\n";
+		print "Filtro por central: ";	
+		print "@resFiltro[0]";
+		$aux = "("."@resuvt[0]".")\n";
 		print "$aux";
 		print "Filtro por agente: ";	
-		print "$resagente";
-		$aux = "("."$resagente2".")\n";
+		print "@resFiltro[1]";
+		$aux = "("."@resuvt[1]".")\n";
 		print "$aux";
 		print "Filtro por umbral: ";	
-		print "$resumbral";
-		$aux = "("."$resumbral2".")\n";
+		print "@resFiltro[2]";
+		$aux = "("."@resuvt[2]".")\n";
 		print "$aux";	
 		print "Filtro por tipo: ";	
-		print "$restipo";			
-		$aux = "("."$restipo2".")\n";
-		print "$aux";	
+		print "@resFiltro[3]";			
+		$aux = "("."@resuvt[3]".")\n";
+		print "$aux";
 		print "Filtro por tiempo: ";
-		print "$restiempo\n";	
+		print "$restiempo";	
 		$aux = "("."$ttiempo".")\n";
-		print "$aux";					
-		print "¿Desea filtrar por numa? [s/n] ";
+		print "$aux";		
+
+		print "¿Desea filtrar por num A? [s/n] ";
 		$opc = <STDIN>;
 		chop($opc);
-		if ($opc eq "s"){
-			$fnuma = 1;
-			$resnuma = "si";
-			print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
-			$opc = <STDIN>;
-			chop($opc);
-			if($opc == 1){$uvtnuma = 1;$resnuma2="uno";}
-			if($opc == 2){$uvtnuma = 2;$resnuma2="varios";}
-			if($opc == 3){$uvtnuma = 3;$resnuma2="todos";}
-			while (($uvtnuma == -1)&& ($opc ne "e")){
-				system("clear");
+		if($opc eq "s"){
+			@tieneFiltro[4] = 1;
+			@resFiltro[4] = "si";
+			do{
+				system("clear");	
 				print "Elegir Filtros\n";
-				print "Si desea salir apretar e\n";
-				print "$rescentral";
-				$aux = "("."$rescentral2".")\n";
+				print "Si desea salir apretar e\n\n";
+				print "Filtro por central: ";
+				print "@resFiltro[0]";
+				$aux = "("."@resuvt[0]".")\n";
 				print "$aux";
 				print "Filtro por agente: ";	
-				print "$resagente";
-				$aux = "("."$resagente2".")\n";
+				print "@resFiltro[1]";
+				$aux = "("."@resuvt[1]".")\n";
 				print "$aux";
 				print "Filtro por umbral: ";	
-				print "$resumbral";
-				$aux = "("."$resumbral2".")\n";
+				print "@resFiltro[2]";
+				$aux = "("."@resuvt[2]".")\n";
 				print "$aux";	
 				print "Filtro por tipo: ";	
-				print "$restipo";			
-				$aux = "("."$restipo2".")\n";
-				print "$aux";				
-				print "Filtro por tiempo: ";
-				print "$restiempo\n";	
-				$aux = "("."$$ttiempo".")\n";
+				print "@resFiltro[3]";			
+				$aux = "("."@resuvt[3]".")\n";
 				print "$aux";
+				print "Filtro por tiempo: ";
+				print "$restiempo";	
+				$aux = "("."$ttiempo".")\n";
+				print "$aux";			
 				print "Filtro por numa: ";	
-				print "$resnuma\n";			
+				print "@resFiltro[4]\n";			
 				print "¿Cuantos filtros desea tener(1=uno/2=varios/3=todos)?\n";
 				$opc = <STDIN>;
 				chop($opc);
-				if($opc == 1){$uvtnuma = 1;$resnuma2="uno";}
-				if($opc == 2){$uvtnuma = 2;$resnuma2="varios";}
-				if($opc == 3){$uvtnuma = 3;$resnuma2="todos";}			}	
-		}	
+				if($opc == 1){@uvt[4] = 1;@resuvt[4]="uno";}
+				if($opc == 2){@uvt[4] = 2;@resuvt[4]="varios";}
+				if($opc == 3){@uvt[4] = 3;@resuvt[4]="todos";}
+			}while((@uvt[4] == -1)&& ($opc ne "e"));
+		}
 		if($opc eq "n"){
-			$fnuma = 0;
-			$resnuma = "no";
-		}	
-	}
+			@tieneFiltro[4] = 0;
+			@resFiltro[4] = "no";	
+		}
+	}while((@tieneFiltro[4] == -1) && ($opc ne "e"));
 }
 
+sub pregunta{
+	do{
+		$inicBusq = -1;
+		system("clear");
+		print "Elegir Filtros\n";
+		print "Si desea salir apretar e\n\n";
+		print "Filtro por central: ";		
+		print "@resFiltro[0]";
+		$aux = "("."@resuvt[0]".")\n";
+		print "$aux";
+		print "Filtro por agente: ";	
+		print "@resFiltro[1]";
+		$aux = "("."@resuvt[1]".")\n";
+		print "$aux";
+		print "Filtro por umbral: ";	
+		print "@resFiltro[2]";
+		$aux = "("."@resuvt[2]".")\n";
+		print "$aux";	
+		print "Filtro por tipo: ";	
+		print "@resFiltro[3]";			
+		$aux = "("."@resuvt[3]".")\n";
+		print "$aux";
+		print "Filtro por tiempo: ";
+		print "$restiempo";	
+		$aux = "("."$ttiempo".")\n";
+		print "$aux";			
+		print "Filtro por num A: ";
+		print "@resFiltro[4]";	
+		$aux = "("."@resuvt[4]".")\n";
+		print "$aux";			
+		
+		print "¿Desea iniciar la busqueda con estos filtros? [s/n] ";
+		$opc = <STDIN>;
+		chop($opc);
+		if($opc eq "s"){
+			$inicBusq = 1;
+			iniciarBusqueda();
+		}	
+		if($opc eq "n"){
+			$inicBusq = 0;  	
+		}	
+	}while(($inicBusq == -1) && ($opc ne "e"));
+}
+
+#SE PIDE EL PERIODO 
+sub Setearperiodo{
+	do{	
+		system("clear");
+		print "setear periodo\n";
+		print "Si desea salir apretar e\n\n";
+		print "seleccione cuantos filtros desea tener (1=uno/2=varios/3=todos)\n";		
+		$opc = <STDIN>;
+		chomp($opc);
+		if ($opc ==1){@uvt[7]=1;Menus();}
+		if ($opc ==2){@uvt[7]=2;Menus();}
+		if ($opc ==3){@uvt[7]=3;Menus();}
+	}while($opc ne "e");	
+}
+
+#SE PIDE RANKING TIEMPO
+sub ElegirRankTiempoCant{
+	do{
+		system("clear");
+		print "Elegir tener el ranking segun tiempo o cantidad\n";
+		print "Si desea salir apretar e\n\n";
+		print "Si se quiere el ranking por cantidad 1\n";
+		print "Si se quiere el ranking por tiempo 2\n";
+		print "Si se quiere el ranking por cantidad y tiempo 3\n";
+		$opc = <STDIN>;
+		chomp($opc);
+		if ($opc ==1){$tiempoCantidad=1;Menus();}
+		if ($opc ==2){$tiempoCantidad=2;Setearperiodo();}
+		if ($opc ==3){$tiempoCantidad=3;Setearperiodo();}	
+	}while($opc ne "e");
+}
+
+#----------------------------------------------------------------------------#
+#                          busqueda y filtrado                               #
+#----------------------------------------------------------------------------#
+
 sub iniciarBusqueda{
-
-
 	$i=0;
 	if ($grabar == 1){
 		$termine = 0;
@@ -926,13 +644,10 @@ sub iniciarBusqueda{
  				$it = $it +1;
 				$nom = "$GRABDIR_CONSULTAS"."$it".".txt";
 			} 
-			else {
-  	 			$termine = 1;
-			}
+			else {$termine = 1;}
 		}
 		open (FICH,">$nom");
 	}
-
 	$direcdef = "$Dir"."/default.txt";
 	open (DEFAULT,$direcdef);
 	@regs=<DEFAULT>;
@@ -946,47 +661,47 @@ sub iniciarBusqueda{
 		if ($it1==5){@tn=split(";",$t);}
 		if ($it1==6){@to=split(";",$t);}
 		if ($it1==7){@tam=split(";",$t);}
-			
-
-					
-	$it1 = $it1+1;	
+		$it1 = $it1+1;	
 	}
 	close(DEFAULT);	
-	
 	
 	opendir(DIR, "$direcPeligrosas");
 	@FILES = readdir(DIR);
 	foreach $file (@FILES) {
 		
+		#NOMAUX CONTIENE OFICINA _ AÑO/MES
 		@nomaux = split("_",$file);
 		$todook =1;
-
-		if ($uvtoficina==1){
+		
+		#CHEQUEO DE ARCHIVOS DE OFICINAS
+		if (@uvt[5]==1){
 			if (@nomaux[0] ne @to[0]){			
 				$todook=0;
 			}
 		}
-		if ($uvtoficina == 2){
+		if (@uvt[5] == 2){
 			$arrSize = @to;
 			$i=0;
 			$ok=1;
 			while($i<=$arrSize){
-			$todook=(@nomaux[0] ne @to[$i]) && $todook;
-			$i=$i+1;				
+				$todook=(@nomaux[0] ne @to[$i]) && $todook;
+				$i=$i+1;				
 			}
 		}
-		if ($uvtam == 1){
+
+		#CHEQUEO DE ARCHIVOS DE AÑO/MES
+		if (@uvt[6] == 1){
 			if (@nomaux[1] ne @tam[0]){			
 				$todook=0;
 			}
 		}		
-		if ($uvtam == 2){
+		if (@uvt[6] == 2){
 			$arrSize = @to;
 			$i=0;
 			$ok=1;
 			while($i<=$arrSize){
-			$todook=(@nomaux[1] ne @tam[$i]) && $todook;
-			$i=$i+1;				
+				$todook=(@nomaux[1] ne @tam[$i]) && $todook;
+				$i=$i+1;				
 			}
 		}
 		if ($todook==1){
@@ -997,16 +712,14 @@ sub iniciarBusqueda{
 			@aux=split(";",$peligro);
 			$imprimo = 1;
 
-
-			#CENTRAL			
-						
-			if($fcentral==1){
-				if ($uvtcentral == 1){
+			#CENTRAL									
+			if(@tieneFiltro[0]==1){
+				if (@uvt[0] == 1){
 					if (@aux[0] ne @tc[0]){
 						$imprimo = 0;					
 					}
 				}
-				if ($uvtcentral == 2){
+				if (@uvt[0] == 2){
 					$arrSize = @tc;
 					$i=0;
 					$ok=1;
@@ -1016,73 +729,64 @@ sub iniciarBusqueda{
 					}
 				}
 			if ($ok){$imprimo =0;}
-
 			}
 				
 			#AGENTE
-			#print"@aux[1] ";
-			#print"@ta[0]\n";
-			if($fagente==1){
-				if ($uvtagente == 1){
+			if(@tieneFiltro[1]==1){
+				if (@uvt[1] == 1){
 					if (@aux[1] ne @ta[0]){
 						$imprimo = 0;					
 					}
 				}
-				if ($uvtagente == 2){
+				if (@uvt[1] == 2){
 					$arrSize = @ta;
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-						$ok=(@aux[1] ne @ta[$i]) &&     $ok;				
+						$ok=(@aux[1] ne @ta[$i]) && ok;				
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
-
 				}
-
 			} 
 			
 			#UMBRAL
-			if($fumbral==1){
-				if ($uvtumbral == 1){
+			if(@tieneFiltro[2]==1){
+				if (@uvt[2] == 1){
 					if (@aux[2] ne @tu[0]){
 						$imprimo = 0;					
 					}
 				}
 
-				if ($uvtumbral == 2){
+				if (@uvt[2] == 2){
 					$arrSize = @tu;
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-						$ok=(@aux[2] ne @tu[$i]) && 	$ok;				
+						$ok=(@aux[2] ne @tu[$i]) && ok;				
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
-
 				}
 			}
 	
 			#TIPO
-			if($ftipo==1){
-				if ($uvttipo == 1){
+			if(@tieneFiltro[3]==1){
+				if (@uvt[3] == 1){
 					if (@aux[3] ne @tt[0]){
 						$imprimo = 0;					
 					}
 				}
-				if ($uvttipo == 2){
+				if (@uvt[3] == 2){
 					$arrSize = @tu;
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-						$ok=(@aux[3] ne @tt[$i]) && 	$ok;				
+						$ok=(@aux[3] ne @tt[$i]) && ok;				
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
-
 				}
-
-				
 			}
 	
 			#TIEMPO
@@ -1093,522 +797,176 @@ sub iniciarBusqueda{
 			}
 
 			#NUMA
-			if($fnuma==1){
-				if ($uvtnuma == 1){
+			if(@tieneFiltro[4]==1){
+				if (@uvt[4] == 1){
 					if ((@aux[6] ne @tar[0])||(@aux[2] ne @tn[0])){
 						$imprimo = 0;					
 					}
 				}
 
-				if ($uvtnuma == 2){
+				if (@uvt[4] == 2){
 					$arrSize = @tu;
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-						$ok=((@aux[6] ne @tar[$i])||(@aux[7] ne @tn[$i])) && 	$ok;				
+				 	        $ok=((@aux[6] ne @tar[$i])||(@aux[7] ne @tn[$i])) && $ok;
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
-
 				}
-
-				
 			}
-		if ($grabar == 1){
-			if ($imprimo){
-				print FICH $peligro; 				
+			if ($grabar == 1){
+				if ($imprimo){print FICH $peligro;}
+			}else{
+				if ($imprimo == 1){print "$peligro";}
 			}
-		}
-		else{
-			if ($imprimo == 1){
-				print "$peligro";
-			}
-		}
-			
 		}
 		close (ARCH);
 		}
 	}
 	closedir(DIR);	
 	close(FICH);
-	
-}
-
-sub pregunta{
-	$inicBusq = -1;
-	system("clear");
-	print "Elegir Filtros\n";
-	print "Si desea salir apretar e\n";
-	print "Filtro por central: ";		
-	print "$rescentral";
-	$aux = "("."$rescentral2".")\n";
-	print "$aux";
-	print "Filtro por agente: ";	
-	print "$resagente";
-	$aux = "("."$resagente2".")\n";
-	print "$aux";
-	print "Filtro por umbral: ";	
-	print "$resumbral";
-	$aux = "("."$resumbral2".")\n";
-	print "$aux";	
-	print "Filtro por tipo: ";	
-	print "$restipo";			
-	$aux = "("."$restipo2".")\n";
-	print "$aux";
-	print "Filtro por tiempo: ";
-	print "$restiempo";	
-	$aux = "("."$ttiempo".")\n";
-	print "$aux";			
-	print "Filtro por num A: ";
-	print "$resnuma";	
-	$aux = "("."$resnuma2".")\n";
-	print "$aux";			
-	
-	print "¿Desea iniciar la busqueda con estos filtros? [s/n] ";
-
+	print "Ingrese una tecla para continuar\n";
 	$opc = <STDIN>;
-	chop($opc);
-	if($opc eq "s"){
-		$inicBusq = 1;
-		iniciarBusqueda();
-	}	
-	if($opc eq "n"){
-		$inicBusq = 0;  	
-	}	
-
-	while (($inicBusq == -1) && ($opc ne "e")){
-		
-		system("clear");
-		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
-		print "$rescentral";
-		$aux = "("."$rescentral2".")\n";
-		print "$aux";
-		print "Filtro por agente: ";	
-		print "$resagente";
-		$aux = "("."$resagente2".")\n";
-		print "$aux";
-		print "Filtro por umbral: ";	
-		print "$resumbral";
-		$aux = "("."$resumbral2".")\n";
-		print "$aux";	
-		print "Filtro por tipo: ";	
-		print "$restipo";			
-		$aux = "("."$restipo2".")\n";
-		print "$aux";
-		print "Filtro por tiempo: ";
-		print "$restiempo";	
-		$aux = "("."$ttiempo".")\n";
-		print "$aux";			
-		print "Filtro por num A: ";
-		print "$resnuma";	
-		$aux = "("."$resnuma2".")\n";
-		print "$aux";			
-					
-		print "¿Desea iniciar la busqueda con estos filtros? [s/n] ";
-
-		$opc = <STDIN>;
-		chop($opc);
-		if ($opc eq "s"){
-			$inicBusq = 1;
-			iniciarBusqueda();
-					
-		}	
-		if($opc eq "n"){
-			$inicBusq =0;
-		}
-		print "Toque una tecla para continuar\n";	
-	}
-
-
 }
 
-sub ElegFiltros{
-	$fcentral = -1;
-	$rescentral = "";
-	$rescentral2 = "";
-	$uvtcentral = -1;
-		
-	$fagente = -1;
-	$resagente= "";
-	$resagente2= "";
-	$uvtagente = -1;
-	
-	$fumbral = -1;
-	$resumbral = "";
-	$resumbral2= "";
-	$uvtumbral = -1;
+#-----------------------------------------------------------------------------#
+#                                   DAR RANKING                               #
+#-----------------------------------------------------------------------------#
 
-	$ftipo = -1;
-	$restipo= "";
-	$restipo2= "";
-	$uvttipo = -1;
-
-	$ftiempo = -1;
-	$restiempo = "";
-	$restiempo2 = "";
-	$ttiempo =-1;
-
-	$fnuma = -1;
-	$resnuma= "";
-	$resnuma2= "";
-	$uvtnuma = -1;
-	
-	filtroCent();
-	if ($opc ne "e"){	
-		filtroAgente();
-		if ($opc ne "e"){
-			filtroUmbral();			
-			if ($opc ne "e"){
-				filtroTipo();
-				if($opc ne "e"){
-					filtroTiempo();
-					if ($opc ne "e"){
-						filtroNuma();	
-						if ($opc ne "e"){
-							pregunta();
-						}
-					}
-				}
-			}
-		}	
-	}
-	while ($opc ne "e" && ($fcentral+$fagente+$fumbral+$ftiempo+$ftipo+$fnuma < 1)) {
-		system("clear");
-		print "Elegir Filtros\n";
-		print "Si desea salir apretar e\n";
- 		
-		$fcentral = -1;
-		$rescentral = "";
-		$uvtcentral = -1;
-	
-		$fagente = -1;
-		$resagente= "";
-		$uvtagente = -1;
-	
-		$fumbral = -1;
-		$resumbral = "";
-		$uvtumbral = -1;
-	
-		$ftipo = -1;
-		$restipo= "";
-		$uvttipo = -1;
-	
-		$ftiempo = -1;
-		$restiempo = "";
-		$uvttiempo = -1;
-	
-		$fnuma = -1;
-		$resnuma= "";
-		$uvtnuma = -1;
-	
-		filtroCent();
-		if ($opc ne "e"){	
-			filtroAgente();
-			if ($opc ne "e"){
-				filtroUmbral();			
-				if ($opc ne "e"){
-					filtroTipo();
-					if($opc ne "e"){
-						filtroTiempo();
-						if ($opc ne "e"){
-							filtroNuma();	
-							if($opc ne "e"){
-								pregunta();
-							}
-						}
-					}
-				}
-			}	
-		}
-	}
-}
-	
-
-sub Menur {
-	system("clear");
-	print "Menu de consultas\n";
-	print "Si desea filtrar los archivos a leer ingresar 1\n";			
-	print "Si desea comenzar la eleccion de filtros ingresar 2\n";			
-	print "Si desea salir apretar s\n";
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
-		system("clear");
-		print "Menu de consultas\n";
-		print "Si desea filtrar los archivos a leer ingresar 1\n";			
-		print "Si desea comenzar la eleccion de filtros ingresar 2\n";			
-		print "Si desea salir apretar s\n";
-		if ($opc == 1){
-			IngresarInput();
-		}
-		else{
-			if ($opc == 2){
-				ElegFiltros();
-			}
-		}
- 		$opc = <STDIN>;
- 		chop($opc);
-	}
-	MenuPal(); 			
-}
+# RANKING CENTRALES HAY DE TIEMPO Y DE CANTIDAD
 sub DarRankCent{
-
 	if ($tiempoCantidad==1){
-		system("clear");
-		print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
-		top5CentralesCantidad();
-		print "Si desea salir apretar s\n";		
-		$opc = <STDIN>;
-		chomp($opc);
-		while ($opc ne "s") {
+		do{
 			system("clear");
+			print "Si desea salir apretar s\n\n";
 			print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
 			top5CentralesCantidad();
-			print "Si desea salir apretar s\n";
 	 		$opc = <STDIN> ;
 	 		chop($opc);
-		}
+		}while($opc ne "s");
 	}
 	if($tiempoCantidad==2){
-		system("clear");
-		print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
-		top5CentralesTiempo();
-		print "Si desea salir apretar s\n";		
-		$opc = <STDIN>;
-		chomp($opc);
-		while ($opc ne "s") {
+		do{
 			system("clear");
 			print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
+			print "Si desea salir apretar s\n\n";
 			top5CentralesTiempo();
-			print "Si desea salir apretar s\n";
 	 		$opc = <STDIN> ;
 	 		chop($opc);
+		}while($opc ne "s");
 	}
 	if($tiempoCantidad==3){
-		system("clear");
-		print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
-		top5CentralesTiempo();
-		print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
-		top5CentralesCantidad();
-	
-		print "Si desea salir apretar s\n";		
-		$opc = <STDIN>;
-		chomp($opc);
-		while ($opc ne "s") {
+		do{
 			system("clear");
+			print "Si desea salir apretar s\n\n";
 			print "Top 5 de centrales con más tiempo de llamadas peligrosas\n";
 			top5CentralesTiempo();
 			print "Top 5 de centrales con más cantidad de llamadas peligrosas\n";
 			top5CentralesCantidad();
-	
-			print "Si desea salir apretar s\n";
-	 		$opc = <STDIN> ;
-	 		chop($opc);
-	}
-
-}
-sub DarRankOfic{
-	system("clear");
-	print "Top 5 de oficinas con más llamadas peligrosas\n";
-	top5Oficinas();
-	print "Si desea salir apretar s\n";
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
-		system("clear");
-		print "Top 5 de oficinas con más llamadas peligrosas\n";
-		top5Oficinas();		
-		print "Si desea salir apretar s\n";
- 		$opc = <STDIN> ;
- 		chop($opc);
-	}
-}
-sub DarRankAgen{
-	system("clear");
-	print "Top 5 de Agentes con más llamadas peligrosas\n";
-	top5Agentes();
-	print "Si desea salir apretar s\n";
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
-		system("clear");
-		print "Top 5 de Agentes con más llamadas peligrosas\n";
-		top5Agentes();		
-		print "Si desea salir apretar s\n";
- 		$opc = <STDIN> ;
- 		chop($opc);
-	}
-
-}
-sub DarRankDest{
-	system("clear");
-	print "Top 5 de Destinos con más llamadas peligrosas\n";
-	top5Areas();
-	top5Paises();
-	print "Si desea salir apretar s\n";
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
-		system("clear");
-		print "Top 5 de Destinos con más llamadas peligrosas\n";
-		top5Areas();
-		top5Paises();		
-		print "Si desea salir apretar s\n";
- 		$opc = <STDIN> ;
- 		chop($opc);
-	}
-
-}
-sub DarRankUmbr{
-	system("clear");
-	print "Top 5 de umbrales con más llamadas peligrosas\n";
-	top5Umbrales();
-	print "Si desea salir apretar s\n";
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
-		system("clear");
-		print "Top 5 de umbrales con más llamadas peligrosas\n";
-		top5Umbrales();	
-		print "Si desea salir apretar s\n";
- 		$opc = <STDIN> ;
- 		chop($opc);
-	}
-
-}
-
-sub Setearperiodo{
-		system("clear");
-		print "setear periodo\n";
-		print "Si desea salir apretar e\n";
-		print "seleccione cuantos filtros desea tener (1=uno/2=varios/3=todos)\n";		
-		$opc = <STDIN>;
-		chomp($opc);
-		if ($opc ==1){$uvtam1=1;Menus();}
-		if ($opc ==2){$uvtam1=1;Menus();}
-		if ($opc ==3){$uvtam1=1;Menus();}
-
-		while ($opc ne "e") {
-			system("clear");
-			print "setear periodo\n";
-			print "Si desea salir apretar e\n";
-			print "seleccione cuantos filtros desea tener (1=uno/2=varios/3=todos)\n";		
 			$opc = <STDIN>;
 			chomp($opc);
-			if ($opc ==1){$uvtam1=1;Menus();}
-			if ($opc ==2){$uvtam1=1;Menus();}
-			if ($opc ==3){$uvtam1=1;Menus();}
-		}
+		}while ($opc ne "s");
+	}
 }
-sub ElegirRankTiempoCant{
-	system("clear");
-	print "Elegir tener el ranking segun tiempo o cantidad\n";
-	print "Si desea salir apretar e\n";
 
-	print "Si se quiere el ranking por cantidad 1\n";
-	print "Si se quiere el ranking por tiempo 2\n";
-	print "Si se quiere el ranking por cantidad y tiempo 3\n";
-			
-	$opc = <STDIN>;
-	chomp($opc);
+#RANKING DE OFICINA HAY DE TIEMPO Y DE CANTIDAD
+sub DarRankOfic{
+	if ($tiempoCantidad==1){
+		do{					
+			system("clear");
+			print "Si desea salir apretar s\n\n";			
+			print "Top 5 de oficinas con más cantidad de llamadas peligrosas\n";
+			top5OficinasCantidad();
+			$opc = <STDIN>;
+			chomp($opc);	
+		}while($opc ne "s");
+	}
+	if ($tiempoCantidad==2){
+		do{
+			system("clear");
+			print "Si desea salir apretar s\n\n";
+			print "Top 5 de oficinas con más tiempo de llamadas peligrosas\n";
+			top5OficinasTiempo();
+			$opc = <STDIN>;
+			chomp($opc);			
+		}while($opc ne "s");
+	}
+	if ($tiempoCantidad==3){
+		do{
+			system("clear");
+			print "Si desea salir apretar s\n\n";
+			print "Top 5 de oficinas con más tiempo de llamadas peligrosas\n";
+			top5OficinasTiempo();
+			print "Top 5 de oficinas con más cantidad de llamadas peligrosas\n";
+			top5OficinasCantidad();			
+			$opc = <STDIN>;
+			chomp($opc);			
+		}while($opc ne "s");
+	}	
+}
 
-	if ($opc ==1){$tiempoCantidad=1;Menus();}
-	if ($opc ==2){$tiempoCantidad=2;Menus();}
-	if ($opc ==3){$tiempoCantidad=3;Menus();}
+#RANKING DE AGENTES HAY DE TIEMPO Y DE CANTIDAD
+sub DarRankAgen{
+	if ($tiempoCantidad==1){
+		do{					
+			system("clear");
+			print "Si desea salir apretar s\n\n";			
+			print "Top 5 de agentes con más cantidad de llamadas peligrosas\n";
+			top5AgentesCantidad();
+			$opc = <STDIN>;
+			chomp($opc);	
+		}while($opc ne "s");
+	}
+	if ($tiempoCantidad==2){
+		do{
+			system("clear");
+			print "Si desea salir apretar s\n\n";
+			print "Top 5 de agentes con más tiempo de llamadas peligrosas\n";
+			top5AgentesTiempo();
+			$opc = <STDIN>;
+			chomp($opc);			
+		}while($opc ne "s");
+	}
+	if ($tiempoCantidad==3){
+		do{
+			system("clear");
+			print "Si desea salir apretar s\n\n";
+			print "Top 5 de agentes con más tiempo de llamadas peligrosas\n";
+			top5AgentesTiempo();
+			print "Top 5 de agentes con más cantidad de llamadas peligrosas\n";
+			top5AgentesCantidad();			
+			$opc = <STDIN>;
+			chomp($opc);			
+		}while($opc ne "s");
+	}	
+}
 
-	while ($opc ne "e") {
+#RANKING DE DESTINOS 
+sub DarRankDest{
+	do{
 		system("clear");
-		print "Elegir tener el ranking segun tiempo o cantidad\n";
-		print "Si desea salir apretar e\n";
-
-		print "Si se quiere el ranking por cantidad 1\n";
-		print "Si se quiere el ranking por tiempo 2\n";
-		print "Si se quiere el ranking por cantidad y tiempo 3\n";
-				
+		print "Si desea salir apretar s\n\n";
+		print "Top 5 de Areas con más llamadas peligrosas\n";
+		top5Areas();
+		print "\n";
+		top5Paises();
 		$opc = <STDIN>;
 		chomp($opc);
-
-		if ($opc ==1){$tiempoCantidad=1;Menus();}
-		if ($opc ==2){$tiempoCantidad=2;Menus();}
-		if ($opc ==3){$tiempoCantidad=3;Menus();}	
-	}
-
+	}while($opc ne "s");
 }
-	
-sub Menus {
-	system("clear");
 
-	BucleLlamadasPeligrosas();
-	print "Menu de estadisticas de llamadas peligrosas\n";
-	print "marque 1 si desea obtener el ranking con las centrales con más llamadas peligrosas\n";
-	print "marque 2 si desea obtener el ranking con las oficinas con más llamadas peligrosas\n";
-	print "marque 3 si desea obtener el ranking con los agentes con más llamadas peligrosas\n";
-	print "marque 4 si desea obtener el ranking con los destinos con más llamadas peligrosas\n";
-	print "marque 5 si desea obtener el ranking con los umbrales con más llamadas peligrosas\n";
-	print "marque 6 si desea setear periodo\n";
-	print "marque 7 si desea cambiar ranking por cantidad de llamadas o tiempo de llamada\n";
-	
-	print "Si desea salir apretar s\n";
-	$opc = <STDIN>;
-	chomp($opc);
-	while ($opc ne "s") {
-		
-		if ($opc == 1) {
-			DarRankCent();
-		}
-		else{
-			if ($opc == 2) {
-				DarRankOfic();
-			}
-			else{
-				if ($opc == 3){
-					DarRankAgen();				
-				}
-				else{
-					if ($opc == 4){
-						DarRankDest();
-					}
-					else{
-						if ($opc == 5){
-							DarRankUmbr();
-						}
-						else{
-							if($opc ==6){
-								Setearperiodo();
-							}
-							else{
-								if($opc ==7){
-									ElegirRankTiempoCant();
-								}
-								else{
-								system("clear");
-		print "Menu de estadisticas de llamadas peligrosas\n";
-		print "marque 1 si desea obtener el ranking con las centrales con más llamadas peligrosas\n";
-		print "marque 2 si desea obtener el ranking con las oficinas con más llamadas peligrosas\n";
-		print "marque 3 si desea obtener el ranking con los agentes con más llamadas peligrosas\n";
-		print "marque 4 si desea obtener el ranking con los destinos con más llamadas peligrosas\n";
-		print "marque 5 si desea obtener el ranking con los umbrales con más llamadas peligrosas\n";
-		print "marque 6 si desea setear periodo\n";
-		print "marque 7 si desea cambiar ranking por cantidad de llamadas o tiempo de llamada\n";
-		print "Si desea salir apretar s\n";
+#RANKING DE UMBRALES
+sub DarRankUmbr{
+	do{
+		system("clear");
+		print "Si desea salir apretar s\n\n";			
+		print "Top 5 de umbrales con más llamadas peligrosas\n";
+		top5Umbrales();
 		$opc = <STDIN>;
-		chomp($opc);			
-								}	
-							}
-						}		
-					}																		
-				}
-			}
-		}
-	}
-	MenuPal(); 			
+		chomp($opc);
+	}while($opc ne "s");
 }
-
-sub Menue {
-	system("clear");
-	}
-
 
 #--------------------------------------------------------------------------------
 # TOP 5         CENTRALES
@@ -1616,7 +974,6 @@ sub Menue {
 
 sub top5CentralesCantidad{
 	# se tiene un array de centrales
-	
 	my @valores = [];	
 	@claves=keys(%hashcentrales);
 	my $arrSize = @claves;
@@ -1625,8 +982,7 @@ sub top5CentralesCantidad{
 		my @aux = @{$hashcentrales{@claves[$p]}};
 	
 		$tripleta = "@aux[2]|@aux[0]|@aux[1]";		
-		push(@valores,$tripleta);
-			
+		push(@valores,$tripleta);	
 	}
 	@ordencentrales = sort { $a <=> $b } @valores;
 	pop(@ordencentrales); 
@@ -1641,8 +997,7 @@ sub top5CentralesCantidad{
 			if (-e "$nom") {
  				$it = $it +1;
 				$nom = "$GRABDIR_RANKING"."$it".".txt";
-			} 
-			else {
+			} else {
   	 			$termine = 1;
 			}
 		}
@@ -1657,22 +1012,20 @@ sub top5CentralesCantidad{
 			$i=$i+1;
 		}
 		close (FICH); 
-	}
-
-	else{
+	}else{
 		foreach	$variable (@ordencentrales){
 			if ($i<6){		
 				($cantVeces,$id,$nom) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
+				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom"."y tiene $cantVeces veces visto";
 				print"$aux\n";
 			}
 			$i=$i+1;
 		}	
 	}
-}	
+}
+
 sub top5CentralesTiempo{
 	# se tiene un array de centrales
-	
 	my @valores = [];	
 	@claves=keys(%hashcentrales);
 	my $arrSize = @claves;
@@ -1681,8 +1034,7 @@ sub top5CentralesTiempo{
 		my @aux = @{$hashcentrales{@claves[$p]}};
 	
 		$tripleta = "@aux[3]|@aux[0]|@aux[1]";		
-		push(@valores,$tripleta);
-			
+		push(@valores,$tripleta);	
 	}
 	@ordencentrales = sort { $a <=> $b } @valores;
 	pop(@ordencentrales); 
@@ -1697,15 +1049,14 @@ sub top5CentralesTiempo{
 			if (-e "$nom") {
  				$it = $it +1;
 				$nom = "$GRABDIR_RANKING"."$it".".txt";
-			} 
-			else {
+			} else {
   	 			$termine = 1;
 			}
 		}
 		open (FICH,">$nom");
 		foreach	$variable (@ordencentrales){
 			if ($i<6){		
-				($cantVeces,$id,$nom) = split(/\|/,$variable);
+				($cantTiempo,$id,$nom) = split(/\|/,$variable);
 				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
 				print FICH $aux; 		
 			 	print FICH "\n";
@@ -1713,13 +1064,11 @@ sub top5CentralesTiempo{
 			$i=$i+1;
 		}
 		close (FICH); 
-	}
-
-	else{
+	}else{
 		foreach	$variable (@ordencentrales){
 			if ($i<6){		
-				($cantVeces,$id,$nom) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
+				($cantTiempo,$id,$nom) = split(/\|/,$variable);
+				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom"."y tiene $cantTiempo min vistos";
 				print"$aux\n";
 			}
 			$i=$i+1;
@@ -1727,12 +1076,11 @@ sub top5CentralesTiempo{
 	}
 }	
 
-
 #--------------------------------------------------------------------------------
 # TOP 5         AGENTES
 #--------------------------------------------------------------------------------
 
-sub top5Agentes{
+sub top5AgentesCantidad{
 	# se tiene un array de agentes
 	my @valores = [];	
 	@claves=keys(%hashagentes);
@@ -1742,8 +1090,6 @@ sub top5Agentes{
 		my @aux = @{$hashagentes{@claves[$p]}};
 		$sexteta = "@aux[5]|@aux[0]|@aux[1]|@aux[2]|@aux[3]|@aux[4]";				
 		push(@valores,$sexteta);
-		#print "$sexteta\n";
-			
 	}
 	@ordenagentes = sort { $a <=> $b } @valores; 
 	pop(@ordenagentes);
@@ -1758,8 +1104,7 @@ sub top5Agentes{
 			if (-e "$nom") {
  				$it = $it +1;
 				$nom = "$GRABDIR_RANKING"."$it".".txt";
-			} 
-			else {
+			} else {
   	 			$termine = 1;
 			}
 		}
@@ -1774,14 +1119,62 @@ sub top5Agentes{
 			$i=$i+1;
 		}
 		close (FICH); 
-	}
-
-	else{
+	}else{
 		foreach	$variable (@ordenagentes){
 			if ($i<6){		
-				#print "$variable\n";
 				($cantVeces,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);
+				$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo"." y tiene $cantVeces cant veces visto";
+				print"$aux\n";		
+			}
+			$i=$i+1;
+		}
+	}
+}	
+
+sub top5AgentesTiempo{
+	# se tiene un array de agentes
+	my @valores = [];	
+	@claves=keys(%hashagentes);
+	my $arrSize = @claves;
+
+	for ($p=0; $p<$arrSize; $p++){
+		my @aux = @{$hashagentes{@claves[$p]}};
+		$sexteta = "@aux[6]|@aux[0]|@aux[1]|@aux[2]|@aux[3]|@aux[4]";				
+		push(@valores,$sexteta);
+	}
+	@ordenagentes = sort { $a <=> $b } @valores; 
+	pop(@ordenagentes);
+	@ordenagentes=reverse(@ordenagentes);
+
+	$i=1;
+	if ($grabar == 1){
+		$termine = 0;
+		$it = 0;
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
+		while ($termine == 0 ){			
+			if (-e "$nom") {
+ 				$it = $it +1;
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
+			} else {
+  	 			$termine = 1;
+			}
+		}
+		open (FICH,">$nom");
+		foreach	$variable (@ordenagentes){
+			if ($i<6){		
+				($cantTiempo,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);
 				$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo";
+				print FICH $aux; 		
+			 	print FICH "\n";
+			}
+			$i=$i+1;
+		}
+		close (FICH); 
+	}else{
+		foreach	$variable (@ordenagentes){
+			if ($i<6){		
+				($cantTiempo,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);
+				$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo"." y tiene $cantTiempo minutos";
 				print"$aux\n";		
 			}
 			$i=$i+1;
@@ -1793,8 +1186,7 @@ sub top5Agentes{
 # TOP 5         OFICINAS 
 #--------------------------------------------------------------------------------
 
-sub top5Oficinas{
-	
+sub top5OficinasCantidad{
 	# se tiene un array de oficinas
 	my @valores = [];
 	@claves=keys(%hashoficinas);
@@ -1802,10 +1194,8 @@ sub top5Oficinas{
 	my $arrSize = @claves;
 	for ($p=0; $p<$arrSize; $p++){
 		my @aux = @{$hashoficinas{@claves[$p]}};
-		#print "$arrSize\n";		
 		$dupla = "@aux[1]|@aux[0]";				
 		push(@valores,$dupla);
-		#print "$dupla\n";
 	}
 	@ordenoficinas = sort { $a <=> $b } @valores; 
 	pop(@ordenoficinas);
@@ -1820,8 +1210,7 @@ sub top5Oficinas{
 			if (-e "$nom") {
  				$it = $it +1;
 				$nom = "$GRABDIR_RANKING"."$it".".txt";
-			} 
-			else {
+			} else {
   	 			$termine = 1;
 			}
 		}
@@ -1836,15 +1225,64 @@ sub top5Oficinas{
 			$i=$i+1;
 		}
 		close (FICH); 
-	}
-
-	else{
+	}else{
 		foreach	$variable (@ordenoficinas){
 			if ($i<5){		
-				#print "$variable\n";
 				($cantVeces,$id) = split(/\|/,$variable);
 				$a = $i +1;
-				$aux = "La oficina numero "."$a"." del ranking es "."$id";		
+				$aux = "La oficina numero "."$a"." del ranking es "."$id"." y tiene $cantVeces veces visto";		
+				print "$aux\n";		
+			}
+			$i=$i+1;
+		}
+	}
+}
+
+sub top5OficinasTiempo{
+	# se tiene un array de oficinas
+	my @valores = [];
+	@claves=keys(%hashoficinas);
+		
+	my $arrSize = @claves;
+	for ($p=0; $p<$arrSize; $p++){
+		my @aux = @{$hashoficinas{@claves[$p]}};
+		$dupla = "@aux[2]|@aux[0]";				
+		push(@valores,$dupla);
+	}
+	@ordenoficinas = sort { $a <=> $b } @valores; 
+	pop(@ordenoficinas);
+	@ordenoficinas=reverse(@ordenoficinas);
+	
+	$i=0;
+	if ($grabar == 1){
+		$termine = 0;
+		$it = 0;
+		$nom = "$GRABDIR_RANKING"."$it".".txt";
+		while ($termine == 0 ){			
+			if (-e "$nom") {
+ 				$it = $it +1;
+				$nom = "$GRABDIR_RANKING"."$it".".txt";
+			} else {
+  	 			$termine = 1;
+			}
+		}
+		open (FICH,">$nom");
+		foreach	$variable (@ordenoficinas){
+			if ($i<6){		
+				($cantTiempo,$id) = split(/\|/,$variable);
+				$aux = "La oficina numero "."$i"." del ranking es "."$id";		
+				print FICH $aux; 		
+			 	print FICH "\n";
+			}
+			$i=$i+1;
+		}
+		close (FICH); 
+	}else{
+		foreach	$variable (@ordenoficinas){
+			if ($i<5){		
+				($cantTiempo,$id) = split(/\|/,$variable);
+				$a = $i +1;
+				$aux = "La oficina numero "."$a"." del ranking es "."$id"." y tiene $cantTiempo minutos hablados";		
 				print "$aux\n";		
 			}
 			$i=$i+1;
@@ -1861,13 +1299,10 @@ sub top5Umbrales{
 	my @valores = [];	
 	@claves=keys(%hashumbrales);
 	my $arrSize = @claves;
-	#print "$arrSize\n";
 	for ($p=0; $p<$arrSize; $p++){
 		my @aux = @{$hashumbrales{@claves[$p]}};
 		$octeto = "@aux[7]|@aux[0]|@aux[1]|@aux[2]|@aux[3]|@aux[4]|@aux[5]|@aux[6]";
-		#print "$octeto";		
 		push(@valores,$octeto);
-		#print "$octeto\n";
 	}
 	@ordenumbrales = sort { $a <=> $b } @valores; 
 	pop(@ordenumbrales);
@@ -1882,8 +1317,7 @@ sub top5Umbrales{
 			if (-e "$nom") {
  				$it = $it +1;
 				$nom = "$GRABDIR_RANKING"."$it".".txt";
-			} 
-			else {
+			} else {
   	 			$termine = 1;
 			}
 		}
@@ -1900,20 +1334,14 @@ sub top5Umbrales{
 			$i=$i+1;
 		}
 		close (FICH); 
-	}
-
-	else{
-
+	}else{
 		foreach	$variable (@ordenumbrales){
 			if ($i<6){
-				#print "$variable\n";
 				($cantVeces,$id,$codOrig,$numOrig,$tipo,$codDest,$tope,$estado) = split(/\|/,$variable);
 				if ($cantVeces > 0){
-					$aux = "El numero "."$i"." del ranking tiene la id "."$id";
+					$aux = "El numero "."$i"." del ranking tiene la id "."$id"." y tiene $cantVeces veces visto";
 					print "$aux\n";	
 				}
-
-				#print"$id\n";		
 			}
 			$i=$i+1;
 		}
@@ -1929,13 +1357,10 @@ sub top5Paises{
 	my @valores = [];	
 	@claves=keys(%hashpaises);
 	my $arrSize = @claves;
-	#print "$arrSize\n";
 	for ($p=0; $p<$arrSize; $p++){
 		my @aux = @{$hashpaises{@claves[$p]}};
 		$terna = "@aux[2]|@aux[0]|@aux[1]";
 		push(@valores,$terna);
-		#print "$terna\n";
-			
 	}
 	@ordenpaises = sort { $a <=> $b } @valores; 
 	pop(@ordenpaises);
@@ -1950,8 +1375,7 @@ sub top5Paises{
 			if (-e "$nom") {
 				$it = $it +1;
 				$nom = "$GRABDIR_RANKING"."$it".".txt";
-			} 
-			else {
+			} else {
 	 			$termine = 1;
 			}
 		}
@@ -1965,22 +1389,18 @@ sub top5Paises{
 			$i=$i+1;
 		}
 		close (FICH); 
-	}
-	
-	else{
+	}else{
 		print "Top 5 de paises\n";
 		foreach	$variable (@ordenpaises){
 			if ($i<5){		
-			#	print "$variable\n";
 				($cantVeces,$id,$nom) = split(/\|/,$variable);
 				$a = $i+1;
-				print"$El numero "."$a"." del ranking es "."$nom\n";		
+				print"$El numero "."$a"." del ranking es "."$nom"." y tuvo  $cantVeces veces vistos\n";		
 			}
 			$i=$i+1;
 		}
 	}
 }	
-
 
 #--------------------------------------------------------------------------------
 # TOP 5         AREAS
@@ -1991,13 +1411,10 @@ sub top5Areas{
 	my @valores = [];	
 	@claves=keys(%hashareas);
 	my $arrSize = @claves;
-	#print "$arrSize\n";
 	for ($p=0; $p<$arrSize; $p++){
 		my @aux = @{$hashareas{@claves[$p]}};
 		$terna = "@aux[2]|@aux[0]|@aux[1]";
 		push(@valores,$terna);
-		#print "$terna\n";
-			
 	}
 	@ordenareas = sort { $a <=> $b } @valores; 
 	pop(@ordenareas);
@@ -2012,8 +1429,7 @@ sub top5Areas{
 			if (-e "$nom") {
 				$it = $it +1;
 				$nom = "$GRABDIR_RANKING"."$it".".txt";
-			} 
-			else {
+			} else {
 	 			$termine = 1;
 			}
 		}
@@ -2027,29 +1443,22 @@ sub top5Areas{
 			$i=$i+1;
 		}
 		close (FICH); 
-	}
-	
-	else{
+	}else{
 		print "Top 5 de areas\n";
 		foreach	$variable (@ordenareas){
 			if ($i<5){		
-				#print "$variable\n";
 				($cantVeces,$nom,$id) = split(/\|/,$variable);
-			#	print"$id\n";	
 
 				$a = $i+1;
-				print"$El numero "."$a"." del ranking es "."$nom\n";	
+				print"$El numero "."$a"." del ranking es "."$nom"."y tuvo $cantVeces  veces vistos \n";	
 			}
 			$i=$i+1;
 		}
 	}
 }	
 
-#------------------------------------------------------------------
-# main
-#------------------------------------------------------------------
-sub metabucle{
-# SE REALIZA EL HASH DE CENTRALES: hashcentrales (ID central, Arrary:(ID CENTRAL, CENTRAL, cantVecesVisto))
+sub inicializacionHashes{
+	# SE REALIZA EL HASH DE CENTRALES: hashcentrales (ID central, Arrary:(ID CENTRAL, CENTRAL, #cantVecesVisto,cantTiempo))
 	
 	$direcCentrales="$ENV{'MAEDIR'}"."/CdC.mae";
 	open (CENTRALES,$direcCentrales);
@@ -2063,22 +1472,15 @@ sub metabucle{
 		@aux=split(";",$central);
 		push (@aux, 0);
 		push (@aux, 0);
-		#print "$aux[1]";		
 		@{$hashcentrales{$aux[0]}} = @aux;
 
 		#my @arr = @{$hashcentrales{$aux[0]}};
-		#print "$arr[1]\n";
-	
-
 	} 
-	
-	
-
 	# Cerramos el fichero abierto 
 	close (CENTRALES);
 
-#---------------------------------------------------------------------------------------
-# SE REALIZA EL HASH DE OFICINAS: hashoficinas (ID oficina; ID oficina cantVeces visto)
+	#---------------------------------------------------------------------------------------
+	# SE REALIZA EL HASH DE OFICINAS: hashoficinas (ID oficina; ID oficina cantVeces visto #cantTiempoVisto)
 	
 	$direcAgentes="$ENV{'MAEDIR'}"."/agentes.mae";
 	open (AGENTES,$direcAgentes);
@@ -2090,26 +1492,21 @@ sub metabucle{
 	foreach $agente (@registros){
 		chomp($agente);		
 		@aux=split(";",$agente);
+		push (@aux, 0);
 		push (@aux, 0);		
 		if (exists($hashoficinas{"@aux[3]"})){
-		}	
-		else{
+		} else{
 			@aux2[0] = @aux[3];			
 			@aux2[1] = 0;
 			@{$hashoficinas{$aux[3]}} = @aux2;				
 			#my @arr = @{$hashoficinas{$aux[3]}};
-			#print "$arr[1]\n";
-			#print "$aux[3]\n";
-			
 		} 	
-
 	}
-	 
 	# Cerramos el fichero abierto 
 	close (AGENTES);
 
-#--------------------------------------------------------------------------------------
-# SE REALIZA EL HASH DE AGENTES: hashagentes  (ID agente, Arrary:(ID AGENTE, NOM,AP,OFICINA,CORREO, cantVecesVisto))
+	#--------------------------------------------------------------------------------------
+	# SE REALIZA EL HASH DE AGENTES: hashagentes  (ID agente, Arrary:(ID AGENTE, #NOM,AP,OFICINA,CORREO, cantVecesVisto, cantTiempoVisto))
 
 	$direcAgentes="$ENV{'MAEDIR'}"."/agentes.mae";
 	open (AGENTES,$direcAgentes);
@@ -2122,20 +1519,15 @@ sub metabucle{
 		chomp($agente);
 		@aux=split(";",$agente);		
 		push (@aux, 0);		
-		#print "@aux\n";
+		push (@aux, 0);
 		@{$hashagentes{$aux[2]}} = @aux;				
-	 	#print "$hashagentes{@aux[2]}";
 		#my @arr = @{$hashagentes{$aux[2]}};
-		#print "$arr[4]\n";
-	
 	}
- 
 	# Cerramos el fichero abierto 
 	close (AGENTES);
 
-
-#--------------------------------------------------------------------------------------
-# SE REALIZA EL HASH DE UMBRALES: hashumbrales 
+	#--------------------------------------------------------------------------------------
+	# SE REALIZA EL HASH DE UMBRALES: hashumbrales 
 
 	$direcUmbrales="$ENV{'MAEDIR'}"."/umbral.tab";
 	open (UMBRALES,$direcUmbrales);
@@ -2146,24 +1538,18 @@ sub metabucle{
 	# Mostramos los datos en pantalla 
 	foreach $umbral (@registros){
 		chomp($umbral);
-		#print "$umbral\n";		
 		@aux=split(";",$umbral);
 		push (@aux, 0);				
 		@{$hashumbrales{$aux[0]}} = @aux;	 	
 		#my @arr = @{$hashumbrales{$aux[0]}};
-		#print "$arr[0]\n";
-		#print "$aux[0]\n";
-	
 	}
 	@claves=keys(%hashumbrales);
 	close (UMBRALES);
 
-
-#--------------------------------------------------------------------------------------
-# SE REALIZA EL HASH DE DESTINOS: hashpaises y hashareas
+	#--------------------------------------------------------------------------------------
+	# SE REALIZA EL HASH DE DESTINOS: hashpaises y hashareas
 
 	# PAISES
-
 	$direcPaises="$ENV{'MAEDIR'}"."/CdP.mae";
 	open (PAISES,$direcPaises);
 	#Añadimos cada línea de éste en la matriz. 
@@ -2171,19 +1557,16 @@ sub metabucle{
 	my $hashpaises={};
 
 	# Mostramos los datos en pantalla 
-		foreach $pais (@registros){
+	foreach $pais (@registros){
 		chomp($pais);		
 		@aux=split(";",$pais);
-		push (@aux, 0);	
+		push (@aux, 0);		
 		@{$hashpaises{$aux[0]}} = @aux;
-		#print "$hashpaises{@aux[0]}\n";
-
 	} 
 	# Cerramos el fichero abierto 
 	close (PAISES);
 
 	# AREAS
-
 	$direcAreas="$ENV{'MAEDIR'}"."/CdA.mae";
 	open (AREAS,$direcAreas);
 	#Añadimos cada línea de éste en la matriz. 
@@ -2196,146 +1579,110 @@ sub metabucle{
 		@aux=split(";",$area);
 		push (@aux, 0);		
 		@{$hashareas{$aux[1]}} = @aux;	
-
 		#my @arr2 = @{$hashareas{$aux[1]}};
-		#print "@arr2[1]\n";			 	
 	} 
 	# Cerramos el fichero abierto 
 	close (AREAS);
-
 }
-	#--------------------------------------------------------------------------------------
-	#BUCLE PPAL DE LLAMADAS PELIGROSAS 	
-	sub BucleLlamadasPeligrosas{
 
-		metabucle();
 
-		opendir(DIR, "$direcPeligrosas");
-		@FILES = readdir(DIR);
-		foreach $file (@FILES) {
-			#print "nom: $file\n";
-
-			open (PELIGROSAS,"$direcPeligrosas/$file");
-			@registros=<PELIGROSAS>;
-			#print "reg: @registros[0]\n";
-
-			$direcdef = "$Dir"."/default.txt";
-			open (DEFAULT,$direcdef);
-			@regs=<DEFAULT>;
-			$it1=0;
-			foreach $t (@regs){
-
-				if ($it1==8){@tam1=split(";",$t);}
-
-				$it1 = $it1+1;	
+sub LlenarPeligrosas(){
+	inicializacionHashes();
+	opendir(DIR, "$direcPeligrosas");
+	@FILES = readdir(DIR);
+	foreach $file (@FILES) {
+		open (PELIGROSAS,"$direcPeligrosas/$file");
+		@registros=<PELIGROSAS>;
+		$direcdef = "$Dir"."/default.txt";
+		open (DEFAULT,$direcdef);
+		@regs=<DEFAULT>;
+		$it1=0;
+		foreach $t (@regs){
+			if ($it1==8){@tam1=split(";",$t);}
+			$it1 = $it1+1;	
+		}
+		close(DEFAULT);	
+		@nomaux = split("_",$file);
+		$todook =1;
+		if (@uvt[7] == 1){
+			if (@nomaux[1] ne @tam1[0]){			
+				$todook=0;
 			}
-			close(DEFAULT);	
-
-
-			@nomaux = split("_",$file);
-			$todook =1;
-			if ($uvtam1 == 1){
-				if (@nomaux[1] ne @tam1[0]){			
-					$todook=0;
-				}
-			}		
-			if ($uvtam1 == 2){
-				$arrSize = @to;
-				$i=0;
-				$ok=1;
-				while($i<=$arrSize){
-					$todook=(@nomaux[1] ne @tam1[$i]) && $todook;
-					$i=$i+1;				
-				}
-			}
-			if ($todook==1){
-
-
-
-
-
-				# Mostramos los datos en pantalla 
-				foreach $peligro (@registros){
-					@aux=split(";",$peligro);
-					#print "aux: @aux[0]\n";
-
-					#INICIAN LOS CHEQUEOS:
-
-					# CENTRALES 
-					if (exists($hashcentrales{"@aux[0]"})){	
-
-						my @auxreg = @{$hashcentrales{@aux[0]}};
-						@auxreg[2] = @auxreg[2] +1;
-						@auxreg[3] = @auxreg[3] +@aux[5];
-						
-						@{$hashcentrales{$aux[0]}} = @auxreg;
-						#my @arr = @{$hashcentrales{$aux[0]}};
-						#print "$arr[2]\n";
-					}
-
-					# AGENTES
-					if (exists($hashagentes{"@aux[1]"})){			
-						my @auxreg1 = @{$hashagentes{@aux[1]}};
-						@auxreg1[5] = @auxreg1[5] +1;
-						@{$hashagentes{$aux[1]}} = @auxreg1;
-						my @arr2 = @{$hashagentes{$aux[1]}};
-						#print "$arr2[6]\n";
-
-						# OFICINAS
-						if (exists($hashoficinas{"@auxreg1[3]"})){
-							my @auxreg11 = @{$hashoficinas{@auxreg1[3]}};
-							@auxreg11[1] = @auxreg1[1] +1;
-							@{$hashoficinas{$auxreg1[3]}} = @auxreg11;
-							#my @arr2 = @{$hashoficinas{$auxreg1[3]}};
-							#print "$arr2[0]\n";
-						}	
-					}
-
-					# PAISES
-					if (exists($hashpaises{"@aux[8]"})){			
-						my @auxreg3 = @{$hashpaises{@aux[8]}};
-						#print "$auxreg3[2]\n";				
-						@auxreg3[2] = @auxreg3[2] +1;
-						@{$hashpaises{$aux[8]}} = @auxreg3;
-
-						#my @arr2 = @{$hashpaises{$aux[8]}};
-						#print "$arr2[1]\n";
-
-
-					}
-
-					# AREAS
-					if (exists($hashareas{"@aux[9]"})){			
-						my @auxreg4 = @{$hashareas{@aux[9]}};
-						#print "$auxreg4[0]\n";				
-						@auxreg4[2] = @auxreg4[2] +1;
-						@{$hashareas{$aux[9]}} = @auxreg4;
-						#my @arr2 = @{$hashareas{$aux[2]}};
-						#print "$arr2[2]\n";
-
-
-					}
-					# UMBRALES 
-					if (exists($hashumbrales{"@aux[2]"})){			
-						my @auxreg6 = @{$hashumbrales{@aux[2]}};
-						@auxreg6[7] = @auxreg[7] +1;
-						#print "@auxreg6[5]\n";
-						@{$hashumbrales{$aux[2]}} = @auxreg6;
-						my @arr = @{$hashumbrales{$aux[2]}};
-						#print "$arr[0]\n";
-					}
-
-
-
-				} 
-				# Cerramos el fichero abierto 
-				close (PELIGROSAS);
+		}		
+		if (@uvt[7] == 2){
+			$arrSize = @to;
+			$i=0;
+			$ok=1;
+			while($i<=$arrSize){
+				$todook=(@nomaux[1] ne @tam1[$i]) && $todook;
+				$i=$i+1;				
 			}
 		}
-		closedir(DIR);		
-	}
-	MenuPal();
+		if ($todook==1){
+		# Mostramos los datos en pantalla 
+			foreach $peligro (@registros){
+				@aux=split(";",$peligro);
+				# INICIAN LOS CHEQUEOS:
+				# CENTRALES 
+				if (exists($hashcentrales{"@aux[0]"})){	
+					my @auxreg = @{$hashcentrales{@aux[0]}};
+					@auxreg[2] = @auxreg[2] +1;
+					@auxreg[3] = @auxreg[3] +@aux[5];
+					@{$hashcentrales{$aux[0]}} = @auxreg;
+					#my @arr = @{$hashcentrales{$aux[0]}};
+				}
 
-#\} else {
-#	print "[ERROR] El entorno ya ha sido configurado. No se puede inicializar el entorno 2 veces en #una misma sesión\n";
+				# AGENTES
+				if (exists($hashagentes{"@aux[1]"})){			
+					my @auxreg1 = @{$hashagentes{@aux[1]}};
+					@auxreg1[5] = @auxreg1[5] +1;
+					@auxreg1[6] = @auxreg1[6] +@aux[5];
+					@{$hashagentes{$aux[1]}} = @auxreg1;
+					my @arr2 = @{$hashagentes{$aux[1]}};
+
+					# OFICINAS
+					if (exists($hashoficinas{"@auxreg1[3]"})){
+						my @auxreg11 = @{$hashoficinas{@auxreg1[3]}};
+						@auxreg11[1] = @auxreg1[1] +1;
+						@auxreg11[2] = @auxreg1[2] +@aux[5];
+						@{$hashoficinas{$auxreg1[3]}} = @auxreg11;
+						#my @arr2 = @{$hashoficinas{$auxreg1[3]}};
+					}	
+				}
+
+				# PAISES
+				if (exists($hashpaises{"@aux[8]"})){			
+					my @auxreg3 = @{$hashpaises{@aux[8]}};
+					@auxreg3[2] = @auxreg3[2] +1;
+					@{$hashpaises{$aux[8]}} = @auxreg3;
+					#my @arr2 = @{$hashpaises{$aux[8]}};
+				}
+
+				# AREAS
+				if (exists($hashareas{"@aux[9]"})){			
+					my @auxreg4 = @{$hashareas{@aux[9]}};
+					@auxreg4[2] = @auxreg4[2] +1;
+					@{$hashareas{$aux[9]}} = @auxreg4;
+					#my @arr2 = @{$hashareas{$aux[2]}};
+				}
+
+				# UMBRALES 
+				if (exists($hashumbrales{"@aux[2]"})){			
+					my @auxreg6 = @{$hashumbrales{@aux[2]}};
+					@auxreg6[7] = @auxreg[7] +1;
+					@{$hashumbrales{$aux[2]}} = @auxreg6;
+					my @arr = @{$hashumbrales{$aux[2]}};
+				}
+			} 
+		}
+		# Cerramos el fichero abierto 
+		close (PELIGROSAS);
+	}
+	closedir(DIR);		
+}	
+
+#if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
+	MenuPal();
+#} else {
+#	print "[ERROR] El entorno no ha sido configurado aún. Corra el script AFRAINIC.sh para configurarlo.\n"
 #}

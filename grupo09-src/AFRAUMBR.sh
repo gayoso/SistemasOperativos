@@ -356,7 +356,7 @@ function procesarUmbrales {
 			fi
 		fi	
 	done
-	echo "$umbralID"
+	return "$umbralID"
 }
 
 # toma como argumento la fecha de inicio obtenida del archivo de input
@@ -450,7 +450,8 @@ function procesarArchivo {
 			((cantRechazadas++))
 			continue
 		fi
-		local umbralID=$(procesarUmbrales "$tipoLLamada" "$numeroA_area" "$numeroA_numeroLinea" "$numeroB_codigoPais" "$numeroB_codigoArea" "$tiempoConversion") #procesarUmbrales devuelve 0 sin umbral y -1 / umbralID si poseen
+		procesarUmbrales "$tipoLLamada" "$numeroA_area" "$numeroA_numeroLinea" "$numeroB_codigoPais" "$numeroB_codigoArea" "$tiempoConversion" #procesarUmbrales devuelve 0 sin umbral y -1 / umbralID si poseen
+		local umbralID="$?"
 		if [[ "$umbralID" -eq "-1" ]];then
 			#llamada con umbral y no sospechosa
 			((conUmbral++)) 
