@@ -177,25 +177,25 @@ sub FiltrarArchConsultas(){
 		if($opc == 3){@uvt[5] = 3;}
 
 	}while((@uvt[5] == -1)&& ($opc ne "s"));
-	if($opc eq "s"){MenuPal();}
-	do{
-		system("clear");
-		print "Filtrar archivos input\n";
-		print "Si desea salir apretar s\n\n";	
-		print "¿Cuantos filtros de año/mes  desea tener(1=uno/2=varios/3=todos)?\n";
-		$opc = <STDIN>;
-		chop($opc);
-		if($opc == 1){@uvt[6] = 1;}
-		if($opc == 2){@uvt[6] = 2;}
-		if($opc == 3){@uvt[6] = 3;}
+	if($opc ne "s"){
+		do{
+			system("clear");
+			print "Filtrar archivos input\n";
+			print "Si desea salir apretar s\n\n";	
+			print "¿Cuantos filtros de año/mes  desea tener(1=uno/2=varios/3=todos)?\n";
+			$opc = <STDIN>;
+			chop($opc);
+			if($opc == 1){@uvt[6] = 1;}
+			if($opc == 2){@uvt[6] = 2;}
+			if($opc == 3){@uvt[6] = 3;}
 
-	}while((@uvt[6] == -1)&& ($opc ne "s"));
-	if($opc ne "s"){ElegFiltrosConsultas();}
+		}while((@uvt[6] == -1)&& ($opc ne "s"));
+		if($opc ne "s"){ElegFiltrosConsultas();}
+	}
 }
 								
 sub ElegFiltrosConsultas{
 	do{
-		my $num = 3; # aca puede ir cualquier num mayor a 1
 		my $i = 0;
 		# es 5 ya q no se desea tocar ni oficina ni año/mes
 		while($i < 5){@uvt[$i]=-1;$i=$i+1;}
@@ -214,7 +214,6 @@ sub ElegFiltrosConsultas{
 		print "Elegir Filtros\n";
 		print "Si desea salir apretar e\n\n";
 		
-		if ($num<1){print "Se debe tener al menos un filtro para poder filtrar!\n";}
 		filtroCent(); if ($opc ne "e"){	
 		 filtroAgente(); if ($opc ne "e"){
 		  filtroUmbral(); if ($opc ne "e"){
@@ -222,14 +221,15 @@ sub ElegFiltrosConsultas{
 		    filtroTiempo(); if ($opc ne "e"){
 		     filtroNuma(); if ($opc ne "e"){
 		      pregunta(); 
-		     }else{MenuPal();}
-		    }else{MenuPal();}
-		   }else{MenuPal();}
-		  }else{MenuPal();}
-		 }else{MenuPal();}
-		}else{MenuPal();}
-	$num = @tieneFiltro[0]+@tieneFiltro[1]+@tieneFiltro[2]+@tieneFiltro[3]+$ftiempo+@tieneFiltro[5];
-	}while (($opc ne "e") && ($num < 1));
+		     }
+		    }
+		   }
+		  }
+		 }
+		}
+		print "Presione una tecla parta continuar...";
+		$asd = <STDIN>;
+	}while ($opc ne "e");
 }
 
 sub filtroCent{
@@ -589,7 +589,13 @@ sub pregunta{
 		chop($opc);
 		if($opc eq "s"){
 			$inicBusq = 1;
-			iniciarBusqueda();
+			$num = @tieneFiltro[0] + @tieneFiltro[1] + @tieneFiltro[2]+ @tieneFiltro[3] + @tieneFiltro[4] + $ftiempo;			
+			if($num>0){
+				iniciarBusqueda();
+			}
+			else{
+				print"Debe tener al menos un filtro para iniciar la busqueda.\n"; 
+			}
 		}	
 		if($opc eq "n"){
 			$inicBusq = 0;  	
@@ -606,10 +612,10 @@ sub Setearperiodo{
 		print "seleccione cuantos filtros desea tener (1=uno/2=varios/3=todos)\n";		
 		$opc = <STDIN>;
 		chomp($opc);
-		if ($opc ==1){@uvt[7]=1;Menus();}
-		if ($opc ==2){@uvt[7]=2;Menus();}
-		if ($opc ==3){@uvt[7]=3;Menus();}
-	}while($opc ne "e");	
+		if ($opc ==1){@uvt[7]=1;}
+		if ($opc ==2){@uvt[7]=2;}
+		if ($opc ==3){@uvt[7]=3;}
+	}while(($opc ne "e")&& ($opc !=1)&& ($opc !=2)&& ($opc !=3));	
 }
 
 #SE PIDE RANKING TIEMPO
@@ -623,10 +629,10 @@ sub ElegirRankTiempoCant{
 		print "Si se quiere el ranking por cantidad y tiempo 3\n";
 		$opc = <STDIN>;
 		chomp($opc);
-		if ($opc ==1){$tiempoCantidad=1;Menus();}
+		if ($opc ==1){$tiempoCantidad=1;}
 		if ($opc ==2){$tiempoCantidad=2;Setearperiodo();}
 		if ($opc ==3){$tiempoCantidad=3;Setearperiodo();}	
-	}while($opc ne "e");
+	}while(($opc ne "e")&&($tiempoCantidad != 1)&&($tiempoCantidad != 2)&&($tiempoCantidad != 3));
 }
 
 #----------------------------------------------------------------------------#
@@ -653,14 +659,15 @@ sub iniciarBusqueda{
 	@regs=<DEFAULT>;
 	$it1=0;
 	foreach $t (@regs){
-		if ($it1==0){@tc=split(";",$t);}
-		if ($it1==1){@ta=split(";",$t);}
-		if ($it1==2){@tu=split(";",$t);}
-		if ($it1==3){@tt=split(";",$t);}
-		if ($it1==4){@tar=split(";",$t);}
-		if ($it1==5){@tn=split(";",$t);}
-		if ($it1==6){@to=split(";",$t);}
-		if ($it1==7){@tam=split(";",$t);}
+		if ($it1==0){@tc=split(";",$t);}  #centrales
+		if ($it1==1){@ta=split(";",$t);}  #agentes
+		if ($it1==2){@tu=split(";",$t);}  #umbrales
+		if ($it1==3){@tt=split(";",$t);}  #tipo
+		if ($it1==4){@tnum=split(";",$t);} #numero |
+		if ($it1==5){@tarea=split(";",$t);}  #area |numa
+		if ($it1==6){@to=split(";",$t);}  #oficina
+		if ($it1==7){@tamc=split(";",$t);}  #año mes consultas
+		if ($it1==8){@tams=split(";",$t);} #año mes estadistica
 		$it1 = $it1+1;	
 	}
 	close(DEFAULT);	
@@ -683,15 +690,18 @@ sub iniciarBusqueda{
 			$arrSize = @to;
 			$i=0;
 			$ok=1;
+			$todook=0;
 			while($i<=$arrSize){
-				$todook=(@nomaux[0] ne @to[$i]) && $todook;
+				if (@nomaux[0] eq @to[$i]){
+					$todook=1;
+				}
 				$i=$i+1;				
 			}
 		}
 
 		#CHEQUEO DE ARCHIVOS DE AÑO/MES
 		if (@uvt[6] == 1){
-			if (@nomaux[1] ne @tam[0]){			
+			if (@nomaux[1] ne @tamc[0]){			
 				$todook=0;
 			}
 		}		
@@ -699,8 +709,11 @@ sub iniciarBusqueda{
 			$arrSize = @to;
 			$i=0;
 			$ok=1;
+			$todook=0;
 			while($i<=$arrSize){
-				$todook=(@nomaux[1] ne @tam[$i]) && $todook;
+				if (@nomaux[1] ne @tamc[$i]){
+					$todook=1;
+				}
 				$i=$i+1;				
 			}
 		}
@@ -711,7 +724,7 @@ sub iniciarBusqueda{
 		foreach $peligro (@registros){
 			@aux=split(";",$peligro);
 			$imprimo = 1;
-
+	
 			#CENTRAL									
 			if(@tieneFiltro[0]==1){
 				if (@uvt[0] == 1){
@@ -727,8 +740,8 @@ sub iniciarBusqueda{
 						$ok=(@aux[0] ne @tc[$i]) && $ok;
 						$i=$i+1;				
 					}
+				if ($ok){$imprimo = 0;}
 				}
-			if ($ok){$imprimo =0;}
 			}
 				
 			#AGENTE
@@ -743,7 +756,7 @@ sub iniciarBusqueda{
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-						$ok=(@aux[1] ne @ta[$i]) && ok;				
+						$ok=(@aux[1] ne @ta[$i]) && $ok;				
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
@@ -763,7 +776,7 @@ sub iniciarBusqueda{
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-						$ok=(@aux[2] ne @tu[$i]) && ok;				
+						$ok=(@aux[2] ne @tu[$i]) && $ok;				
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
@@ -782,7 +795,7 @@ sub iniciarBusqueda{
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-						$ok=(@aux[3] ne @tt[$i]) && ok;				
+						$ok=(@aux[3] ne @tt[$i]) && $ok;				
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
@@ -799,7 +812,7 @@ sub iniciarBusqueda{
 			#NUMA
 			if(@tieneFiltro[4]==1){
 				if (@uvt[4] == 1){
-					if ((@aux[6] ne @tar[0])||(@aux[2] ne @tn[0])){
+					if ((@aux[6] ne @tarea[0])||(@aux[7] ne @tnum[0])){
 						$imprimo = 0;					
 					}
 				}
@@ -809,7 +822,7 @@ sub iniciarBusqueda{
 					$i=0;
 					$ok=1;
 					while($i<=$arrSize){
-				 	        $ok=((@aux[6] ne @tar[$i])||(@aux[7] ne @tn[$i])) && $ok;
+				 	        $ok=((@aux[6] ne @tarea[$i])||(@aux[7] ne @tnum[$i])) && $ok;
 						$i=$i+1;
 					}
 					if ($ok){$imprimo =0;}
@@ -826,8 +839,6 @@ sub iniciarBusqueda{
 	}
 	closedir(DIR);	
 	close(FICH);
-	print "Ingrese una tecla para continuar\n";
-	$opc = <STDIN>;
 }
 
 #-----------------------------------------------------------------------------#
@@ -1005,19 +1016,23 @@ sub top5CentralesCantidad{
 		foreach	$variable (@ordencentrales){
 			if ($i<6){		
 				($cantVeces,$id,$nom) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
-				print FICH $aux; 		
-			 	print FICH "\n";
+				if($cantVeces>0){
+					$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
+					print FICH $aux; 		
+			 		print FICH "\n";
+				}
 			}
 			$i=$i+1;
 		}
 		close (FICH); 
 	}else{
 		foreach	$variable (@ordencentrales){
-			if ($i<6){		
-				($cantVeces,$id,$nom) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom"."y tiene $cantVeces veces visto";
-				print"$aux\n";
+			if ($i<6){	
+				($cantVeces,$id,$nom) = split(/\|/,$variable);	
+				if($cantVeces>0){		
+					$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom"."y tiene $cantVeces veces visto";
+					print"$aux\n";
+				}
 			}
 			$i=$i+1;
 		}	
@@ -1055,11 +1070,13 @@ sub top5CentralesTiempo{
 		}
 		open (FICH,">$nom");
 		foreach	$variable (@ordencentrales){
-			if ($i<6){		
-				($cantTiempo,$id,$nom) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
-				print FICH $aux; 		
-			 	print FICH "\n";
+			if ($i<6){
+			($cantTiempo,$id,$nom) = split(/\|/,$variable);			
+			if($cantTiempo>0){		
+					$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom";
+					print FICH $aux; 		
+				 	print FICH "\n";
+				}
 			}
 			$i=$i+1;
 		}
@@ -1068,8 +1085,10 @@ sub top5CentralesTiempo{
 		foreach	$variable (@ordencentrales){
 			if ($i<6){		
 				($cantTiempo,$id,$nom) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom"."y tiene $cantTiempo min vistos";
-				print"$aux\n";
+				if($cantTiempo>0){				
+					$aux = "El numero "."$i"." del ranking es: "."$id"." es decir,"."$nom"."y tiene $cantTiempo min vistos";
+					print"$aux\n";
+				}
 			}
 			$i=$i+1;
 		}	
@@ -1110,21 +1129,25 @@ sub top5AgentesCantidad{
 		}
 		open (FICH,">$nom");
 		foreach	$variable (@ordenagentes){
-			if ($i<6){		
-				($cantVeces,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo";
-				print FICH $aux; 		
-			 	print FICH "\n";
+			if ($i<6){
+				($cantVeces,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);		
+				if($cantVeces>0){
+					$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo";
+					print FICH $aux; 		
+			 		print FICH "\n";
+				}
 			}
 			$i=$i+1;
 		}
 		close (FICH); 
 	}else{
 		foreach	$variable (@ordenagentes){
-			if ($i<6){		
+			if ($i<6){
 				($cantVeces,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo"." y tiene $cantVeces cant veces visto";
-				print"$aux\n";		
+				if($cantVeces>0){				
+					$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo"." y tiene $cantVeces cant veces visto";
+					print"$aux\n";		
+				}
 			}
 			$i=$i+1;
 		}
@@ -1163,9 +1186,11 @@ sub top5AgentesTiempo{
 		foreach	$variable (@ordenagentes){
 			if ($i<6){		
 				($cantTiempo,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo";
-				print FICH $aux; 		
-			 	print FICH "\n";
+				if($cantTiempo>0){
+					$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo";
+					print FICH $aux; 		
+			 		print FICH "\n";
+				}
 			}
 			$i=$i+1;
 		}
@@ -1174,8 +1199,10 @@ sub top5AgentesTiempo{
 		foreach	$variable (@ordenagentes){
 			if ($i<6){		
 				($cantTiempo,$id,$nom,$ap,$ofi,$correo) = split(/\|/,$variable);
-				$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo"." y tiene $cantTiempo minutos";
-				print"$aux\n";		
+				if($cantTiempo>0){				
+					$aux = "El numero "."$i"." del ranking es: "."$id"." cuyo nombre es,"."$nom"." y su correo es "."$correo"." y tiene $cantTiempo minutos";
+					print"$aux\n";
+				}		
 			}
 			$i=$i+1;
 		}
@@ -1216,11 +1243,13 @@ sub top5OficinasCantidad{
 		}
 		open (FICH,">$nom");
 		foreach	$variable (@ordenoficinas){
-			if ($i<6){		
+			if ($i<5){		
 				($cantVeces,$id) = split(/\|/,$variable);
-				$aux = "La oficina numero "."$i"." del ranking es "."$id";		
-				print FICH $aux; 		
-			 	print FICH "\n";
+				if ($cantVeces>0){
+					$aux = "La oficina numero "."$i"." del ranking es "."$id";		
+					print FICH $aux; 		
+				 	print FICH "\n";
+				}
 			}
 			$i=$i+1;
 		}
@@ -1229,9 +1258,11 @@ sub top5OficinasCantidad{
 		foreach	$variable (@ordenoficinas){
 			if ($i<5){		
 				($cantVeces,$id) = split(/\|/,$variable);
-				$a = $i +1;
-				$aux = "La oficina numero "."$a"." del ranking es "."$id"." y tiene $cantVeces veces visto";		
-				print "$aux\n";		
+				if($cantVeces>0){	
+					$a = $i +1;
+					$aux = "La oficina numero "."$a"." del ranking es "."$id"." y tiene $cantVeces veces visto";		
+					print "$aux\n";	
+				}	
 			}
 			$i=$i+1;
 		}
@@ -1268,11 +1299,13 @@ sub top5OficinasTiempo{
 		}
 		open (FICH,">$nom");
 		foreach	$variable (@ordenoficinas){
-			if ($i<6){		
+			if ($i<5){		
 				($cantTiempo,$id) = split(/\|/,$variable);
-				$aux = "La oficina numero "."$i"." del ranking es "."$id";		
-				print FICH $aux; 		
-			 	print FICH "\n";
+				if($cantTiempo>0){				
+					$aux = "La oficina numero "."$i"." del ranking es "."$id";		
+					print FICH $aux; 		
+				 	print FICH "\n";
+				}
 			}
 			$i=$i+1;
 		}
@@ -1281,9 +1314,11 @@ sub top5OficinasTiempo{
 		foreach	$variable (@ordenoficinas){
 			if ($i<5){		
 				($cantTiempo,$id) = split(/\|/,$variable);
-				$a = $i +1;
-				$aux = "La oficina numero "."$a"." del ranking es "."$id"." y tiene $cantTiempo minutos hablados";		
-				print "$aux\n";		
+				if($cantTiempo>0){					
+					$a = $i +1;
+					$aux = "La oficina numero "."$a"." del ranking es "."$id"." y tiene $cantTiempo minutos hablados";		
+					print "$aux\n";	
+				}	
 			}
 			$i=$i+1;
 		}
@@ -1381,10 +1416,12 @@ sub top5Paises{
 		}
 		open (FICH,">$nom");
 		foreach	$variable (@ordePAISES){
-			if ($i<6){		
-				($cantVeces,$id,$nom) = split(/\|/,$variable);
-				print FICH $aux; 		
-		 		print FICH "\n";	
+			if ($i<5){
+				($cantVeces,$id,$nom) = split(/\|/,$variable);				
+				if($cantVeces>0){		
+					print FICH $aux; 		
+		 			print FICH "\n";
+				}	
 			}
 			$i=$i+1;
 		}
@@ -1394,8 +1431,10 @@ sub top5Paises{
 		foreach	$variable (@ordenpaises){
 			if ($i<5){		
 				($cantVeces,$id,$nom) = split(/\|/,$variable);
-				$a = $i+1;
-				print"$El numero "."$a"." del ranking es "."$nom"." y tuvo  $cantVeces veces vistos\n";		
+				if($cantVeces>0){
+					$a = $i+1;
+					print"$El numero "."$a"." del ranking es "."$nom"." y tuvo  $cantVeces veces vistos\n";	
+				}	
 			}
 			$i=$i+1;
 		}
@@ -1435,10 +1474,12 @@ sub top5Areas{
 		}
 		open (FICH,">$nom");
 		foreach	$variable (@ordenareas){
-			if ($i<6){		
+			if ($i<5){		
 				($cantVeces,$nom,$id) = split(/\|/,$variable);
-				print FICH $aux; 		
-		 		print FICH "\n";	
+				if($cantVeces>0){				
+					print FICH $aux; 		
+			 		print FICH "\n";	
+				}
 			}
 			$i=$i+1;
 		}
@@ -1448,9 +1489,10 @@ sub top5Areas{
 		foreach	$variable (@ordenareas){
 			if ($i<5){		
 				($cantVeces,$nom,$id) = split(/\|/,$variable);
-
-				$a = $i+1;
-				print"$El numero "."$a"." del ranking es "."$nom"."y tuvo $cantVeces  veces vistos \n";	
+				if($cantVeces>0){
+					$a = $i+1;
+					print"$El numero "."$a"." del ranking es "."$nom"."y tuvo $cantVeces  veces vistos \n";
+				}	
 			}
 			$i=$i+1;
 		}
@@ -1643,8 +1685,8 @@ sub LlenarPeligrosas(){
 					# OFICINAS
 					if (exists($hashoficinas{"@auxreg1[3]"})){
 						my @auxreg11 = @{$hashoficinas{@auxreg1[3]}};
-						@auxreg11[1] = @auxreg1[1] +1;
-						@auxreg11[2] = @auxreg1[2] +@aux[5];
+						@auxreg11[1] = @auxreg11[1] +1;
+						@auxreg11[2] = @auxreg11[2] +@aux[5];
 						@{$hashoficinas{$auxreg1[3]}} = @auxreg11;
 						#my @arr2 = @{$hashoficinas{$auxreg1[3]}};
 					}	
@@ -1669,7 +1711,7 @@ sub LlenarPeligrosas(){
 				# UMBRALES 
 				if (exists($hashumbrales{"@aux[2]"})){			
 					my @auxreg6 = @{$hashumbrales{@aux[2]}};
-					@auxreg6[7] = @auxreg[7] +1;
+					@auxreg6[7] = @auxreg6[7] +1;
 					@{$hashumbrales{$aux[2]}} = @auxreg6;
 					my @arr = @{$hashumbrales{$aux[2]}};
 				}
@@ -1681,8 +1723,8 @@ sub LlenarPeligrosas(){
 	closedir(DIR);		
 }	
 
-#if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
+if("$ENV{'ENTORNO_CONFIGURADO'}" eq "true"){
 	MenuPal();
-#} else {
-#	print "[ERROR] El entorno no ha sido configurado aún. Corra el script AFRAINIC.sh para configurarlo.\n"
-#}
+} else {
+	print "[ERROR] El entorno no ha sido configurado aún. Corra el script AFRAINIC.sh para configurarlo.\n"
+}
