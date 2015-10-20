@@ -300,63 +300,57 @@ function procesarUmbrales {
 	local umbralCodigoDestino
 	local umbralTiempoConversion
 	local umbralEstado
-	for umbral in "${umbrales[@]}"
-	do
-		umbralCodigoArea=$(echo "$umbral" | cut -f2 -d\;)
-		umbralNumeroLinea=$(echo "$umbral" | cut -f3 -d\;)
-		#Busca umbral activo
-		if [[ "$umbralCodigoArea" -eq "$2" && "$umbralNumeroLinea" -eq "$3" ]];then
-			#umbral detectado - analiza si es sospechosa o no
-			umbralID="-1"
-			umbralTipoLLamada=$(echo "$umbral" | cut -f4 -d\;)
-			umbralCodigoDestino=$(echo "$umbral" | cut -f5 -d\;)
-			umbralTiempoConversion=$(echo "$umbral" | cut -f6 -d\;)
-			umbralEstado==$(echo "$umbral" | cut -f7 -d\;)
 
-			#la llamada no es sospechosa si el umbral esta inactivo
-			if [[ "$umbralCodigoArea" = "Inactivo" ]];then
-				break #sale del loop, llamada no sospechosa, umbral inactivo
+	local umbralEncontrado=`grep -m1 -e "^.*;$2;$3;.*" "$MAEDIR_PATH"/"umbral.tab"`
+	./GraLog.sh "AFRAUMBR" "UMBRAL ENCONTRADO $umbralEncontrado" "WARN"
+	if [[ "$?" -eq 0 ]];then
+		#umbral detectado - analiza si es sospechosa o no
+		umbralID="-1"
+		umbralTipoLLamada=$(echo "$umbralEncontrado" | cut -f4 -d\;)
+		umbralCodigoDestino=$(echo "$umbralEncontrado" | cut -f5 -d\;)
+		umbralTiempoConversion=$(echo "$umbralEncontrado" | cut -f6 -d\;)
+		umbralEstado=$(echo "$umbralEncontrado" | cut -f7 -d\;)
+		./GraLog.sh "AFRAUMBR" "UMBRAL ESTADO $umbralEstado" "WARN"
+
+		#la llamada no es sospechosa si el umbral esta inactivo
+		if [[ "$umbralCodigoArea" = "Inactivo" ]];then
+			echo "$umbralID"
+		fi
+
+		local stringTipoLLamada
+		if [[ "$1" -eq "0" ]];then
+			#LLAMADA DDI
+			stringTipoLLamada="DDI"
+			if [[ -z "$umbralCodigoDestino" || "$umbralCodigoDestino" -ne "$4" ]];then
+				#LLAMADA SOSPECHOSA
+				umbralID=$(echo "$umbralEncontrado" | cut -f1 -d\;)
 			fi
-
-			local stringTipoLLamada
-			if [[ "$1" -eq "0" ]];then
-				#LLAMADA DDI
-				stringTipoLLamada="DDI"
-				if [[ -z "$umbralCodigoDestino" || "$umbralCodigoDestino" -ne "$4" ]];then
-					#LLAMADA SOSPECHOSA
-					umbralID=$(echo "$umbral" | cut -f1 -d\;)
-					break #sale del loop al confirmar que la llamada es sospechosa, no busca mas umbrales
-				fi
+		else
+			#LLAMADA DDN O LOCAL
+			if [[ "$1" -eq "1" ]];then
+				stringTipoLLamada="DDN"
 			else
-				#LLAMADA DDN O LOCAL
-				if [[ "$1" -eq "1" ]];then
-					stringTipoLLamada="DDN"
-				else
-					stringTipoLLamada="LOC"
-				fi
-				if [[ -z "$umbralCodigoDestino" || "$umbralCodigoDestino" -ne "$5" ]];then
-					#LLAMADA SOSPECHOSA
-					umbralID=$(echo "$umbral" | cut -f1 -d\;)
-					break #sale del loop al confirmar que la llamada es sospechosa, no busca mas umbrales
-				fi
+				stringTipoLLamada="LOC"
 			fi
+			if [[ -z "$umbralCodigoDestino" || "$umbralCodigoDestino" -ne "$5" ]];then
+				#LLAMADA SOSPECHOSA
+				umbralID=$(echo "$umbralEncontrado" | cut -f1 -d\;)
+			fi
+		fi
 
-			# el tipo de llamada debe coincidir con el indicado en el umbral
-			if [[ "$umbralTipoLLamada" != "$stringTipoLLamada" ]];then
-				#LLAMADA SOSPECHOSA
-				umbralID=$(echo "$umbral" | cut -f1 -d\;)
-				break #sale del loop al confirmar que la llamada es sospechosa, no busca mas umbrales
-			fi
-			
-			#tiempo de conversion menor al tope indicado por el umbral
-			if [[ "$umbralTiempoConversion" -lt "$6" ]];then
-				#LLAMADA SOSPECHOSA
-				umbralID=$(echo "$umbral" | cut -f1 -d\;)
-				break #sale del loop al confirmar que la llamada es sospechosa, no busca mas umbrales
-			fi
-		fi	
-	done
-	return "$umbralID"
+		# el tipo de llamada debe coincidir con el indicado en el umbral
+		if [[ "$umbralTipoLLamada" != "$stringTipoLLamada" ]];then
+			#LLAMADA SOSPECHOSA
+			umbralID=$(echo "$umbralEncontrado" | cut -f1 -d\;)
+		fi
+		
+		#tiempo de conversion menor al tope indicado por el umbral
+		if [[ "$umbralTiempoConversion" -lt "$6" ]];then
+			#LLAMADA SOSPECHOSA
+			umbralID=$(echo "$umbralEncontrado" | cut -f1 -d\;)
+		fi
+	fi	
+	echo "$umbralID"
 }
 
 # toma como argumento la fecha de inicio obtenida del archivo de input
@@ -451,8 +445,8 @@ function procesarArchivo {
 			((cantRechazadas++))
 			continue
 		fi
-		procesarUmbrales "$tipoLLamada" "$numeroA_area" "$numeroA_numeroLinea" "$numeroB_codigoPais" "$numeroB_codigoArea" "$tiempoConversion" #procesarUmbrales devuelve 0 sin umbral y -1 / umbralID si poseen
-		local umbralID="$?"
+
+		local umbralID=$(procesarUmbrales "$tipoLLamada" "$numeroA_area" "$numeroA_numeroLinea" "$numeroB_codigoPais" "$numeroB_codigoArea" "$tiempoConversion")
 		if [[ "$umbralID" -eq "-1" ]];then
 			#llamada con umbral y no sospechosa
 			((conUmbral++)) 
