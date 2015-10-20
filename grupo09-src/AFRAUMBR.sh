@@ -302,7 +302,6 @@ function procesarUmbrales {
 	local umbralEstado
 
 	local umbralEncontrado=`grep -m1 -e "^.*;$2;$3;.*" "$MAEDIR_PATH"/"umbral.tab"`
-	./GraLog.sh "AFRAUMBR" "UMBRAL ENCONTRADO $umbralEncontrado" "WARN"
 	if [[ "$?" -eq 0 ]];then
 		#umbral detectado - analiza si es sospechosa o no
 		umbralID="-1"
@@ -310,7 +309,6 @@ function procesarUmbrales {
 		umbralCodigoDestino=$(echo "$umbralEncontrado" | cut -f5 -d\;)
 		umbralTiempoConversion=$(echo "$umbralEncontrado" | cut -f6 -d\;)
 		umbralEstado=$(echo "$umbralEncontrado" | cut -f7 -d\;)
-		./GraLog.sh "AFRAUMBR" "UMBRAL ESTADO $umbralEstado" "WARN"
 
 		#la llamada no es sospechosa si el umbral esta inactivo
 		if [[ "$umbralCodigoArea" = "Inactivo" ]];then
