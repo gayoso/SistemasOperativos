@@ -294,7 +294,6 @@ function buscarOficina {
 # Si detecta mas de un umbral, devuelve el primero encontrado en la tabla de umbrales(de menor id)
 function procesarUmbrales {
 	local umbralID=0
-	local umbralCodigoArea
 	local umbralNumeroLinea
 	local umbralTipoLLamada
 	local umbralCodigoDestino
@@ -302,7 +301,7 @@ function procesarUmbrales {
 	local umbralEstado
 
 	local umbralEncontrado=`grep -m1 -e "^.*;$2;$3;.*" "$MAEDIR_PATH"/"umbral.tab"`
-	if [[ "$?" -eq 0 ]];then
+	if [[ "$umbralEncontrado" != "" ]];then
 		#umbral detectado - analiza si es sospechosa o no
 		umbralID="-1"
 		umbralTipoLLamada=$(echo "$umbralEncontrado" | cut -f4 -d\;)
@@ -311,12 +310,12 @@ function procesarUmbrales {
 		umbralEstado=$(echo "$umbralEncontrado" | cut -f7 -d\;)
 
 		#la llamada no es sospechosa si el umbral esta inactivo
-		if [[ "$umbralCodigoArea" = "Inactivo" ]];then
-			echo "$umbralID"
+		if [[ "$umbralEstado" == "Inactivo" ]];then
+			return "$umbralID"
 		fi
 
 		local stringTipoLLamada
-		if [[ "$1" -eq "0" ]];then
+		if [[ "$1" -eq 0 ]];then
 			#LLAMADA DDI
 			stringTipoLLamada="DDI"
 			if [[ -z "$umbralCodigoDestino" || "$umbralCodigoDestino" -ne "$4" ]];then
@@ -325,7 +324,7 @@ function procesarUmbrales {
 			fi
 		else
 			#LLAMADA DDN O LOCAL
-			if [[ "$1" -eq "1" ]];then
+			if [[ "$1" -eq 1 ]];then
 				stringTipoLLamada="DDN"
 			else
 				stringTipoLLamada="LOC"
@@ -347,8 +346,8 @@ function procesarUmbrales {
 			#LLAMADA SOSPECHOSA
 			umbralID=$(echo "$umbralEncontrado" | cut -f1 -d\;)
 		fi
-	fi	
-	echo "$umbralID"
+	fi
+	return "$umbralID"
 }
 
 # toma como argumento la fecha de inicio obtenida del archivo de input
@@ -444,7 +443,8 @@ function procesarArchivo {
 			continue
 		fi
 
-		local umbralID=$(procesarUmbrales "$tipoLLamada" "$numeroA_area" "$numeroA_numeroLinea" "$numeroB_codigoPais" "$numeroB_codigoArea" "$tiempoConversion")
+		procesarUmbrales "$tipoLLamada" "$numeroA_area" "$numeroA_numeroLinea" "$numeroB_codigoPais" "$numeroB_codigoArea" "$tiempoConversion"
+		local umbralID="$?"
 		if [[ "$umbralID" -eq "-1" ]];then
 			#llamada con umbral y no sospechosa
 			((conUmbral++)) 
